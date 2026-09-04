@@ -1,0 +1,100 @@
+{"time":"2026-07-18T22:11:27.744551+07:00","level":"INFO","msg":"Using userspace networking"}
+{"time":"2026-07-18T22:11:27.746437+07:00","level":"INFO","msg":"restricting tunnel agent to a single device","udid":"00008027-000404D13439002E","tunnelInfoPort":60107}
+{"time":"2026-07-18T22:11:27.746475+07:00","level":"INFO","msg":"Tunnel server started"}
+{"time":"2026-07-18T22:11:28.747569+07:00","level":"INFO","msg":"start tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-18T22:11:28.812427+07:00","level":"INFO","msg":"connect to lockdown tunnel endpoint on device","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","ifacePort":60108}
+{"time":"2026-07-18T22:11:28.845056+07:00","level":"INFO","msg":"userspace tunnel negotiated","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","grantedMtu":1280}
+{"time":"2026-07-18T22:11:41.318146+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59095,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:11:41.318316+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":52882}
+{"time":"2026-07-18T22:11:41.319463+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":52882}
+{"time":"2026-07-18T22:11:41.406425+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59099,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:11:41.40657+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406}
+{"time":"2026-07-18T22:11:41.406568+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59100,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:11:41.406632+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406}
+{"time":"2026-07-18T22:11:41.407586+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49406}
+{"time":"2026-07-18T22:11:41.407713+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49406}
+{"time":"2026-07-18T22:11:41.774539+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59101,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:11:41.774632+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49368}
+{"time":"2026-07-18T22:11:41.775545+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49368}
+{"time":"2026-07-18T22:11:41.850141+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59102,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:11:41.850209+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49404}
+{"time":"2026-07-18T22:11:41.850931+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49404}
+{"time":"2026-07-18T22:12:15.873703+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49404,"error":"TunnelRWCThroughInterface: proxyConns failed: writeto tcp 127.0.0.1:60108->127.0.0.1:59102: read tcp 127.0.0.1:60108->127.0.0.1:59102: use of closed network connection"}
+{"time":"2026-07-18T22:12:27.697155+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59120,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:12:27.697598+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":52882}
+{"time":"2026-07-18T22:12:27.698756+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":52882}
+{"time":"2026-07-18T22:12:27.719841+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59121,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:12:27.719898+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49363}
+{"time":"2026-07-18T22:12:27.721026+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49363}
+{"time":"2026-07-18T22:13:17.04445+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59136,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:13:17.044871+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":52882}
+{"time":"2026-07-18T22:13:17.047747+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":52882}
+{"time":"2026-07-18T22:13:17.124965+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59140,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:13:17.12504+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406}
+{"time":"2026-07-18T22:13:17.125056+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59141,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:13:17.125106+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406}
+{"time":"2026-07-18T22:13:17.12823+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49406}
+{"time":"2026-07-18T22:13:17.128331+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49406}
+{"time":"2026-07-18T22:13:17.225351+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59142,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:13:17.225413+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49368}
+{"time":"2026-07-18T22:13:17.226827+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49368}
+{"time":"2026-07-18T22:13:17.241165+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59143,"Zone":""},"to":{"IP":"127.0.0.1","Port":60108,"Zone":""}}
+{"time":"2026-07-18T22:13:17.241228+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49404}
+{"time":"2026-07-18T22:13:17.24245+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fd58:fb8a:5c18::1","remotePort":49404}
+{"time":"2026-07-18T22:30:54.483954+07:00","level":"ERROR","msg":"userspace tunnel inbound dispatch loop stopped","module":"go-ios/tunnel","error":"framedIPv6Reader: failed to read IPv6 header: EOF"}
+{"time":"2026-07-18T22:30:54.484345+07:00","level":"ERROR","msg":"userspace tunnel data plane stopped unexpectedly, tearing down tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-18T22:30:54.484881+07:00","level":"INFO","msg":"Stopped listening for connections","module":"go-ios/tunnel"}
+{"time":"2026-07-18T22:30:54.484997+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49368,"error":"TunnelRWCThroughInterface: proxyConns failed: readfrom tcp 127.0.0.1:60108->127.0.0.1:59142: read tcp [fd58:fb8a:5c18::2]:53027: operation aborted\nwriteto tcp 127.0.0.1:60108->127.0.0.1:59142: read tcp 127.0.0.1:60108->127.0.0.1:59142: use of closed network connection"}
+{"time":"2026-07-18T22:30:54.48496+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406,"error":"TunnelRWCThroughInterface: proxyConns failed: readfrom tcp 127.0.0.1:60108->127.0.0.1:59141: read tcp [fd58:fb8a:5c18::2]:62282: operation aborted\nwriteto tcp 127.0.0.1:60108->127.0.0.1:59141: read tcp 127.0.0.1:60108->127.0.0.1:59141: use of closed network connection"}
+{"time":"2026-07-18T22:30:54.484961+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49406,"error":"TunnelRWCThroughInterface: proxyConns failed: readfrom tcp 127.0.0.1:60108->127.0.0.1:59140: read tcp [fd58:fb8a:5c18::2]:52936: operation aborted\nwriteto tcp 127.0.0.1:60108->127.0.0.1:59140: read tcp 127.0.0.1:60108->127.0.0.1:59140: use of closed network connection"}
+{"time":"2026-07-18T22:30:54.484984+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fd58:fb8a:5c18::1","port":49404,"error":"TunnelRWCThroughInterface: proxyConns failed: readfrom tcp 127.0.0.1:60108->127.0.0.1:59143: read tcp [fd58:fb8a:5c18::2]:62098: operation aborted\nwriteto tcp 127.0.0.1:60108->127.0.0.1:59143: read tcp 127.0.0.1:60108->127.0.0.1:59143: use of closed network connection"}
+{"time":"2026-07-18T22:30:54.734925+07:00","level":"INFO","msg":"stopping tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-18T22:41:29.732025+07:00","level":"INFO","msg":"start tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-18T22:41:29.863986+07:00","level":"INFO","msg":"connect to lockdown tunnel endpoint on device","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","ifacePort":60109}
+{"time":"2026-07-18T22:41:29.8955+07:00","level":"INFO","msg":"userspace tunnel negotiated","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","grantedMtu":1280}
+{"time":"2026-07-18T22:43:04.532681+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59622,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:43:04.532833+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":52884}
+{"time":"2026-07-18T22:43:04.546752+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":52884}
+{"time":"2026-07-18T22:43:04.66288+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59626,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:43:04.663173+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49679}
+{"time":"2026-07-18T22:43:04.663428+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59627,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:43:04.663671+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49679}
+{"time":"2026-07-18T22:43:04.669155+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49679}
+{"time":"2026-07-18T22:43:04.669156+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49679}
+{"time":"2026-07-18T22:43:04.822862+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59628,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:43:04.823054+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49641}
+{"time":"2026-07-18T22:43:04.828044+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49641}
+{"time":"2026-07-18T22:43:04.876003+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59629,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:43:04.876227+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49677}
+{"time":"2026-07-18T22:43:04.880113+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49677}
+{"time":"2026-07-18T22:47:29.910029+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59873,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:47:29.910246+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":52884}
+{"time":"2026-07-18T22:47:29.914195+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":52884}
+{"time":"2026-07-18T22:47:29.992252+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59874,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:47:29.992376+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49679}
+{"time":"2026-07-18T22:47:29.992615+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59875,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:47:29.992764+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49679}
+{"time":"2026-07-18T22:47:29.994657+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49679}
+{"time":"2026-07-18T22:47:29.994809+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49679}
+{"time":"2026-07-18T22:47:30.106064+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59876,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:47:30.106198+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49641}
+{"time":"2026-07-18T22:47:30.108441+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49641}
+{"time":"2026-07-18T22:47:30.123664+07:00","level":"INFO","msg":"Received connection request","module":"go-ios/tunnel","from":{"IP":"127.0.0.1","Port":59877,"Zone":""},"to":{"IP":"127.0.0.1","Port":60109,"Zone":""}}
+{"time":"2026-07-18T22:47:30.123908+07:00","level":"INFO","msg":"Received connection request to device","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49677}
+{"time":"2026-07-18T22:47:30.126171+07:00","level":"INFO","msg":"Connected to remote","module":"go-ios/tunnel","remoteAddr":"fdda:ee57:ba27::1","remotePort":49677}
+{"time":"2026-07-18T22:57:01.615443+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49679,"error":"TunnelRWCThroughInterface: proxyConns failed: writeto tcp 127.0.0.1:60109->127.0.0.1:59874: read tcp 127.0.0.1:60109->127.0.0.1:59874: use of closed network connection"}
+{"time":"2026-07-18T22:57:01.641444+07:00","level":"ERROR","msg":"userspace tunnel connection failed","module":"go-ios/tunnel","ip":"fdda:ee57:ba27::1","port":49677,"error":"TunnelRWCThroughInterface: proxyConns failed: writeto tcp 127.0.0.1:60109->127.0.0.1:59877: read tcp 127.0.0.1:60109->127.0.0.1:59877: use of closed network connection"}
+{"time":"2026-07-18T23:00:10.72195+07:00","level":"ERROR","msg":"userspace tunnel inbound dispatch loop stopped","module":"go-ios/tunnel","error":"framedIPv6Reader: failed to read IPv6 header: EOF"}
+{"time":"2026-07-18T23:00:10.722157+07:00","level":"ERROR","msg":"userspace tunnel data plane stopped unexpectedly, tearing down tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-18T23:00:10.722381+07:00","level":"INFO","msg":"Stopped listening for connections","module":"go-ios/tunnel"}
+{"time":"2026-07-18T23:00:10.735948+07:00","level":"INFO","msg":"stopping tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-19T22:15:50.247544+07:00","level":"INFO","msg":"start tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-19T22:15:50.542075+07:00","level":"INFO","msg":"connect to lockdown tunnel endpoint on device","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","ifacePort":60110}
+{"time":"2026-07-19T22:15:50.569874+07:00","level":"INFO","msg":"userspace tunnel negotiated","module":"go-ios/tunnel","udid":"00008027-000404D13439002E","grantedMtu":1280}
+{"time":"2026-07-20T10:33:39.632735+07:00","level":"ERROR","msg":"userspace tunnel inbound dispatch loop stopped","module":"go-ios/tunnel","error":"framedIPv6Reader: failed to read IPv6 header: EOF"}
+{"time":"2026-07-20T10:33:39.632945+07:00","level":"ERROR","msg":"userspace tunnel data plane stopped unexpectedly, tearing down tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-20T10:33:39.633257+07:00","level":"INFO","msg":"Stopped listening for connections","module":"go-ios/tunnel"}
+{"time":"2026-07-20T10:33:40.248028+07:00","level":"INFO","msg":"stopping tunnel","module":"go-ios/tunnel","udid":"00008027-000404D13439002E"}
+{"time":"2026-07-20T10:58:48.20795+07:00","level":"WARN","msg":"failed to update tunnels","error":"UpdateTunnels: failed to get list of devices: dial unix /var/run/usbmuxd: connect: connection refused"}
+{"time":"2026-07-20T10:58:49.207948+07:00","level":"WARN","msg":"failed to update tunnels","error":"UpdateTunnels: failed to get list of devices: dial unix /var/run/usbmuxd: connect: connection refused"}
+{"time":"2026-07-20T10:58:50.207945+07:00","level":"WARN","msg":"failed to update tunnels","error":"UpdateTunnels: failed to get list of devices: dial unix /var/run/usbmuxd: connect: connection refused"}

@@ -1,0 +1,2 @@
+- (BOOL)fb_solumate_synthSwipePointArray:(NSArray<NSArray<NSNumber *> *> *)pointArray
+                            error:(NSError **)error;

@@ -1,0 +1,10 @@
+iOS WDA stream server listening on http://127.0.0.1:4200
+WDA base: http://127.0.0.1:8000
+MJPEG source: http://127.0.0.1:8001
+H264 WS source: (not set)
+Scrcpy WS source: (not set)
+WebRTC WHEP URL: (not set)
+Realtime control: tcp://127.0.0.1:8003
+Realtime control auth token: (not set)
+Local H264 fallback: enabled
+Local H264 encoder: libx264 @ 30fps (gop 30) 720x1280 via ffmpeg

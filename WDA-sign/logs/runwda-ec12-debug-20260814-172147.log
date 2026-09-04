@@ -1,0 +1,265 @@
+{"time":"2026-08-14T17:21:47.978004+07:00","level":"WARN","msg":"go-ios agent is not running. You might need to start it with 'ios tunnel start' for ios17+. Use ENABLE_GO_IOS_AGENT=user for userspace tunnel or ENABLE_GO_IOS_AGENT=kernel for kernel tunnel for the experimental daemon mode."}
+{"time":"2026-08-14T17:21:47.979122+07:00","level":"WARN","msg":"failed to get tunnel info","udid":"ec12e067c6cc565d2c43e7bf2aefb95c0420a0e4"}
+{"time":"2026-08-14T17:21:47.979191+07:00","level":"INFO","msg":"Running wda","bundleid":"app.andromeda8191.beaver129","testbundleid":"app.andromeda8191.beaver129","xctestconfig":"WebDriverAgentRunner.xctest"}
+{"time":"2026-08-14T17:21:49.717844+07:00","level":"INFO","msg":"Launching process","module":"go-ios/instruments","channel_id":"com.apple.instruments.server.services.processcontrol","bundleID":"app.andromeda8191.beaver129"}
+{"time":"2026-08-14T17:21:49.826768+07:00","level":"INFO","msg":"Process started successfully","module":"go-ios/instruments","channel_id":"com.apple.instruments.server.services.processcontrol","pid":1409,"bundleID":"app.andromeda8191.beaver129"}
+03:21:49.904 WebDriverAgentRunner-Runner[1409:30684] Linked XCTest.framework from /Developer/Library/Frameworks/XCTest.framework/XCTest, built with Xcode 1330(13E6049a), modified on 16:07:19 Giờ mùa hè Thái Bình Dương Chủ Nhật, ngày 24 tháng 4, 2022
+XCTest.framework bundle version: 0
+03:21:49.905 WebDriverAgentRunner-Runner[1409:30684] System uptime: 2:30:23
+03:21:49.905 WebDriverAgentRunner-Runner[1409:30684] Process arguments: (
+    "/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app/WebDriverAgentRunner-Runner",
+    "-NSTreatUnknownArgumentsAsOpen",
+    NO,
+    "-ApplePersistenceIgnoreState",
+    YES
+)
+03:21:49.905 WebDriverAgentRunner-Runner[1409:30684] Process environment: {
+    "CA_ASSERT_MAIN_THREAD_TRANSACTIONS" = 0;
+    "CA_DEBUG_TRANSACTIONS" = 0;
+    "CFFIXED_USER_HOME" = "/private/var/mobile/Containers/Data/Application/ADE2F291-8411-4BAE-9798-16FD656B955D";
+    "DYLD_INSERT_LIBRARIES" = "/Developer/usr/lib/libMainThreadChecker.dylib";
+    "H264_BITRATE" = 1800000;
+    "H264_FPS" = 15;
+    "H264_GOP" = 3;
+    "H264_MAX_HEIGHT" = 960;
+    "H264_MAX_WIDTH" = 960;
+    "H264_QUALITY" = 30;
+    "H264_SERVER_PORT" = 8002;
+    HOME = "/private/var/mobile/Containers/Data/Application/ADE2F291-8411-4BAE-9798-16FD656B955D";
+    LOGNAME = mobile;
+    "MJPEG_FIX_ORIENTATION" = true;
+    "MJPEG_FRAME_TIMEOUT" = "0.45";
+    "MJPEG_SCALING_FACTOR" = 45;
+    "MJPEG_SERVER_FRAMERATE" = 30;
+    "MJPEG_SERVER_PORT" = 8001;
+    "MJPEG_SERVER_SCREENSHOT_QUALITY" = 20;
+    "MTC_CRASH_ON_REPORT" = 1;
+    NSUnbufferedIO = YES;
+    "OS_ACTIVITY_DT_MODE" = YES;
+    PATH = "/usr/bin:/bin:/usr/sbin:/sbin";
+    SHELL = "/bin/sh";
+    "SOLUMATE_WDA_ENABLE_POINT_ARRAY" = 1;
+    "SOLUMATE_WDA_SWIPE_SECRET" = SolumateSwipeLocal2026;
+    "SQLITE_ENABLE_THREAD_ASSERTIONS" = 1;
+    TMPDIR = "/private/var/mobile/Containers/Data/Application/ADE2F291-8411-4BAE-9798-16FD656B955D/tmp/";
+    USER = mobile;
+    "USE_PORT" = 8000;
+    "WDA_STARTUP_PASSWORD" = SolumateIos;
+    XCTestBundlePath = "/private/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app/PlugIns/WebDriverAgentRunner.xctest";
+    XCTestConfigurationFilePath = "/private/var/mobile/Containers/Data/Application/ADE2F291-8411-4BAE-9798-16FD656B955D/tmp/a9742bc1-b827-4318-83bb-1da4c7d90310.xctestconfiguration";
+    XCTestSessionIdentifier = "a9742bc1-b827-4318-83bb-1da4c7d90310";
+    "XPC_FLAGS" = 0x0;
+    "XPC_SERVICE_NAME" = "UIKitApplication:app.andromeda8191.beaver129[36f6][rb-legacy]";
+    "__CF_USER_TEXT_ENCODING" = "0x1F5:0:0";
+}
+03:21:49.905 WebDriverAgentRunner-Runner[1409:30684] App Sandbox active: YES
+03:21:49.905 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'preparing IDE session' with timeout 600.00
+03:21:49.906 WebDriverAgentRunner-Runner[1409:30684] Exchanging capabilities with testmanagerd
+03:21:49.909 WebDriverAgentRunner-Runner[1409:30699] Received capabilities for testmanagerd: <XCTCapabilities: 0x2838045f0>: {
+    "Siri request with audio URL capability" = 1;
+    "Siri request with text capability" = 1;
+    XCTProtectedResourceBluetoothIdentifier = 1;
+    XCTProtectedResourceCalendarIdentifier = 1;
+    XCTProtectedResourceCameraIdentifier = 1;
+    XCTProtectedResourceContactsIdentifier = 1;
+    XCTProtectedResourceFocusIdentifier = 1;
+    XCTProtectedResourceHealthIdentifier = 1;
+    XCTProtectedResourceHomeKitIdentifier = 1;
+    XCTProtectedResourceKeyboardNetworkIdentifier = 1;
+    XCTProtectedResourceLocalNetworkIdentifier = 1;
+    XCTProtectedResourceLocationIdentifier = 1;
+    XCTProtectedResourceMediaLibraryIdentifier = 1;
+    XCTProtectedResourceMicrophoneIdentifier = 1;
+    XCTProtectedResourcePhotosIdentifier = 1;
+    XCTProtectedResourceRemindersIdentifier = 1;
+    XCTProtectedResourceUserTrackingIdentifier = 1;
+    "element at point capability" = 1;
+    "enable automation mode" = 1;
+    "enable faux collection view cells capability" = 1;
+    "fetch element attributes capability" = 2;
+    "fetch parameterized attribute capability" = 3;
+    "get / set appearance mode" = 1;
+    "get Siri enabled status capability" = 1;
+    "get device orientation capability" = 1;
+    "inject assistant recognition audio paths capability" = 1;
+    "inject assistant recognition strings capability" = 1;
+    "launch application capability" = 1;
+    "load accessibility capability" = 1;
+    "look up bundle id capability" = 1;
+    "monitor application capability" = 1;
+    "override implicit event confirmation interval" = 1;
+    "perform AX action capability" = 1;
+    "perform device event capability" = 1;
+    "press with pressure capability" = 1;
+    "provides client state updates" = 1;
+    "register for AX notification capability" = 1;
+    "request DT service hub connection capability" = 2;
+    "request a specific image format/XCTCapabilityImageFormat_HEIC" = 1;
+    "request a specific image format/XCTCapabilityImageFormat_JPEG" = 1;
+    "request a specific image format/XCTCapabilityImageFormat_PNG" = 1;
+    "request automation session capability" = 2;
+    "request background assertion capability" = 2;
+    "request element snapshot capability" = 3;
+    "request screenshot capability" = 3;
+    "request spindump capability" = 1;
+    "request unsupported bundle identifiers for automation sessions" = 2;
+    "run an accessibility audit" = 1;
+    "send string capability" = 1;
+    "set AX timeout capability" = 1;
+    "set device orientation capability" = 1;
+    "set element attribute capability" = 1;
+    "signpost listening" = 1;
+    "snapshot request runtime issue reporting" = 1;
+    "snapshot request runtime issue reporting/automation type mismatch" = 1;
+    "synthesize event capability" = 1;
+    "system provides kAXXCAttributeBannerIsStickyAttribute" = 1;
+    "terminate application capability" = 1;
+    "toggle localizable strings data gathering capability" = 1;
+    "transfer harness connection socket capability" = 2;
+    "unload accessibility capability" = 1;
+    "unregister for AX notification capability" = 1;
+}
+03:21:49.909 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110e0d0, state: XCTWaiterStateInProgress> entering wait loop for 600.00s with expectations: `preparing IDE session`
+03:21:49.909 WebDriverAgentRunner-Runner[1409:30699] Requesting serialized transport wrapper for IDE connection
+03:21:49.910 WebDriverAgentRunner-Runner[1409:30699] Creating transport with received transport data
+03:21:49.910 WebDriverAgentRunner-Runner[1409:30699] Creating connection with transport <DTXFileDescriptorTransport: 0x28110e450>
+03:21:49.911 WebDriverAgentRunner-Runner[1409:30699] Creating the proxy channel with connection <DTXConnection 0x280508780 : x1>
+03:21:49.911 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110e0d0, state: XCTWaiterStateFinished>
+03:21:49.912 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'requesting test configuration' with timeout 600.00
+03:21:49.912 WebDriverAgentRunner-Runner[1409:30684] Notifying test runner ready
+03:21:49.913 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110a060, state: XCTWaiterStateInProgress> entering wait loop for 600.00s with expectations: `requesting test configuration`
+03:21:49.914 WebDriverAgentRunner-Runner[1409:30704] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] app.andromeda8191.beaver129@/private/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app pid: 1409 state: running background
+03:21:49.917 WebDriverAgentRunner-Runner[1409:30699] Received test runner ready reply. Waiting for request to start running tests.
+03:21:49.917 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110a060, state: XCTWaiterStateFinished>
+03:21:49.917 WebDriverAgentRunner-Runner[1409:30684] Loading test bundle at: file:///private/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app/PlugIns/WebDriverAgentRunner.xctest/
+03:21:49.978 WebDriverAgentRunner-Runner[1409:30684] Finished loading test bundle
+03:21:49.978 WebDriverAgentRunner-Runner[1409:30684] Running tests with active test configuration: <XCTestConfiguration: 0x102f05900>
+	                  testBundleURL:file:///private/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app/PlugIns/WebDriverAgentRunner.xctest
+	         testBundleRelativePath:(null)
+	              productModuleName:WebDriverAgentRunner
+	                    testsToSkip:
+	                     testsToRun:(null)
+	             reportResultsToIDE:YES
+	               testsDrivenByIDE:no
+	              sessionIdentifier:A9742BC1-B827-4318-83BB-1DA4C7D90310
+	      disablePerformanceMetrics:no
+	treatMissingBaselinesAsFailures:no
+	                baselineFileURL:(null)
+	       baselineFileRelativePath:(null)
+	          targetApplicationPath:/private/var/containers/Bundle/Application/97E43E73-C114-4873-A3B1-A750757E215E/WebDriverAgentRunner-Runner.app
+	      targetApplicationBundleID:app.andromeda8191.beaver129
+	 testApplicationDependencies:(null)
+	 testApplicationUserOverrides:(null)
+	     targetApplicationArguments:(null)
+	   targetApplicationEnvironment:(null)
+	                  reportActivities:YES
+	          testsMustRunOnMainThread:YES
+	            initializeForUITesting:YES
+	          initializeForMultiDevice:no
+	    shouldExtractMultiDeviceRequirements:no
+	   multiDeviceRequirementsFilePath:(null)
+	            traceCollectionEnabled:(null)
+	 enablePerformanceTestsDiagnostics:(null)
+	 aggregateStatisticsBeforeCrash:
+{
+    XCSuiteRecordsKey =     {
+    };
+}
+	        automationFrameworkPath:/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+	                     emitOSLogs:no
+	       systemAttachmentLifetime:2
+	         userAttachmentLifetime:0
+	   gatherLocalizableStringsData:no
+	          testExecutionOrdering:alphabetical
+	    randomExecutionOrderingSeed:(null)
+	               repetitionPolicy:<XCTRepetitionPolicy: 0x283a092c0>
+	            mode:None
+	            maximumIterations:1
+	            repeatInNewRunnerProcess:NO
+
+	            testTimeoutsEnabled:NO
+	 defaultTestExecutionTimeAllowance:600
+	 maximumTestExecutionTimeAllowance:0
+	                IDECapabilities:<XCTCapabilities: 0x2838099e0>: {
+    "XCTIssue capability" = 1;
+    "daemon container sandbox extension" = 1;
+    "delayed attachment transfer" = 1;
+    "expected failure test capability" = 1;
+    "request diagnostics for specific devices" = 1;
+    "skipped test capability" = 1;
+    "test case run configurations" = 1;
+    "test iterations" = 1;
+    "test timeout capability" = 1;
+    "ubiquitous test identifiers" = 1;
+}
+	         applicationBundleInfos:(null)
+
+03:21:49.979 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110ea00, state: XCTWaiterStateInProgress> entering wait loop for 600.00s with expectations: `requesting ready for testing`
+03:21:50.922 WebDriverAgentRunner-Runner[1409:30704] _IDE_startExecutingTestPlanWithProtocolVersion:36
+03:21:50.924 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110ea00, state: XCTWaiterStateFinished>
+03:21:50.925 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110aa70, state: XCTWaiterStateResolved> entering wait loop for 600.00s with expectations: `IDE proxy`
+03:21:50.926 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110aa70, state: XCTWaiterStateFinished>
+03:21:50.928 WebDriverAgentRunner-Runner[1409:30684] Initializing for UI testing.
+03:21:50.943 WebDriverAgentRunner-Runner[1409:30684] Linked XCTAutomationSupport.framework from /Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework/XCTAutomationSupport, built with Xcode 1330(13E6049a), modified on 16:07:20 Giờ mùa hè Thái Bình Dương Chủ Nhật, ngày 24 tháng 4, 2022
+XCTAutomationSupport.framework bundle version: 0
+03:21:50.944 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110abc0, state: XCTWaiterStateResolved> entering wait loop for 60.00s with expectations: `initiating daemon session`
+03:21:50.944 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110abc0, state: XCTWaiterStateFinished>
+03:21:50.945 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'enabling automation mode' with timeout 60.00
+03:21:50.947 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110aca0, state: XCTWaiterStateInProgress> entering wait loop for 60.00s with expectations: `enabling automation mode`
+03:21:50.968 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110aca0, state: XCTWaiterStateFinished>
+03:21:50.969 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'loading Accessibility' with timeout 70.00
+03:21:50.971 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28110aca0, state: XCTWaiterStateInProgress> entering wait loop for 70.00s with expectations: `loading Accessibility`
+03:21:51.306 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28110aca0, state: XCTWaiterStateFinished>
+03:21:51.307 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'enabling localized string gathering' with timeout 70.00
+03:21:51.309 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281107a30, state: XCTWaiterStateInProgress> entering wait loop for 70.00s with expectations: `enabling localized string gathering`
+03:21:51.311 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281107a30, state: XCTWaiterStateFinished>
+03:21:51.311 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'setting AX timeout to 60.00s' with timeout 65.00
+03:21:51.312 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281101260, state: XCTWaiterStateInProgress> entering wait loop for 65.00s with expectations: `setting AX timeout to 60.00s`
+03:21:51.313 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281101260, state: XCTWaiterStateFinished>
+03:21:51.313 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'registering for kAXUserTestingNotification' with timeout 65.00
+03:21:51.314 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281101260, state: XCTWaiterStateInProgress> entering wait loop for 65.00s with expectations: `registering for kAXUserTestingNotification`
+03:21:51.315 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281101260, state: XCTWaiterStateFinished>
+03:21:51.316 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'registering for kAXAlertNotification' with timeout 65.00
+03:21:51.316 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281101260, state: XCTWaiterStateInProgress> entering wait loop for 65.00s with expectations: `registering for kAXAlertNotification`
+03:21:51.317 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281101260, state: XCTWaiterStateFinished>
+03:21:51.318 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'registering for kAXPidStatusChangedNotification' with timeout 65.00
+03:21:51.318 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281101260, state: XCTWaiterStateInProgress> entering wait loop for 65.00s with expectations: `registering for kAXPidStatusChangedNotification`
+03:21:51.319 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281101260, state: XCTWaiterStateFinished>
+03:21:51.320 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'requesting background assertion for test process' with timeout 30.00
+03:21:51.322 WebDriverAgentRunner-Runner[1409:30704] Got reply for background assertion for 1409, acquired: YES.
+03:21:51.322 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281101260, state: XCTWaiterStateInProgress> entering wait loop for 30.00s with expectations: `requesting background assertion for test process`
+03:21:51.323 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281101260, state: XCTWaiterStateFinished>
+03:21:51.324 WebDriverAgentRunner-Runner[1409:30684] Test runner is already executing in the background.
+03:21:51.324 WebDriverAgentRunner-Runner[1409:30684] Done initializing for UI testing.
+03:21:51.325 WebDriverAgentRunner-Runner[1409:30684] Loading test suite...
+03:21:51.366 WebDriverAgentRunner-Runner[1409:30684] Finished loading test suite, took 0.042s
+03:21:51.367 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281108070, state: XCTWaiterStateResolved> entering wait loop for 598.53s with expectations: `preparing execution worker`
+03:21:51.367 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281108070, state: XCTWaiterStateFinished>
+03:21:51.368 WebDriverAgentRunner-Runner[1409:30684] Entering test execution event loop
+03:21:51.368 WebDriverAgentRunner-Runner[1409:30684] -[XCTRunnerIDESession testBundleWillStart:]
+03:21:51.368 WebDriverAgentRunner-Runner[1409:30684] Running suite...
+03:21:51.369 WebDriverAgentRunner-Runner[1409:30684] -[XCTRunnerIDESession testSuiteWillStart:]
+03:21:51.370 WebDriverAgentRunner-Runner[1409:30684] -[XCTRunnerIDESession testSuiteWillStart:]
+03:21:51.371 WebDriverAgentRunner-Runner[1409:30684] -[XCTRunnerIDESession testSuiteWillStart:]
+03:21:51.371 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f218c0> started activity <XCActivityRecord: 0x28191d9f0> 2026-08-14 10:21:51 +0000: Suite Set Up
+03:21:51.930 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f218c0> finished activity <XCActivityRecord: 0x28191d9f0> 2026-08-14 10:21:51 +0000: Suite Set Up (0.558788s)
+03:21:51.933 WebDriverAgentRunner-Runner[1409:30684] -[XCTRunnerIDESession testCaseWillStart:] UITestingUITests testRunner
+03:21:51.935 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f2bd80> started activity <XCActivityRecord: 0x281901540> 2026-08-14 10:21:51 +0000: Start Test at 2026-08-14 03:21:51.934
+03:21:51.936 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'getting screen identifiers' with timeout 30.00
+03:21:51.936 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281102a70, state: XCTWaiterStateResolved> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+03:21:51.937 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281102a70, state: XCTWaiterStateFinished>
+03:21:51.937 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f2bd80> finished activity <XCActivityRecord: 0x281901540> 2026-08-14 10:21:51 +0000: Start Test at 2026-08-14 03:21:51.934 (0.00238597s)
+03:21:51.938 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f2bd80> started activity <XCActivityRecord: 0x281900460> 2026-08-14 10:21:51 +0000: Set Up
+03:21:51.940 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281107d40, state: XCTWaiterStateResolved> entering wait loop for 2592000.00s with expectations: `failable invocation block completion`
+03:21:51.940 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281107d40, state: XCTWaiterStateFinished>
+03:21:51.940 WebDriverAgentRunner-Runner[1409:30684] <XCTContext: 0x282f2bd80> finished activity <XCActivityRecord: 0x281900460> 2026-08-14 10:21:51 +0000: Set Up (0.00211406s)
+03:21:51.942 WebDriverAgentRunner-Runner[1409:30684] _assertObjectsInvalidAfterScope
+03:21:52.040 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'getting screen identifiers' with timeout 30.00
+03:21:52.040 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x28111ddc0, state: XCTWaiterStateResolved> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+03:21:52.040 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x28111ddc0, state: XCTWaiterStateFinished>
+03:21:52.043 WebDriverAgentRunner-Runner[1409:30684] Creating future for 'getting screen identifiers' with timeout 30.00
+03:21:52.043 WebDriverAgentRunner-Runner[1409:30684] <XCTWaiter: 0x281118070, state: XCTWaiterStateResolved> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+03:21:52.043 WebDriverAgentRunner-Runner[1409:30684] Returning result XCTWaiterResultCompleted for waiter <XCTWaiter: 0x281118070, state: XCTWaiterStateFinished>
+{"time":"2026-08-14T17:21:59.68671+07:00","level":"INFO","msg":"os signal 15 received, closing..."}
+{"time":"2026-08-14T17:21:59.686778+07:00","level":"INFO","msg":"Done Closing"}
+{"time":"2026-08-14T17:21:59.686811+07:00","level":"INFO","msg":"Killing test runner","module":"go-ios/testmanagerd","udid":"ec12e067c6cc565d2c43e7bf2aefb95c0420a0e4","pid":1409}

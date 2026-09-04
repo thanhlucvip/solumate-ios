@@ -1,0 +1,691 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>XS Max PointArray Touchpad</title>
+  <style>
+    :root {
+      --bg: #091220;
+      --panel: #132742;
+      --line: #2f5b8f;
+      --text: #eaf4ff;
+      --sub: #9db3cf;
+      --ok: #3ddc97;
+      --warn: #f2bf45;
+      --down: #37a2ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 700px at 20% 0%, #16335c 0%, #0f2440 45%, var(--bg) 100%);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .app {
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr 1fr auto;
+      gap: 8px;
+      background: color-mix(in srgb, var(--panel) 92%, #000 8%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1.8fr auto;
+      gap: 8px;
+      background: color-mix(in srgb, var(--panel) 92%, #000 8%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .field > span {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    input, button {
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0f2139;
+      color: var(--text);
+      font-size: 14px;
+      padding: 9px 10px;
+      outline: none;
+      min-width: 0;
+    }
+
+    input:focus {
+      border-color: #5ea7ff;
+      box-shadow: 0 0 0 2px #2f6ab033;
+    }
+
+    button {
+      cursor: pointer;
+      background: linear-gradient(180deg, #24508b, #1b406d);
+      font-weight: 600;
+      align-self: end;
+      white-space: nowrap;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--sub);
+      min-height: 20px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #6f7f96;
+      box-shadow: 0 0 0 3px #ffffff10;
+    }
+
+    .dot.ok { background: var(--ok); }
+    .dot.warn { background: var(--warn); }
+
+    .pad-wrap {
+      width: 100%;
+      display: grid;
+      place-items: center;
+      min-height: 0;
+    }
+
+    .pad {
+      position: relative;
+      width: min(96vw, 430px);
+      height: min(calc(96vw * 896 / 414), calc(100vh - 245px));
+      max-height: 88vh;
+      border-radius: 22px;
+      background: linear-gradient(160deg, #0e1f36 0%, #112a47 45%, #14335c 100%);
+      border: 1px solid #2f5b8f;
+      box-shadow: inset 0 0 0 1px #7eb2ff1c, 0 10px 30px #00000044;
+      touch-action: none;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .pad::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, #ffffff10 1px, transparent 1px),
+        linear-gradient(to bottom, #ffffff10 1px, transparent 1px);
+      background-size: 34px 34px;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .pad::after {
+      content: "PointArray Trackpad (414 x 896)";
+      position: absolute;
+      left: 10px;
+      top: 8px;
+      color: #b7cff0;
+      font-size: 11px;
+      letter-spacing: 0.2px;
+      pointer-events: none;
+    }
+
+    .pointer {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #37a2ff44;
+      border: 2px solid #62b8ff;
+      box-shadow: 0 0 24px #37a2ff90;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      display: none;
+    }
+
+    .pointer.down { display: block; }
+
+    .footer {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1.4fr;
+      gap: 8px;
+      color: var(--sub);
+      font-size: 12px;
+      background: color-mix(in srgb, var(--panel) 92%, #000 8%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .logs {
+      background: color-mix(in srgb, var(--panel) 92%, #000 8%);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .logs-title {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .logs-body {
+      margin: 0;
+      max-height: 130px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #d7ebff;
+      background: #0d1b30;
+      border: 1px solid #26486f;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #d7ebff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+      display: block;
+    }
+
+    @media (max-width: 980px) {
+      .controls { grid-template-columns: 1fr 1fr 1fr; }
+      .row2 { grid-template-columns: 1fr; }
+      .footer { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="controls">
+      <label class="field">
+        <span>API Base</span>
+        <input id="apiBase" value="" placeholder="http://127.0.0.1:3000" />
+      </label>
+      <label class="field">
+        <span>Device W</span>
+        <input id="devW" type="number" min="1" step="1" value="414" />
+      </label>
+      <label class="field">
+        <span>Device H</span>
+        <input id="devH" type="number" min="1" step="1" value="896" />
+      </label>
+      <label class="field">
+        <span>Sample ms</span>
+        <input id="sampleMs" type="number" min="1" step="1" value="16" />
+      </label>
+      <button id="btnConnect" type="button">Connect</button>
+    </section>
+
+    <section class="row2">
+      <label class="field">
+        <span>st token (optional, same as Solumate)</span>
+        <input id="stToken" value="bLCiR99bCNENLeSiPVIjZHT70rx6ZAk/+RgXknPz6KEIqkpHKMZtTz+FXBreyMTF" />
+      </label>
+      <div class="status">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">Not connected</span>
+      </div>
+    </section>
+
+    <section class="pad-wrap">
+      <div id="pad" class="pad">
+        <div id="pointer" class="pointer"></div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div>Gesture: <span id="gestureState" class="mono">idle</span></div>
+      <div>Last send: <span id="lastSend" class="mono">-</span></div>
+      <div>Last ack: <span id="lastAck" class="mono">-</span></div>
+      <div>Last error: <span id="lastErr" class="mono">-</span></div>
+    </section>
+
+    <section class="logs">
+      <div class="logs-title">Gesture logs</div>
+      <pre id="eventLog" class="logs-body">-</pre>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const el = {
+        apiBase: document.getElementById('apiBase'),
+        devW: document.getElementById('devW'),
+        devH: document.getElementById('devH'),
+        sampleMs: document.getElementById('sampleMs'),
+        stToken: document.getElementById('stToken'),
+        btnConnect: document.getElementById('btnConnect'),
+        statusDot: document.getElementById('statusDot'),
+        statusText: document.getElementById('statusText'),
+        pad: document.getElementById('pad'),
+        pointer: document.getElementById('pointer'),
+        gestureState: document.getElementById('gestureState'),
+        lastSend: document.getElementById('lastSend'),
+        lastAck: document.getElementById('lastAck'),
+        lastErr: document.getElementById('lastErr'),
+        eventLog: document.getElementById('eventLog'),
+      };
+
+      const TAP_THRESHOLD = 10;
+      const DEVICE_UID = detectDeviceUid();
+      const API_AUTH_TOKEN = initAuthToken();
+
+      const st = {
+        connected: false,
+        isDown: false,
+        pointerId: null,
+        startPoint: null,
+        lastPoint: null,
+        totalDistance: 0,
+        points: [],
+        sampleDistance: 2,
+        reqSeq: 1,
+      };
+
+      function now() { return Date.now(); }
+
+      function detectDeviceUid() {
+        const queryUid = new URLSearchParams(location.search).get('uid');
+        if (queryUid && queryUid.trim()) return queryUid.trim();
+        const segs = location.pathname.split('/').filter(Boolean);
+        if (!segs.length) return '';
+        const first = decodeURIComponent(segs[0]);
+        if (!first || first.includes('.') || first === 'trackpad-xsmax' || first === 'trackpad_xsmax.html') return '';
+        return first;
+      }
+
+      function storageKey(name) {
+        if (!DEVICE_UID) return `trackpad_${name}`;
+        return `trackpad_${name}_${DEVICE_UID}`;
+      }
+
+      function withUid(url) {
+        if (!DEVICE_UID) return url;
+        if (/[?&]uid=/.test(url)) return url;
+        return `${url}${url.includes('?') ? '&' : '?'}uid=${encodeURIComponent(DEVICE_UID)}`;
+      }
+
+      function withAuthQuery(url) {
+        if (!API_AUTH_TOKEN) return url;
+        return `${url}${url.includes('?') ? '&' : '?'}auth=${encodeURIComponent(API_AUTH_TOKEN)}`;
+      }
+
+      function logGesture(event, data) {
+        const ts = new Date().toISOString();
+        const payload = data || {};
+        console.log(`[trackpad][${ts}] ${event}`, payload);
+        if (el.eventLog) {
+          const line = `${ts} ${event} ${JSON.stringify(payload)}`;
+          el.eventLog.textContent = `${line}\n${el.eventLog.textContent}`.slice(0, 16000);
+        }
+        if (event.startsWith('pointer.')) {
+          sendTrackpadLog(event, payload, ts);
+        }
+      }
+
+      function sendTrackpadLog(event, data, ts) {
+        const body = JSON.stringify({ event, data: data || {}, ts });
+        const url = withAuthQuery(apiUrl('/api/trackpad-log'));
+        try {
+          if (navigator.sendBeacon) {
+            const blob = new Blob([body], { type: 'application/json' });
+            navigator.sendBeacon(url, blob);
+            return;
+          }
+        } catch (_) {}
+        fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body,
+          keepalive: true,
+        }).catch(() => {});
+      }
+
+      function setStatus(text, cls) {
+        el.statusText.textContent = text;
+        el.statusDot.className = `dot ${cls || ''}`.trim();
+      }
+
+      function setGesture(text) {
+        el.gestureState.textContent = text;
+      }
+
+      function getApiBase() {
+        const raw = String(el.apiBase.value || '').trim();
+        if (!raw) return `${location.protocol}//${location.host}`;
+        return raw.replace(/\/+$/, '');
+      }
+
+      function apiUrl(path) {
+        return withUid(`${getApiBase()}${path}`);
+      }
+
+      async function apiPost(path, payload) {
+        const resp = await fetch(apiUrl(path), {
+          method: 'POST',
+          headers: authHeaders({ 'content-type': 'application/json' }),
+          body: JSON.stringify(payload || {}),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.ok === false) {
+          throw new Error(data.error || `${resp.status} ${resp.statusText}`);
+        }
+        return data;
+      }
+
+      function authHeaders(headers) {
+        if (!API_AUTH_TOKEN) return headers;
+        return { ...headers, Authorization: `Bearer ${API_AUTH_TOKEN}` };
+      }
+
+      function initAuthToken() {
+        try {
+          const params = new URLSearchParams(location.search);
+          const token = String(params.get('auth') || params.get('token') || '').trim();
+          if (token) {
+            localStorage.setItem(storageKey('api_auth_token'), token);
+            params.delete('auth');
+            params.delete('token');
+            const nextQuery = params.toString();
+            history.replaceState(
+              null,
+              '',
+              `${location.pathname}${nextQuery ? `?${nextQuery}` : ''}${location.hash}`,
+            );
+            return token;
+          }
+          return String(localStorage.getItem(storageKey('api_auth_token')) || '').trim();
+        } catch (_) {
+          return '';
+        }
+      }
+
+      async function connect() {
+        setStatus('Connecting...', 'warn');
+        try {
+          const result = await apiPost('/api/connect', {});
+          const size = result?.screen?.screenSize;
+          if (size?.width && size?.height) {
+            el.devW.value = Number(size.width);
+            el.devH.value = Number(size.height);
+          }
+          st.connected = true;
+          setStatus(`Connected (sid: ${result.sessionId || 'n/a'})`, 'ok');
+          el.lastErr.textContent = '-';
+          logGesture('connect.ok', { sessionId: result.sessionId || null, screen: size || null });
+          localStorage.setItem(storageKey('api_base'), getApiBase());
+          localStorage.setItem(storageKey('st_token'), String(el.stToken.value || ''));
+          localStorage.setItem(storageKey('sample_ms'), String(Math.max(1, Number(el.sampleMs.value) || 16)));
+        } catch (e) {
+          st.connected = false;
+          setStatus('Connect failed', 'warn');
+          el.lastErr.textContent = e.message;
+          logGesture('connect.err', { error: e.message });
+        }
+      }
+
+      function getTargetSize() {
+        const w = Math.max(1, Number(el.devW.value) || 414);
+        const h = Math.max(1, Number(el.devH.value) || 896);
+        return { w, h };
+      }
+
+      function toDevicePoint(evt) {
+        const rect = el.pad.getBoundingClientRect();
+        const localX = Math.min(Math.max(evt.clientX - rect.left, 0), rect.width);
+        const localY = Math.min(Math.max(evt.clientY - rect.top, 0), rect.height);
+        const { w, h } = getTargetSize();
+        return {
+          localX,
+          localY,
+          x: Math.round((localX / rect.width) * w),
+          y: Math.round((localY / rect.height) * h),
+          t: now(),
+        };
+      }
+
+      function drawPointer(localX, localY, down) {
+        el.pointer.style.left = `${localX}px`;
+        el.pointer.style.top = `${localY}px`;
+        el.pointer.className = down ? 'pointer down' : 'pointer';
+      }
+
+      function queuePoint(p, force = false) {
+        const last = st.points[st.points.length - 1];
+        if (last && last.x === p.x && last.y === p.y) {
+          last.t = p.t;
+          return;
+        }
+
+        if (!force && last) {
+          const sampleMs = Math.max(1, Number(el.sampleMs.value) || 16);
+          const dt = p.t - last.t;
+          const d = Math.hypot(p.x - last.x, p.y - last.y);
+          if (dt < sampleMs && d < st.sampleDistance) {
+            return;
+          }
+        }
+
+        if (st.lastPoint) {
+          st.totalDistance += Math.hypot(p.x - st.lastPoint.x, p.y - st.lastPoint.y);
+        }
+        st.lastPoint = p;
+        st.points.push(p);
+      }
+
+      function buildPointArray(points) {
+        if (!Array.isArray(points) || points.length < 2) return null;
+        const baseT = points[0].t;
+        const arr = [[points[0].x, points[0].y]];
+        for (let i = 1; i < points.length; i += 1) {
+          const p = points[i];
+          const dt = Math.max(0, (p.t - baseT) / 1000);
+          arr.push([p.x, p.y, Number(dt.toFixed(3))]);
+        }
+
+        const last = points[points.length - 1];
+        const dtLast = Math.max(0, (last.t - baseT) / 1000);
+        arr.push([last.x, last.y, Number(dtLast.toFixed(3))]);
+        return arr;
+      }
+
+      async function sendPointArray(points) {
+        const pointArray = buildPointArray(points);
+        if (!pointArray || pointArray.length < 2) return;
+
+        const payload = { pointArray };
+        const stToken = String(el.stToken.value || '').trim();
+        if (stToken) payload.st = stToken;
+
+        const seq = st.reqSeq++;
+        el.lastSend.textContent = `#${seq} pointArray(${pointArray.length}) (${pointArray[0][0]},${pointArray[0][1]}) -> (${pointArray[pointArray.length - 1][0]},${pointArray[pointArray.length - 1][1]})`;
+        logGesture('send.pointArray', {
+          seq,
+          points: pointArray.length,
+          start: pointArray[0],
+          end: pointArray[pointArray.length - 1],
+        });
+
+        const result = await apiPost('/api/point-array', payload);
+        el.lastAck.textContent = `${result.command || '/wda/swipe/pointArray'} ok`;
+        el.lastErr.textContent = '-';
+        logGesture('ack.pointArray', { seq, command: result.command || '/wda/swipe/pointArray', ok: true });
+      }
+
+      async function sendTap(point) {
+        const seq = st.reqSeq++;
+        el.lastSend.textContent = `#${seq} tap(${point.x},${point.y})`;
+        logGesture('send.tap', { seq, x: point.x, y: point.y });
+        const payload = {
+          x: point.x,
+          y: point.y,
+          duration: 0.09,
+        };
+        const stToken = String(el.stToken.value || '').trim();
+        if (stToken) payload.st = stToken;
+        const result = await apiPost('/api/tap', payload);
+        el.lastAck.textContent = `${result.result ? 'tap ok' : 'tap sent'}`;
+        el.lastErr.textContent = '-';
+        logGesture('ack.tap', { seq, x: point.x, y: point.y, ok: true });
+      }
+
+      async function onPointerDown(evt) {
+        evt.preventDefault();
+        if (!st.connected) {
+          await connect();
+          if (!st.connected) return;
+        }
+
+        el.pad.setPointerCapture?.(evt.pointerId);
+        st.isDown = true;
+        st.pointerId = evt.pointerId;
+        st.startPoint = null;
+        st.lastPoint = null;
+        st.totalDistance = 0;
+        st.points = [];
+
+        const p = toDevicePoint(evt);
+        st.startPoint = p;
+        queuePoint(p);
+        drawPointer(p.localX, p.localY, true);
+        setGesture(`down @ (${p.x},${p.y})`);
+        logGesture('pointer.down', { pointerId: evt.pointerId, x: p.x, y: p.y });
+      }
+
+      function onPointerMove(evt) {
+        if (!st.isDown) return;
+        if (st.pointerId != null && evt.pointerId !== st.pointerId) return;
+        evt.preventDefault();
+
+        const p = toDevicePoint(evt);
+        const prevCount = st.points.length;
+        queuePoint(p, false);
+        drawPointer(p.localX, p.localY, true);
+        setGesture(`move @ (${p.x},${p.y}) d=${Math.round(st.totalDistance)}`);
+        if (st.points.length !== prevCount) {
+          logGesture('pointer.move', { pointerId: evt.pointerId, x: p.x, y: p.y, d: Math.round(st.totalDistance) });
+        }
+      }
+
+      async function onPointerUp(evt) {
+        if (!st.isDown) return;
+        if (st.pointerId != null && evt.pointerId !== st.pointerId) return;
+        evt.preventDefault();
+
+        const p = toDevicePoint(evt);
+        queuePoint(p, true);
+        drawPointer(p.localX, p.localY, false);
+
+        st.isDown = false;
+
+        try {
+          if (st.totalDistance < TAP_THRESHOLD) {
+            setGesture(`tap @ (${p.x},${p.y})`);
+            logGesture('pointer.up.tap', { pointerId: evt.pointerId, x: p.x, y: p.y, distance: Math.round(st.totalDistance) });
+            await sendTap(p);
+          } else {
+            setGesture(`up @ (${p.x},${p.y}) d=${Math.round(st.totalDistance)}`);
+            logGesture('pointer.up.swipe', {
+              pointerId: evt.pointerId,
+              x: p.x,
+              y: p.y,
+              distance: Math.round(st.totalDistance),
+              sampled: st.points.length,
+            });
+            await sendPointArray(st.points);
+          }
+          logGesture('pointer.up.done', { pointerId: evt.pointerId });
+        } catch (e) {
+          el.lastErr.textContent = e.message || String(e);
+          logGesture('pointer.up.err', { pointerId: evt.pointerId, error: e.message || String(e) });
+        } finally {
+          st.pointerId = null;
+          st.points = [];
+          st.startPoint = null;
+          st.lastPoint = null;
+          st.totalDistance = 0;
+          if (el.pad.hasPointerCapture?.(evt.pointerId)) {
+            el.pad.releasePointerCapture(evt.pointerId);
+          }
+        }
+      }
+
+      async function onPointerCancel(evt) {
+        if (!st.isDown) return;
+        st.isDown = false;
+        st.points = [];
+        st.pointerId = null;
+        st.startPoint = null;
+        st.lastPoint = null;
+        st.totalDistance = 0;
+        drawPointer(0, 0, false);
+        setGesture('cancel');
+        logGesture('pointer.cancel', { pointerId: evt?.pointerId ?? null });
+        if (evt?.pointerId != null && el.pad.hasPointerCapture?.(evt.pointerId)) {
+          el.pad.releasePointerCapture(evt.pointerId);
+        }
+      }
+
+      function loadDefaults() {
+        const saved = localStorage.getItem(storageKey('api_base'));
+        const savedToken = localStorage.getItem(storageKey('st_token'));
+        const savedSampleMs = localStorage.getItem(storageKey('sample_ms'));
+        if (saved) {
+          el.apiBase.value = saved;
+        } else {
+          el.apiBase.value = `${location.protocol}//${location.host}`;
+        }
+        if (savedToken != null) el.stToken.value = savedToken;
+        if (savedSampleMs != null && Number(savedSampleMs) > 0) el.sampleMs.value = Number(savedSampleMs);
+        if (DEVICE_UID) {
+          setStatus(`UID: ${DEVICE_UID}`, '');
+        }
+      }
+
+      el.btnConnect.addEventListener('click', () => connect());
+      el.pad.addEventListener('pointerdown', (e) => onPointerDown(e));
+      el.pad.addEventListener('pointermove', onPointerMove);
+      el.pad.addEventListener('pointerup', (e) => onPointerUp(e));
+      el.pad.addEventListener('pointercancel', onPointerCancel);
+      el.pad.addEventListener('lostpointercapture', onPointerCancel);
+      el.pad.addEventListener('contextmenu', (e) => e.preventDefault());
+
+      loadDefaults();
+      connect();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1295 @@
+{"time":"2026-07-19T23:22:41.970914+07:00","level":"INFO","msg":"Running wda","bundleid":"solumate.xxx","testbundleid":"solumate.xxx","xctestconfig":"WebDriverAgentRunner.xctest"}
+{"time":"2026-07-19T23:22:42.145945+07:00","level":"INFO","msg":"got capabilities","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","receivedCaps":{"CapabilitiesDictionary":{"authorize test session capability":1,"automation mode":1,"daemon container sandbox extension":1,"initiate daemon control session capability":4,"initiate test runner session capability":2,"record UI interaction capability":2,"recording events as source code":1,"report crashes capability":1,"request log archive capability":1,"request spindump capability":2,"request tailspin capability":1,"supports delayed attachment transfers":1}}}
+{"time":"2026-07-19T23:22:42.301212+07:00","level":"INFO","msg":"got capabilities","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","caps":{"CapabilitiesDictionary":{"authorize test session capability":1,"automation mode":1,"daemon container sandbox extension":1,"initiate daemon control session capability":4,"initiate test runner session capability":2,"record UI interaction capability":2,"recording events as source code":1,"report crashes capability":1,"request log archive capability":1,"request spindump capability":2,"request tailspin capability":1,"supports delayed attachment transfers":1}}}
+{"time":"2026-07-19T23:22:42.306264+07:00","level":"INFO","msg":"authorized","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","pid":1370,"authorized":true}
+23:22:42.520 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'requesting test configuration' with timeout 600.00
+23:22:42.520 WebDriverAgentRunner-Runner[1370:142684] Notifying test runner ready
+23:22:42.520 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e241a10> entering wait loop for 600.00s with expectations: `requesting test configuration`
+23:22:42.528 WebDriverAgentRunner-Runner[1370:142701] Received test runner ready reply. Waiting for request to start running tests.
+23:22:42.529 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e241a10>
+23:22:42.529 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e249900> completed after 0.009s
+23:22:42.529 WebDriverAgentRunner-Runner[1370:142684] cleaning up requesting test configuration
+23:22:42.529 WebDriverAgentRunner-Runner[1370:142684] Loading test bundle at: file:///private/var/containers/Bundle/Application/6DAF2D12-74B5-47AB-8F56-86A982A2C4F8/WebDriverAgentRunner-Runner.app/PlugIns/WebDriverAgentRunner.xctest/
+23:22:42.577 WebDriverAgentRunner-Runner[1370:142684] Finished loading test bundle
+23:22:42.577 WebDriverAgentRunner-Runner[1370:142684] Interop: not enabled, so skipping install
+23:22:42.577 WebDriverAgentRunner-Runner[1370:142684] Registering in-process symbolication service with image names: WebDriverAgentRunner
+23:22:42.577 WebDriverAgentRunner-Runner[1370:142684] Running tests with active test configuration: <XCTestConfiguration: 0x14e2d4000>
+	                  testBundleURL:file://PlugIns/WebDriverAgentRunner.xctest
+	         testBundleRelativePath:(null)
+	              productModuleName:WebDriverAgentRunner
+	                  testSelection:<XCTTestSelection: 0x14e240060>
+	            identifiersToRun:(null)
+	            identifiersToSkip:
+	            tagsToRun:(null)
+	            tagsToSkip:<XCTTagSelection: 0x14e0e3ba0>
+	            mode:and
+	            tags:{(
+)}
+	  includeXCTests:NO
+
+
+	             reportResultsToIDE:YES
+	               testsDrivenByIDE:NO
+	inProcessParallelizationEnabled:YES
+	              sessionIdentifier:54FA83BB-ED85-4112-BF66-1A8431BFBE5B
+	      disablePerformanceMetrics:NO
+	treatMissingBaselinesAsFailures:NO
+	                baselineFileURL:(null)
+	       baselineFileRelativePath:(null)
+	          targetApplicationPath:/private/var/containers/Bundle/Application/6DAF2D12-74B5-47AB-8F56-86A982A2C4F8/WebDriverAgentRunner-Runner.app
+	      targetApplicationBundleID:solumate.xxx
+	 testApplicationDependencies:(null)
+	 bundleIDsForCrashReportEmphasis:(null)
+	 testApplicationUserOverrides:(null)
+	     targetApplicationArguments:(null)
+	   targetApplicationEnvironment:(null)
+	                  reportActivities:YES
+	          testsMustRunOnMainThread:YES
+	            initializeForUITesting:YES
+	            traceCollectionEnabled:(null)
+	 enablePerformanceTestsDiagnostics:(null)
+	 aggregateStatisticsBeforeCrash:
+{
+    XCSuiteRecordsKey =     {
+    };
+}
+	        automationFrameworkPath:/System/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+	                     emitOSLogs:NO
+	       systemAttachmentLifetime:keepNever
+	         userAttachmentLifetime:keepAlways
+	   preferredScreenCaptureFormat:screenshots
+	   gatherLocalizableStringsData:NO
+	          testExecutionOrdering:alphabetical
+	    randomExecutionOrderingSeed:(null)
+	               repetitionPolicy:<XCTRepetitionPolicy: 0x14e0e33c0>
+	            mode:None
+	            maximumIterations:1
+	            repeatInNewRunnerProcess:NO
+
+	       runtimeDiagnosticsPolicy:<XCTRuntimeDiagnosticsPolicy: 0x14e242700>
+	            otherRuntimeIssuesDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x14e0e3260>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            threadPerformanceCheckerRuntimeIssueDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x14e0e3260>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            mainThreadCheckerDetectionPolicy:<XCTRuntimeIssueDetectionPolicy: 0x14e0e3260>
+	            detectionEnabled:YES
+	            severity:warning
+
+	            checkedAllocations:disabled
+
+	            testTimeoutsEnabled:NO
+	              leaksCheckingMode:off
+	 defaultTestExecutionTimeAllowance:600
+	 maximumTestExecutionTimeAllowance:0
+	                IDECapabilities:<XCTCapabilities: 0x14e218670>: {
+    "XCTIssue capability" = 1;
+    "daemon container sandbox extension" = 1;
+    "delayed attachment transfer" = 1;
+    "expected failure test capability" = 1;
+    "request diagnostics for specific devices" = 1;
+    "skipped test capability" = 1;
+    "test case run configurations" = 1;
+    "test iterations" = 1;
+    "test timeout capability" = 1;
+    "ubiquitous test identifiers" = 1;
+}
+	        symbolicationImageNames:(null)
+	         applicationBundleInfos:(null)
+
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e242e50> entering wait loop for 600.00s with expectations: `requesting ready for testing`
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e242e50>
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e249b00> completed after 0.000s
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] cleaning up requesting ready for testing
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e243120> entering wait loop for 600.00s with expectations: `IDE proxy`
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e243120>
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e249c40> completed after 0.000s
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] cleaning up IDE proxy
+23:22:42.578 WebDriverAgentRunner-Runner[1370:142684] Initializing for UI testing.
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] Linked XCTAutomationSupport.framework from /System/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework/XCTAutomationSupport, built with Xcode 2650(17F41), modified on lúc 12:04:18 Giờ Đông Dương Thứ Năm, ngày 30 tháng 4, 2026, bundle version: 24904
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e2434b0> entering wait loop for 60.00s with expectations: `initiating daemon session`
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e2434b0>
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e249e40> completed after 0.000s
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] cleaning up initiating daemon session
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'enabling automation mode' with timeout 60.00
+23:22:42.580 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e243810> entering wait loop for 60.00s with expectations: `enabling automation mode`
+23:22:42.588 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e243810>
+23:22:42.588 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e24a000> completed after 0.008s
+23:22:42.588 WebDriverAgentRunner-Runner[1370:142684] cleaning up enabling automation mode
+23:22:42.588 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'loading Accessibility' with timeout 70.00
+23:22:42.588 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e243a50> entering wait loop for 70.00s with expectations: `loading Accessibility`
+    t =      nans Interface orientation changed to Landscape Left
+23:22:42.947 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e243a50>
+23:22:42.948 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e24a140> completed after 0.360s
+23:22:42.948 WebDriverAgentRunner-Runner[1370:142684] cleaning up loading Accessibility
+23:22:42.948 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'enabling localized string gathering' with timeout 70.00
+23:22:42.948 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e051d70> entering wait loop for 70.00s with expectations: `enabling localized string gathering`
+23:22:42.956 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e051d70>
+23:22:42.956 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e24bb40> completed after 0.008s
+23:22:42.956 WebDriverAgentRunner-Runner[1370:142684] cleaning up enabling localized string gathering
+23:22:42.956 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'setting AX timeout to 60.00s' with timeout 65.00
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e243f30> entering wait loop for 65.00s with expectations: `setting AX timeout to 60.00s`
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e243f30>
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057e00> completed after 0.000s
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] cleaning up setting AX timeout to 60.00s
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'registering for kAXUserTestingNotification' with timeout 65.00
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e051e60> entering wait loop for 65.00s with expectations: `registering for kAXUserTestingNotification`
+23:22:42.957 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e051e60>
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057d40> completed after 0.000s
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] cleaning up registering for kAXUserTestingNotification
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'registering for kAXAlertNotification' with timeout 65.00
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e052190> entering wait loop for 65.00s with expectations: `registering for kAXAlertNotification`
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e052190>
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057680> completed after 0.000s
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] cleaning up registering for kAXAlertNotification
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'registering for kAXPidStatusChangedNotification' with timeout 65.00
+23:22:42.958 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e051f20> entering wait loop for 65.00s with expectations: `registering for kAXPidStatusChangedNotification`
+23:22:42.959 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e051f20>
+23:22:42.959 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057880> completed after 0.001s
+23:22:42.959 WebDriverAgentRunner-Runner[1370:142684] cleaning up registering for kAXPidStatusChangedNotification
+23:22:42.959 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'registering for AXNotification 3031' with timeout 65.00
+23:22:42.959 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e052190> entering wait loop for 65.00s with expectations: `registering for AXNotification 3031`
+23:22:42.960 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e052190>
+23:22:42.960 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057bc0> completed after 0.000s
+23:22:42.960 WebDriverAgentRunner-Runner[1370:142684] cleaning up registering for AXNotification 3031
+23:22:42.960 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'requesting background assertion for test process' with timeout 30.00
+23:22:42.960 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14ed101e0> entering wait loop for 30.00s with expectations: `requesting background assertion for test process`
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142703] Got reply for background assertion for 1370, acquired: YES.
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14ed101e0>
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e057700> completed after 0.001s
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142684] cleaning up requesting background assertion for test process
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142684] Test runner is already executing in the background.
+23:22:42.961 WebDriverAgentRunner-Runner[1370:142684] Done initializing for UI testing.
+23:22:42.962 WebDriverAgentRunner-Runner[1370:142684] Loading test suite...
+23:22:43.107 WebDriverAgentRunner-Runner[1370:142684] Finished loading test suite, took 0.145s
+23:22:43.107 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14e240900> entering wait loop for 599.40s with expectations: `preparing execution worker`
+{"time":"2026-07-19T23:22:43.013778+07:00","level":"INFO","msg":"device called local method","module":"go-ios/testmanagerd","id":"","sel":"_XCT_didFormPlanWithData:"}
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14e240900>
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fc840> completed after 0.008s
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] cleaning up preparing execution worker
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] Entering test execution event loop
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] Setting a new interop record handler: Optional(XCTestCore.XCTestInteropRecordHandler())
+23:22:43.115 WebDriverAgentRunner-Runner[1370:142684] -[XCTRunnerIDESession(_XCTestObservationInternal) testBundleWillStart:]
+23:22:43.116 WebDriverAgentRunner-Runner[1370:142684] Running suite...
+23:22:43.116 WebDriverAgentRunner-Runner[1370:142684] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+23:22:43.116 WebDriverAgentRunner-Runner[1370:142684] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+23:22:43.116 WebDriverAgentRunner-Runner[1370:142684] -[XCTRunnerIDESession(_XCTestObservationInternal) testSuiteWillStart:]
+Test Suite 'All tests' started at 2026-07-19 23:22:43.116.
+XCTestOutputBarrier23:22:43.117 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8c000> started activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Suite Set Up(Not reporting due to no test case running)
+Test Suite 'WebDriverAgentRunner.xctest' started at 2026-07-19 23:22:43.116.
+XCTestOutputBarrierTest Suite 'UITestingUITests' started at 2026-07-19 23:22:43.116.
+XCTestOutputBarrier    t =      nans Suite Set Up
+23:22:43.187 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8c000> finished activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Suite Set Up (0.0707619s)(Not reporting due to no test case running)
+23:22:43.188 WebDriverAgentRunner-Runner[1370:142684] -[XCTRuntimeIssueDetectionManager runtimeIssueDetectionEnabled] runtimeIssueDetectionEnabled based on XCTDisableRuntimeIssues and runtime diagnostics policies: YES
+Test Case '-[UITestingUITests testRunner]' started.
+XCTestOutputBarrier    t =     0.00s Start Test at 2026-07-19 23:22:43.189
+23:22:43.189 WebDriverAgentRunner-Runner[1370:142684] -[XCTRunnerIDESession(_XCTestObservationInternal) testCaseWillStart:] UITestingUITests testRunner
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8fde0> started activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Start Test at 2026-07-19 23:22:43.189
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'requesting to start screen recording' with timeout 30.00
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] Failed to start diagnostic screen recording - configuration prefers screenshots.
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] Error (com.apple.dt.xctest.ui-testing.error) 10005, userInfo keys: (null): Unknown error starting diagnostic screen recording.
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14ed89bf0> entering wait loop for 30.00s with expectations: `requesting to start screen recording`
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14ed89bf0>
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fff80> completed after 0.000s
+23:22:43.190 WebDriverAgentRunner-Runner[1370:142684] cleaning up requesting to start screen recording
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen identifiers' with timeout 30.00
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14ed897d0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14ed897d0>
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3ffd80> completed after 0.000s
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen identifiers
+23:22:43.191 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8fde0> finished activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Start Test at 2026-07-19 23:22:43.189 (0.00190902s)
+    t =     0.00s Set Up
+23:22:43.192 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8fde0> started activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Set Up
+23:22:43.192 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14ed89950> entering indefinite wait loop for expectations: `failable invocation block completion`
+23:22:43.193 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14ed89950>
+23:22:43.193 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3ffc40> completed after 0.000s
+23:22:43.193 WebDriverAgentRunner-Runner[1370:142684] cleaning up failable invocation block completion
+23:22:43.193 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14ed8fde0> finished activity <XCActivityRecord: 0x14eda5ff0> 2026-07-19 16:22:43 +0000: Set Up (0.000769019s)
+23:22:43.193 WebDriverAgentRunner-Runner[1370:142684] _assertObjectsInvalidAfterScope
+23:22:43.234 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen identifiers' with timeout 30.00
+23:22:43.235 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f5b3600> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+23:22:43.235 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f5b3600>
+23:22:43.235 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3ff9c0> completed after 0.000s
+23:22:43.235 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen identifiers
+23:22:43.255 WebDriverAgentRunner-Runner[1370:142705] Handling AXNotification 3031
+23:22:58.521 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Device orientation changed to Landscape Right
+    t =    15.33s Device orientation changed to Landscape Right
+23:22:58.523 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Device orientation changed to Landscape Right (0.00250995s)
+23:22:58.524 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Device orientation changed to Face Up
+23:22:58.524 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Device orientation changed to Face Up (0.000392079s)
+23:22:58.525 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element' with timeout 65.00
+    t =    15.34s Device orientation changed to Face Up
+23:22:58.525 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f5efd20> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element`
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142704] Got attribute fetch response with values {
+    "XC_kAXXCAttributeSystemAppApplication" = "AX element pid: 174, elementOrHash.elementID: 0.1";
+}, error: (null)
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f5efd20>
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3ff240> completed after 0.001s
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1' with timeout 65.00
+23:22:58.526 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f5b3ae0> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1`
+23:22:58.528 WebDriverAgentRunner-Runner[1370:142711] Got attribute fetch response with values {
+    "XC_kAXXCAttributeFocusedApplications" =     (
+        "AX element pid: 305, elementOrHash.elementID: 0.1"
+    );
+}, error: (null)
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f5b3ae0>
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fefc0> completed after 0.002s
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] Active application elements: (
+    "AX element pid: 305, elementOrHash.elementID: 0.1"
+)
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'looking up application specifier for pid 305' with timeout 30.00
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] Requesting application specifier for pid 305
+23:22:58.529 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f5b3f30> entering wait loop for 30.00s with expectations: `looking up application specifier for pid 305`
+23:22:58.530 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f5b3f30>
+23:22:58.530 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fed80> completed after 0.001s
+23:22:58.530 WebDriverAgentRunner-Runner[1370:142684] cleaning up looking up application specifier for pid 305
+23:22:58.530 WebDriverAgentRunner-Runner[1370:142684] App specifier for pid 305: <XCUIApplicationSpecifier: 0x14f5f1a60> { com.apple.Spotlight }
+23:22:58.530 WebDriverAgentRunner-Runner[1370:142684] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.Spotlight'
+23:22:58.531 WebDriverAgentRunner-Runner[1370:142684] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.Spotlight'
+23:22:58.531 WebDriverAgentRunner-Runner[1370:142684] XCUIApplicationImplDepot: Creating XCUIApplicationImpl for identifier: com.apple.Spotlight
+23:22:58.531 WebDriverAgentRunner-Runner[1370:142684] updating com.apple.Spotlight crashBehavior to 1
+23:22:58.532 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=NO
+23:22:58.533 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=NO
+23:22:58.533 WebDriverAgentRunner-Runner[1370:142705] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.533 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4390> entering wait loop for 60.00s with expectations: `Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1'`
+23:22:58.533 WebDriverAgentRunner-Runner[1370:142705] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.533 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.534 WebDriverAgentRunner-Runner[1370:142684] <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> changing currentProcess from (null) to com.apple.Spotlight (pid:0)
+23:22:58.534 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=NO
+23:22:58.534 WebDriverAgentRunner-Runner[1370:142684] Setting pid for 0x14f67ca00 0 -> 305
+23:22:58.534 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:22:58.534 WebDriverAgentRunner-Runner[1370:142704] com.apple.Spotlight (pid:0) pid 0 -> 305
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142704] com.apple.Spotlight (pid:0) checking for cached AX loaded value using pid 305
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142705] Monitor: set com.apple.Spotlight (pid:305) for pid 305
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142941] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142704] com.apple.Spotlight (pid:305) application state Unknown (0) -> Running Foreground (4)
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.535 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.536 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Foreground (4)
+23:22:58.536 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.536 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.536 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:22:58.536 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Foreground (4)
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:22:58.537 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.538 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.538 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Foreground (4)
+23:22:58.538 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1': fulfill=YES
+23:22:58.538 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4390>
+23:22:58.538 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fea00> completed after 0.005s
+23:22:58.539 WebDriverAgentRunner-Runner[1370:142684] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1'
+23:22:58.539 WebDriverAgentRunner-Runner[1370:142684] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.Spotlight' to be '1'
+23:22:58.539 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting interface orientation' with timeout 65.00
+23:22:58.539 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4300> entering wait loop for 65.00s with expectations: `getting interface orientation`
+23:22:58.540 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4300>
+23:22:58.540 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fe700> completed after 0.001s
+23:22:58.541 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting interface orientation
+23:22:58.541 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element' with timeout 65.00
+23:22:58.542 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4540> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element`
+23:22:58.542 WebDriverAgentRunner-Runner[1370:142705] Got attribute fetch response with values {
+    "XC_kAXXCAttributeSystemAppApplication" = "AX element pid: 174, elementOrHash.elementID: 0.1";
+}, error: (null)
+23:22:58.542 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4540>
+23:22:58.542 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3ff200> completed after 0.001s
+23:22:58.543 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element
+23:22:58.543 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'looking up application specifier for pid 174' with timeout 30.00
+23:22:58.543 WebDriverAgentRunner-Runner[1370:142684] Requesting application specifier for pid 174
+23:22:58.543 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4600> entering wait loop for 30.00s with expectations: `looking up application specifier for pid 174`
+23:22:58.544 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4600>
+23:22:58.544 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fee00> completed after 0.001s
+23:22:58.545 WebDriverAgentRunner-Runner[1370:142684] cleaning up looking up application specifier for pid 174
+23:22:58.545 WebDriverAgentRunner-Runner[1370:142684] App specifier for pid 174: <XCUIApplicationSpecifier: 0x14f5f1960> { com.apple.springboard }
+23:22:58.545 WebDriverAgentRunner-Runner[1370:142684] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.springboard'
+23:22:58.545 WebDriverAgentRunner-Runner[1370:142684] Error (com.apple.dt.xctest.ui-testing.error) 10100, userInfo keys: (null): Unknown application: 'com.apple.springboard'
+23:22:58.545 WebDriverAgentRunner-Runner[1370:142684] XCUIApplicationImplDepot: Creating XCUIApplicationImpl for identifier: com.apple.springboard
+23:22:58.546 WebDriverAgentRunner-Runner[1370:142684] updating com.apple.springboard crashBehavior to 1
+23:22:58.546 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+23:22:58.546 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+23:22:58.546 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4e10> entering wait loop for 60.00s with expectations: `Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'`
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142711] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142711] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142684] <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard> changing currentProcess from (null) to com.apple.springboard (pid:0)
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=NO
+23:22:58.548 WebDriverAgentRunner-Runner[1370:142684] Setting pid for 0x14f67c480 0 -> 174
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142941] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard> to 174
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142711] com.apple.springboard (pid:0) pid 0 -> 174
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142711] com.apple.springboard (pid:0) checking for cached AX loaded value using pid 174
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142941] Monitor: set com.apple.springboard (pid:174) for pid 174
+23:22:58.549 WebDriverAgentRunner-Runner[1370:142705] com.apple.springboard (pid:174) application state Unknown (0) -> Running Foreground (4)
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard>: Running Foreground (4)
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] KVO change: checked status of Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1': fulfill=YES
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4e10>
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3febc0> completed after 0.004s
+23:22:58.550 WebDriverAgentRunner-Runner[1370:142684] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'
+23:22:58.551 WebDriverAgentRunner-Runner[1370:142684] cleaning up Expect value of 'isApplicationStateKnown' of Application 'com.apple.springboard' to be '1'
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Get all elements bound by index for: Descendants matching type StatusBar
+    t =    15.36s Get all elements bound by index for: Descendants matching type StatusBar
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen identifiers' with timeout 30.00
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f54a0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f54a0>
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fea80> completed after 0.000s
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen identifiers
+23:22:58.552 WebDriverAgentRunner-Runner[1370:142684] Executing query:
+↪︎ Descendants matching type StatusBar
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting unsupported bundle IDs for automation sessions' with timeout 30.00
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] Requesting unsupported bundle IDs for automation sessions
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f5860> entering wait loop for 30.00s with expectations: `getting unsupported bundle IDs for automation sessions`
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard> to 174
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard>: Running Foreground (4)
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.springboard@/System/Library/CoreServices/SpringBoard.app processName: SpringBoard pid: 174 state: running foreground
+23:22:58.553 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard> to 174
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3fecc0 com.apple.springboard>: Running Foreground (4)
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f5860>
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fe900> completed after 0.001s
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting unsupported bundle IDs for automation sessions
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'requesting automation session for com.apple.springboard (pid:174)' with timeout 60.00
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] Requesting automation session for pid 174, automation framework path: /System/Developer/Library/PrivateFrameworks/XCTAutomationSupport.framework
+23:22:58.554 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4ed0> entering wait loop for 60.00s with expectations: `requesting automation session for com.apple.springboard (pid:174)`
+23:22:58.555 WebDriverAgentRunner-Runner[1370:142704] Got endpoint for automation session with pid 174
+23:22:58.556 WebDriverAgentRunner-Runner[1370:142704] Exchanging capabilities for automation session connection to pid 174
+23:22:58.557 WebDriverAgentRunner-Runner[1370:142705] Got remote interface capabilities for automation session connection to pid 174: <XCTCapabilities: 0x14e218ec0>: {
+    "accept remote connection capability" = 1;
+    "containing transformer capability" = 1;
+    "disclosed child rows transformer capability" = 2;
+    "element sorting transformer capability" = 1;
+    "evaluate query capability" = 1;
+    "fetch element attributes capability" = 2;
+    "indexing transformer capability" = 4;
+    "main thread checker runtime issues" = 1;
+    "malloc stack logging" = 1;
+    "notify animations idle capability" = 1;
+    "notify main run loop idle capability" = 1;
+    "query runtime issue reporting" = 1;
+    "query runtime issue reporting/automation type mismatch" = 1;
+    "system provides kAXXCAttributeBannerIsStickyAttribute" = 1;
+}
+23:22:58.557 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4ed0>
+23:22:58.558 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fe7c0> completed after 0.003s
+23:22:58.558 WebDriverAgentRunner-Runner[1370:142684] cleaning up requesting automation session for com.apple.springboard (pid:174)
+23:22:58.558 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'checking for continuity enablement' with timeout 30.00
+23:22:58.558 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f5e60> entering wait loop for 30.00s with expectations: `checking for continuity enablement`
+23:22:58.559 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f5e60>
+23:22:58.560 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fe4c0> completed after 0.002s
+23:22:58.560 WebDriverAgentRunner-Runner[1370:142684] cleaning up checking for continuity enablement
+23:22:58.560 WebDriverAgentRunner-Runner[1370:142684] Should evaluate query remotely? XCTDisableRemoteQueryEvaluation(d-write): YES, hasAutomationSession: YES, supportsRemoteEvaluation: YES
+23:22:58.561 WebDriverAgentRunner-Runner[1370:142684] Getting matching snapshots for locally evaluated query
+23:22:58.561 WebDriverAgentRunner-Runner[1370:142684] Evaluating query:
+ ↪︎ Descendants matching type StatusBar
+23:22:58.561 WebDriverAgentRunner-Runner[1370:142684] Getting root element snapshot
+23:22:58.561 WebDriverAgentRunner-Runner[1370:142684] Getting snapshot for App element pid: 174 for query ↪︎ Descendants matching type StatusBar
+23:22:58.561 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174
+    t =    15.37s     Requesting snapshot of accessibility hierarchy for app with pid 174
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] Query requires iOS snapshot attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits.
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] XCUIElementQuery <XCTElementSnapshotProvider> getting snapshot
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom parameters {
+    snapshotKeyHonorModalViews = 0;
+}
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] Current snapshot generation is 0
+23:22:58.562 WebDriverAgentRunner-Runner[1370:142684] Capturing a new snapshot
+23:22:58.563 WebDriverAgentRunner-Runner[1370:142684] Fetching snapshot for App element pid: 174 from testmanagerd with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits and parameters {
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 50;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}.
+23:22:58.563 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching snapshot from testmanagerd.' with timeout 65.00
+23:22:58.564 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6550> entering wait loop for 65.00s with expectations: `fetching snapshot from testmanagerd.`
+23:22:58.688 WebDriverAgentRunner-Runner[1370:142705] Got snapshot response with runtime issue support from testmanagerd.
+23:22:58.689 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6550>
+23:22:58.689 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3fe080> completed after 0.125s
+23:22:58.689 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching snapshot from testmanagerd.
+23:22:58.690 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174 (0.128724s)
+23:22:58.690 WebDriverAgentRunner-Runner[1370:142684] XCTPerformOnMainRunLoop[MT]: already on MT; performing block without run loop dispatch - timeouts will not be enforced.
+23:22:58.690 WebDriverAgentRunner-Runner[1370:142684] XCTElementQuery: set data source for rootElementSnapshot to (null)
+23:22:58.691 WebDriverAgentRunner-Runner[1370:142684] Finding all matches with input Application, pid: 174 using transformers 
+↪︎ Descendants matching type StatusBar
+23:22:58.691 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Descendants matching type StatusBar
+    t =    15.50s     Find: Descendants matching type StatusBar
+23:22:58.692 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Descendants matching type StatusBar (0.00156796s)
+23:22:58.693 WebDriverAgentRunner-Runner[1370:142684] [Match All] applied transformer `Descendants matching type StatusBar` to input {(
+    Application, pid: 174
+)}, found {(
+    StatusBar
+)}
+23:22:58.693 WebDriverAgentRunner-Runner[1370:142684] [Match All] setting out related elements {(
+)}
+23:22:58.695 WebDriverAgentRunner-Runner[1370:142684] Current tree:
+Application, 0x14e0d3e80, pid: 174 <App element pid: 174>
+  Window, 0x14f694000 <AX element pid: 174, elementOrHash.elementID: 36032077824.11>
+    Other, 0x14f694140 <AX element pid: 174, elementOrHash.elementID: 35953538624.20>
+      Other, 0x14f694280 <AX element pid: 174, elementOrHash.elementID: 35953538176.33>
+  Window, 0x14f6943c0 <AX element pid: 174, elementOrHash.elementID: 36018690304.12>
+    Other, 0x14f694500 <AX element pid: 174, elementOrHash.elementID: 36017882432.21>
+      Other, 0x14f694640 <AX element pid: 174, elementOrHash.elementID: 36038462464.34>
+        Other, 0x14f694780 <AX element pid: 174, elementOrHash.elementID: 35920632704.46>
+          Other, 0x14f6948c0 <AX element pid: 174, elementOrHash.elementID: 35920548672.54>
+            Other, 0x14f694a00 <AX element pid: 174, elementOrHash.elementID: 35887737344.1088>
+            Other, 0x14f694b40 <AX element pid: 174, elementOrHash.elementID: 35943852544.1089>
+            Other, 0x14f694c80 <AX element pid: 174, elementOrHash.elementID: 35920551360.69>
+            Other, 0x14f694dc0 <AX element pid: 174, elementOrHash.elementID: 35920551808.70>
+            Other, 0x14f694f00 <AX element pid: 174, elementOrHash.elementID: 35888128768.2180>
+            Other, 0x14f695040 <AX element pid: 174, elementOrHash.elementID: 35887703232.1093>
+            Other, 0x14f695180 <AX element pid: 174, elementOrHash.elementID: 35890581888.2241>
+            Other, 0x14f6952c0 <AX element pid: 174, elementOrHash.elementID: 35920553152.73>
+            Other, 0x14f695400 <AX element pid: 174, elementOrHash.elementID: 35920549120.74>
+      Other, 0x14f695540 <AX element pid: 174, elementOrHash.elementID: 36056067584.1084>
+        Other, 0x14f695680 <AX element pid: 174, elementOrHash.elementID: 11494289431044805875.9999>
+          Other, 0x14f6957c0 <AX element pid: 333, elementOrHash.elementID: 4309013472.4>
+            Other, 0x14f695900 <AX element pid: 333, elementOrHash.elementID: 4309041312.5>
+              Other, 0x14f695a40 <AX element pid: 333, elementOrHash.elementID: 4308983520.6>
+                Other, 0x14f695b80 <AX element pid: 333, elementOrHash.elementID: 4309005120.7>
+      Other, 0x14f695cc0 <AX element pid: 174, elementOrHash.elementID: 36046696960.36>
+        Other, 0x14f695e00 <AX element pid: 174, elementOrHash.elementID: 35906212864.47>
+          Other, 0x14f695f40 <AX element pid: 174, elementOrHash.elementID: 35922778688.55>
+  Window, 0x14f696080 <AX element pid: 174, elementOrHash.elementID: 36018691584.13>
+    Other, 0x14f6961c0 <AX element pid: 174, elementOrHash.elementID: 36017885568.22>
+  Window, 0x14f696300 <AX element pid: 174, elementOrHash.elementID: 36018685184.1812>
+    Other, 0x14f696440 <AX element pid: 174, elementOrHash.elementID: 35889648896.1813>
+      Other, 0x14f696580 <AX element pid: 174, elementOrHash.elementID: 35887702784.1815>
+  Window, 0x14f6966c0 <AX element pid: 174, elementOrHash.elementID: 35951108864.14>
+    Other, 0x14f696800 <AX element pid: 174, elementOrHash.elementID: 35953539072.23>
+      Other, 0x14f696940 <AX element pid: 174, elementOrHash.elementID: 35953539968.37>
+  Window, 0x14f696a80 <AX element pid: 174, elementOrHash.elementID: 35920354816.15>
+    Other, 0x14f696bc0 <AX element pid: 174, elementOrHash.elementID: 35923110400.24>
+      Other, 0x14f696d00 <AX element pid: 174, elementOrHash.elementID: 35923112192.38>
+  Window, 0x14f696e40 <AX element pid: 174, elementOrHash.elementID: 36036372480.9>
+    Other, 0x14f696f80 <AX element pid: 174, elementOrHash.elementID: 35942339840.25>
+      Other, 0x14f6970c0 <AX element pid: 174, elementOrHash.elementID: 35942340288.39>
+        Other, 0x14f697200 <AX element pid: 174, elementOrHash.elementID: 35942345216.48>
+        Other, 0x14f697340 <AX element pid: 174, elementOrHash.elementID: 35942345664.49>
+        Other, 0x14f697480 <AX element pid: 174, elementOrHash.elementID: 35941851264.50>
+          Other, 0x14f6975c0 <AX element pid: 174, elementOrHash.elementID: 36036367360.56>
+            Icon, 0x14f697700 <AX element pid: 174, elementOrHash.elementID: 35943737856.6>
+              Other, 0x14f697840 <AX element pid: 174, elementOrHash.elementID: 35943844928.145>
+                Other, 0x14f697980 <AX element pid: 174, elementOrHash.elementID: 35943845376.185>
+                  Other, 0x14f697ac0 <AX element pid: 174, elementOrHash.elementID: 35943797760.251>
+                    Other, 0x14f697c00 <AX element pid: 174, elementOrHash.elementID: 35943806720.319>
+            Icon, 0x14f697d40 <AX element pid: 174, elementOrHash.elementID: 35943739392.75>
+              Other, 0x14f697e80 <AX element pid: 174, elementOrHash.elementID: 35943845824.146>
+                Other, 0x14f728000 <AX element pid: 174, elementOrHash.elementID: 35943846272.186>
+                  Other, 0x14f728140 <AX element pid: 174, elementOrHash.elementID: 35943792640.252>
+                    Other, 0x14f728280 <AX element pid: 174, elementOrHash.elementID: 35943808000.320>
+            Icon, 0x14f7283c0 <AX element pid: 174, elementOrHash.elementID: 35943740928.76>
+              Other, 0x14f728500 <AX element pid: 174, elementOrHash.elementID: 35943846720.147>
+                Other, 0x14f728640 <AX element pid: 174, elementOrHash.elementID: 35943847168.187>
+                  Other, 0x14f728780 <AX element pid: 174, elementOrHash.elementID: 35941855104.253>
+                    Other, 0x14f7288c0 <AX element pid: 174, elementOrHash.elementID: 35944039040.321>
+            Icon, 0x14f728a00 <AX element pid: 174, elementOrHash.elementID: 35944136704.77>
+              Other, 0x14f728b40 <AX element pid: 174, elementOrHash.elementID: 35943847616.148>
+                Other, 0x14f728c80 <AX element pid: 174, elementOrHash.elementID: 35943848064.188>
+                  Other, 0x14f728dc0 <AX element pid: 174, elementOrHash.elementID: 35943795840.254>
+                    Other, 0x14f728f00 <AX element pid: 174, elementOrHash.elementID: 35944040320.322>
+            Icon, 0x14f729040 <AX element pid: 174, elementOrHash.elementID: 35944138240.78>
+              Other, 0x14f729180 <AX element pid: 174, elementOrHash.elementID: 35943848512.149>
+                Other, 0x14f7292c0 <AX element pid: 174, elementOrHash.elementID: 35943848960.189>
+                  Other, 0x14f729400 <AX element pid: 174, elementOrHash.elementID: 35941858304.255>
+                    Other, 0x14f729540 <AX element pid: 174, elementOrHash.elementID: 35875794176.2181>
+            Icon, 0x14f729680 <AX element pid: 174, elementOrHash.elementID: 35944139776.79>
+              Other, 0x14f7297c0 <AX element pid: 174, elementOrHash.elementID: 35943849856.150>
+                Other, 0x14f729900 <AX element pid: 174, elementOrHash.elementID: 35943850304.190>
+                  Other, 0x14f729a40 <AX element pid: 174, elementOrHash.elementID: 35943799040.256>
+                    Other, 0x14f729b80 <AX element pid: 174, elementOrHash.elementID: 35944043520.324>
+            Icon, 0x14f729cc0 <AX element pid: 174, elementOrHash.elementID: 35944141312.80>
+              Other, 0x14f729e00 <AX element pid: 174, elementOrHash.elementID: 35943850752.151>
+                Other, 0x14f729f40 <AX element pid: 174, elementOrHash.elementID: 35943851200.191>
+                  Other, 0x14f72a080 <AX element pid: 174, elementOrHash.elementID: 35941853184.257>
+                    Other, 0x14f72a1c0 <AX element pid: 174, elementOrHash.elementID: 35944044800.325>
+          Other, 0x14f72a300 <AX element pid: 174, elementOrHash.elementID: 36036369408.57>
+            Icon, 0x14f72a440 <AX element pid: 174, elementOrHash.elementID: 35941698560.81>
+              Other, 0x14f72a580 <AX element pid: 174, elementOrHash.elementID: 35942346112.152>
+                Other, 0x14f72a6c0 <AX element pid: 174, elementOrHash.elementID: 35943611712.192>
+                  Other, 0x14f72a800 <AX element pid: 174, elementOrHash.elementID: 35941853824.258>
+                    Other, 0x14f72a940 <AX element pid: 174, elementOrHash.elementID: 35943800960.326>
+            Icon, 0x14f72aa80 <AX element pid: 174, elementOrHash.elementID: 35943734784.82>
+              Other, 0x14f72abc0 <AX element pid: 174, elementOrHash.elementID: 35943841792.153>
+                Other, 0x14f72ad00 <AX element pid: 174, elementOrHash.elementID: 35943842240.193>
+                  Other, 0x14f72ae40 <AX element pid: 174, elementOrHash.elementID: 35943794560.259>
+                    Other, 0x14f72af80 <AX element pid: 174, elementOrHash.elementID: 35943802240.327>
+                  Other, 0x14f72b0c0 <AX element pid: 174, elementOrHash.elementID: 35943802880.260>
+                    Other, 0x14f72b200 <AX element pid: 174, elementOrHash.elementID: 35943844032.328>
+                      Image, 0x14f72b340 <AX element pid: 174, elementOrHash.elementID: 36036537344.415>
+          Other, 0x14f72b480 <AX element pid: 174, elementOrHash.elementID: 36036368384.58>
+          Icon, 0x14f72b5c0 <AX element pid: 174, elementOrHash.elementID: 35944142848.59>
+            Other, 0x14f72b700 <AX element pid: 174, elementOrHash.elementID: 35887479808.1147>
+            Other, 0x14f72b840 <AX element pid: 174, elementOrHash.elementID: 35887469568.1148>
+            Other, 0x14f72b980 <AX element pid: 174, elementOrHash.elementID: 35891053184.513>
+            Other, 0x14f72bac0 <AX element pid: 174, elementOrHash.elementID: 35887477248.1149>
+      Other, 0x14f72bc00 <AX element pid: 174, elementOrHash.elementID: 35944048000.40>
+        Other, 0x14f72bd40 <AX element pid: 174, elementOrHash.elementID: 36037143040.51>
+          Other, 0x14f72be80 <AX element pid: 174, elementOrHash.elementID: 16400521463572639115.9999>
+            Other, 0x14f730000 <AX element pid: 303, elementOrHash.elementID: 4312005392.4>
+              Other, 0x14f730140 <AX element pid: 303, elementOrHash.elementID: 33807598848.5>
+                Other, 0x14f730280 <AX element pid: 303, elementOrHash.elementID: 33807631232.6>
+                  Other, 0x14f7303c0 <AX element pid: 303, elementOrHash.elementID: 33807630336.7>
+          Other, 0x14f730500 <AX element pid: 174, elementOrHash.elementID: 3119342986303746691.9999>
+            Other, 0x14f730640 <AX element pid: 303, elementOrHash.elementID: 33807632128.8>
+              Other, 0x14f730780 <AX element pid: 303, elementOrHash.elementID: 33807633920.9>
+          Other, 0x14f7308c0 <AX element pid: 174, elementOrHash.elementID: 13277597320353363328.9999>
+  Window, 0x14f730a00 <AX element pid: 174, elementOrHash.elementID: 36022010880.16>
+    StatusBar, 0x14f730b40 <AX element pid: 174, elementOrHash.elementID: 36017866624.26>
+      Other, 0x14f730c80 <AX element pid: 174, elementOrHash.elementID: 36021977088.41>
+        Other, 0x14f730dc0 <AX element pid: 174, elementOrHash.elementID: 35889654720.2076>
+          Other, 0x14f730f00 <AX element pid: 174, elementOrHash.elementID: 36057350656.2088>
+          Other, 0x14f731040 <AX element pid: 174, elementOrHash.elementID: 35889647552.2077>
+            StaticText, 0x14f731180 <AX element pid: 174, elementOrHash.elementID: 35893191424.2079>
+            StaticText, 0x14f7312c0 <AX element pid: 174, elementOrHash.elementID: 35893197696.2080>
+          Other, 0x14f731400 <AX element pid: 174, elementOrHash.elementID: 36057351168.2089>
+          Other, 0x14f731540 <AX element pid: 174, elementOrHash.elementID: 35907105920.2078>
+            Other, 0x14f731680 <AX element pid: 174, elementOrHash.elementID: 36057354752.2081>
+            Image, 0x14f7317c0 <AX element pid: 174, elementOrHash.elementID: 35888208768.2082>
+            StaticText, 0x14f731900 <AX element pid: 174, elementOrHash.elementID: 35911293952.2083>
+            Other, 0x14f731a40 <AX element pid: 174, elementOrHash.elementID: 35888203008.2084>
+          Other, 0x14f731b80 <AX element pid: 174, elementOrHash.elementID: 36057352704.2090>
+    Other, 0x14f731cc0 <AX element pid: 174, elementOrHash.elementID: 36017881984.27>
+  Window, 0x14f731e00 <AX element pid: 174, elementOrHash.elementID: 36052804608.2240>
+    Other, 0x14f731f40 <AX element pid: 174, elementOrHash.elementID: 35888121152.1814>
+      Other, 0x14f732080 <AX element pid: 174, elementOrHash.elementID: 35888134144.1816>
+      Other, 0x14f7321c0 <AX element pid: 174, elementOrHash.elementID: 35888122048.1817>
+        Other, 0x14f732300 <AX element pid: 174, elementOrHash.elementID: 35888133248.1819>
+          Other, 0x14f732440 <AX element pid: 174, elementOrHash.elementID: 35888122944.1820>
+            Other, 0x14f732580 <AX element pid: 174, elementOrHash.elementID: 35907062848.1822>
+              Other, 0x14f7326c0 <AX element pid: 174, elementOrHash.elementID: 35907065536.1823>
+              Other, 0x14f732800 <AX element pid: 174, elementOrHash.elementID: 35903851136.1824>
+                Other, 0x14f732940 <AX element pid: 174, elementOrHash.elementID: 36044862464.1825>
+      Other, 0x14f732a80 <AX element pid: 174, elementOrHash.elementID: 35888132800.1818>
+  Window, 0x14f732bc0 <AX element pid: 174, elementOrHash.elementID: 36032072704.17>
+    Other, 0x14f732d00 <AX element pid: 174, elementOrHash.elementID: 35953535488.28>
+  Window, 0x14f732e40 <AX element pid: 174, elementOrHash.elementID: 36032076800.18>
+    Other, 0x14f732f80 <AX element pid: 174, elementOrHash.elementID: 35953537728.29>
+23:22:58.695 WebDriverAgentRunner-Runner[1370:142684] Found matches {(
+    StatusBar
+)} with root Application, pid: 174
+23:22:58.695 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Get all elements bound by index for: Descendants matching type StatusBar (0.143629s)
+23:22:58.696 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Find the StatusBar (Element at index 0)
+23:22:58.696 WebDriverAgentRunner-Runner[1370:142684] Executing query:
+↪︎ Descendants matching type StatusBar
+    ↪︎ Element at index 0
+23:22:58.696 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'checking for continuity enablement' with timeout 30.00
+    t =    15.51s Find the StatusBar (Element at index 0)
+23:22:58.696 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f56e0> entering wait loop for 30.00s with expectations: `checking for continuity enablement`
+23:22:58.698 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f56e0>
+23:22:58.698 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3f8080> completed after 0.001s
+23:22:58.698 WebDriverAgentRunner-Runner[1370:142684] cleaning up checking for continuity enablement
+23:22:58.698 WebDriverAgentRunner-Runner[1370:142684] Should evaluate query remotely? XCTDisableRemoteQueryEvaluation(d-write): YES, hasAutomationSession: YES, supportsRemoteEvaluation: YES
+23:22:58.698 WebDriverAgentRunner-Runner[1370:142684] Getting matching snapshots for locally evaluated query
+23:22:58.699 WebDriverAgentRunner-Runner[1370:142684] Evaluating query:
+ ↪︎ Descendants matching type StatusBar
+    ↪︎ Element at index 0
+23:22:58.699 WebDriverAgentRunner-Runner[1370:142684] Getting root element snapshot
+23:22:58.699 WebDriverAgentRunner-Runner[1370:142684] Getting snapshot for App element pid: 174 for query ↪︎ Descendants matching type StatusBar
+    ↪︎ Element at index 0
+23:22:58.699 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174
+    t =    15.51s     Requesting snapshot of accessibility hierarchy for app with pid 174
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Query requires iOS snapshot attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits.
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] XCUIElementQuery <XCTElementSnapshotProvider> getting snapshot
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom parameters {
+    snapshotKeyHonorModalViews = 0;
+}
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Current snapshot generation is 3
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Capturing a new snapshot
+23:22:58.700 WebDriverAgentRunner-Runner[1370:142684] Fetching snapshot for App element pid: 174 from testmanagerd with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits and parameters {
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 50;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}.
+23:22:58.701 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching snapshot from testmanagerd.' with timeout 65.00
+23:22:58.701 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f5ef0> entering wait loop for 65.00s with expectations: `fetching snapshot from testmanagerd.`
+23:22:58.816 WebDriverAgentRunner-Runner[1370:142704] Got snapshot response with runtime issue support from testmanagerd.
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f5ef0>
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14e3f8680> completed after 0.116s
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching snapshot from testmanagerd.
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174 (0.118048s)
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] XCTPerformOnMainRunLoop[MT]: already on MT; performing block without run loop dispatch - timeouts will not be enforced.
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] XCTElementQuery: set data source for rootElementSnapshot to (null)
+23:22:58.817 WebDriverAgentRunner-Runner[1370:142684] Finding all matches with input Application, pid: 174 using transformers 
+↪︎ Descendants matching type StatusBar
+    ↪︎ Element at index 0
+23:22:58.818 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Descendants matching type StatusBar
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Descendants matching type StatusBar (0.000996947s)
+    t =    15.63s     Find: Descendants matching type StatusBar
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] [Match All] applied transformer `Descendants matching type StatusBar` to input {(
+    Application, pid: 174
+)}, found {(
+    StatusBar
+)}
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Element at index 0
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find: Element at index 0 (0.000227094s)
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] [Match All] applied transformer `Element at index 0` to input {(
+    StatusBar
+)}, found {(
+    StatusBar
+)}
+23:22:58.819 WebDriverAgentRunner-Runner[1370:142684] [Match All] setting out related elements {(
+)}
+23:22:58.821 WebDriverAgentRunner-Runner[1370:142684] Current tree:
+Application, 0x14f7330c0, pid: 174 <App element pid: 174>
+  Window, 0x14f733200 <AX element pid: 174, elementOrHash.elementID: 36032077824.11>
+    Other, 0x14f733340 <AX element pid: 174, elementOrHash.elementID: 35953538624.20>
+      Other, 0x14f733480 <AX element pid: 174, elementOrHash.elementID: 35953538176.33>
+  Window, 0x14f7335c0 <AX element pid: 174, elementOrHash.elementID: 36018690304.12>
+    Other, 0x14f733700 <AX element pid: 174, elementOrHash.elementID: 36017882432.21>
+      Other, 0x14f733840 <AX element pid: 174, elementOrHash.elementID: 36038462464.34>
+        Other, 0x14f733980 <AX element pid: 174, elementOrHash.elementID: 35920632704.46>
+          Other, 0x14f733ac0 <AX element pid: 174, elementOrHash.elementID: 35920548672.54>
+            Other, 0x14f733c00 <AX element pid: 174, elementOrHash.elementID: 35887737344.1088>
+            Other, 0x14f733d40 <AX element pid: 174, elementOrHash.elementID: 35943852544.1089>
+            Other, 0x14f733e80 <AX element pid: 174, elementOrHash.elementID: 35920551360.69>
+            Other, 0x14f744000 <AX element pid: 174, elementOrHash.elementID: 35920551808.70>
+            Other, 0x14f744140 <AX element pid: 174, elementOrHash.elementID: 35888128768.2180>
+            Other, 0x14f744280 <AX element pid: 174, elementOrHash.elementID: 35887703232.1093>
+            Other, 0x14f7443c0 <AX element pid: 174, elementOrHash.elementID: 35890581888.2241>
+            Other, 0x14f744500 <AX element pid: 174, elementOrHash.elementID: 35920553152.73>
+            Other, 0x14f744640 <AX element pid: 174, elementOrHash.elementID: 35920549120.74>
+      Other, 0x14f744780 <AX element pid: 174, elementOrHash.elementID: 36056067584.1084>
+        Other, 0x14f7448c0 <AX element pid: 174, elementOrHash.elementID: 11494289431044805875.9999>
+          Other, 0x14f744a00 <AX element pid: 333, elementOrHash.elementID: 4309013472.4>
+            Other, 0x14f744b40 <AX element pid: 333, elementOrHash.elementID: 4309041312.5>
+              Other, 0x14f744c80 <AX element pid: 333, elementOrHash.elementID: 4308983520.6>
+                Other, 0x14f744dc0 <AX element pid: 333, elementOrHash.elementID: 4309005120.7>
+      Other, 0x14f744f00 <AX element pid: 174, elementOrHash.elementID: 36046696960.36>
+        Other, 0x14f745040 <AX element pid: 174, elementOrHash.elementID: 35906212864.47>
+          Other, 0x14f745180 <AX element pid: 174, elementOrHash.elementID: 35922778688.55>
+  Window, 0x14f7452c0 <AX element pid: 174, elementOrHash.elementID: 36018691584.13>
+    Other, 0x14f745400 <AX element pid: 174, elementOrHash.elementID: 36017885568.22>
+  Window, 0x14f745540 <AX element pid: 174, elementOrHash.elementID: 36018685184.1812>
+    Other, 0x14f745680 <AX element pid: 174, elementOrHash.elementID: 35889648896.1813>
+      Other, 0x14f7457c0 <AX element pid: 174, elementOrHash.elementID: 35887702784.1815>
+  Window, 0x14f745900 <AX element pid: 174, elementOrHash.elementID: 35951108864.14>
+    Other, 0x14f745a40 <AX element pid: 174, elementOrHash.elementID: 35953539072.23>
+      Other, 0x14f745b80 <AX element pid: 174, elementOrHash.elementID: 35953539968.37>
+  Window, 0x14f745cc0 <AX element pid: 174, elementOrHash.elementID: 35920354816.15>
+    Other, 0x14f745e00 <AX element pid: 174, elementOrHash.elementID: 35923110400.24>
+      Other, 0x14f745f40 <AX element pid: 174, elementOrHash.elementID: 35923112192.38>
+  Window, 0x14f746080 <AX element pid: 174, elementOrHash.elementID: 36036372480.9>
+    Other, 0x14f7461c0 <AX element pid: 174, elementOrHash.elementID: 35942339840.25>
+      Other, 0x14f746300 <AX element pid: 174, elementOrHash.elementID: 35942340288.39>
+        Other, 0x14f746440 <AX element pid: 174, elementOrHash.elementID: 35942345216.48>
+        Other, 0x14f746580 <AX element pid: 174, elementOrHash.elementID: 35942345664.49>
+        Other, 0x14f7466c0 <AX element pid: 174, elementOrHash.elementID: 35941851264.50>
+          Other, 0x14f746800 <AX element pid: 174, elementOrHash.elementID: 36036367360.56>
+            Icon, 0x14f746940 <AX element pid: 174, elementOrHash.elementID: 35943737856.6>
+              Other, 0x14f746a80 <AX element pid: 174, elementOrHash.elementID: 35943844928.145>
+                Other, 0x14f746bc0 <AX element pid: 174, elementOrHash.elementID: 35943845376.185>
+                  Other, 0x14f746d00 <AX element pid: 174, elementOrHash.elementID: 35943797760.251>
+                    Other, 0x14f746e40 <AX element pid: 174, elementOrHash.elementID: 35943806720.319>
+            Icon, 0x14f746f80 <AX element pid: 174, elementOrHash.elementID: 35943739392.75>
+              Other, 0x14f7470c0 <AX element pid: 174, elementOrHash.elementID: 35943845824.146>
+                Other, 0x14f747200 <AX element pid: 174, elementOrHash.elementID: 35943846272.186>
+                  Other, 0x14f747340 <AX element pid: 174, elementOrHash.elementID: 35943792640.252>
+                    Other, 0x14f747480 <AX element pid: 174, elementOrHash.elementID: 35943808000.320>
+            Icon, 0x14f7475c0 <AX element pid: 174, elementOrHash.elementID: 35943740928.76>
+              Other, 0x14f747700 <AX element pid: 174, elementOrHash.elementID: 35943846720.147>
+                Other, 0x14f747840 <AX element pid: 174, elementOrHash.elementID: 35943847168.187>
+                  Other, 0x14f747980 <AX element pid: 174, elementOrHash.elementID: 35941855104.253>
+                    Other, 0x14f747ac0 <AX element pid: 174, elementOrHash.elementID: 35944039040.321>
+            Icon, 0x14f747c00 <AX element pid: 174, elementOrHash.elementID: 35944136704.77>
+              Other, 0x14f747d40 <AX element pid: 174, elementOrHash.elementID: 35943847616.148>
+                Other, 0x14f747e80 <AX element pid: 174, elementOrHash.elementID: 35943848064.188>
+                  Other, 0x14f748000 <AX element pid: 174, elementOrHash.elementID: 35943795840.254>
+                    Other, 0x14f748140 <AX element pid: 174, elementOrHash.elementID: 35944040320.322>
+            Icon, 0x14f748280 <AX element pid: 174, elementOrHash.elementID: 35944138240.78>
+              Other, 0x14f7483c0 <AX element pid: 174, elementOrHash.elementID: 35943848512.149>
+                Other, 0x14f748500 <AX element pid: 174, elementOrHash.elementID: 35943848960.189>
+                  Other, 0x14f748640 <AX element pid: 174, elementOrHash.elementID: 35941858304.255>
+                    Other, 0x14f748780 <AX element pid: 174, elementOrHash.elementID: 35875794176.2181>
+            Icon, 0x14f7488c0 <AX element pid: 174, elementOrHash.elementID: 35944139776.79>
+              Other, 0x14f748a00 <AX element pid: 174, elementOrHash.elementID: 35943849856.150>
+                Other, 0x14f748b40 <AX element pid: 174, elementOrHash.elementID: 35943850304.190>
+                  Other, 0x14f748c80 <AX element pid: 174, elementOrHash.elementID: 35943799040.256>
+                    Other, 0x14f748dc0 <AX element pid: 174, elementOrHash.elementID: 35944043520.324>
+            Icon, 0x14f748f00 <AX element pid: 174, elementOrHash.elementID: 35944141312.80>
+              Other, 0x14f749040 <AX element pid: 174, elementOrHash.elementID: 35943850752.151>
+                Other, 0x14f749180 <AX element pid: 174, elementOrHash.elementID: 35943851200.191>
+                  Other, 0x14f7492c0 <AX element pid: 174, elementOrHash.elementID: 35941853184.257>
+                    Other, 0x14f749400 <AX element pid: 174, elementOrHash.elementID: 35944044800.325>
+          Other, 0x14f749540 <AX element pid: 174, elementOrHash.elementID: 36036369408.57>
+            Icon, 0x14f749680 <AX element pid: 174, elementOrHash.elementID: 35941698560.81>
+              Other, 0x14f7497c0 <AX element pid: 174, elementOrHash.elementID: 35942346112.152>
+                Other, 0x14f749900 <AX element pid: 174, elementOrHash.elementID: 35943611712.192>
+                  Other, 0x14f749a40 <AX element pid: 174, elementOrHash.elementID: 35941853824.258>
+                    Other, 0x14f749b80 <AX element pid: 174, elementOrHash.elementID: 35943800960.326>
+            Icon, 0x14f749cc0 <AX element pid: 174, elementOrHash.elementID: 35943734784.82>
+              Other, 0x14f749e00 <AX element pid: 174, elementOrHash.elementID: 35943841792.153>
+                Other, 0x14f749f40 <AX element pid: 174, elementOrHash.elementID: 35943842240.193>
+                  Other, 0x14f74a080 <AX element pid: 174, elementOrHash.elementID: 35943794560.259>
+                    Other, 0x14f74a1c0 <AX element pid: 174, elementOrHash.elementID: 35943802240.327>
+                  Other, 0x14f74a300 <AX element pid: 174, elementOrHash.elementID: 35943802880.260>
+                    Other, 0x14f74a440 <AX element pid: 174, elementOrHash.elementID: 35943844032.328>
+                      Image, 0x14f74a580 <AX element pid: 174, elementOrHash.elementID: 36036537344.415>
+          Other, 0x14f74a6c0 <AX element pid: 174, elementOrHash.elementID: 36036368384.58>
+          Icon, 0x14f74a800 <AX element pid: 174, elementOrHash.elementID: 35944142848.59>
+            Other, 0x14f74a940 <AX element pid: 174, elementOrHash.elementID: 35887479808.1147>
+            Other, 0x14f74aa80 <AX element pid: 174, elementOrHash.elementID: 35887469568.1148>
+            Other, 0x14f74abc0 <AX element pid: 174, elementOrHash.elementID: 35891053184.513>
+            Other, 0x14f74ad00 <AX element pid: 174, elementOrHash.elementID: 35887477248.1149>
+      Other, 0x14f74ae40 <AX element pid: 174, elementOrHash.elementID: 35944048000.40>
+        Other, 0x14f74af80 <AX element pid: 174, elementOrHash.elementID: 36037143040.51>
+          Other, 0x14f74b0c0 <AX element pid: 174, elementOrHash.elementID: 16400521463572639115.9999>
+            Other, 0x14f74b200 <AX element pid: 303, elementOrHash.elementID: 4312005392.4>
+              Other, 0x14f74b340 <AX element pid: 303, elementOrHash.elementID: 33807598848.5>
+                Other, 0x14f74b480 <AX element pid: 303, elementOrHash.elementID: 33807631232.6>
+                  Other, 0x14f74b5c0 <AX element pid: 303, elementOrHash.elementID: 33807630336.7>
+          Other, 0x14f74b700 <AX element pid: 174, elementOrHash.elementID: 3119342986303746691.9999>
+            Other, 0x14f74b840 <AX element pid: 303, elementOrHash.elementID: 33807632128.8>
+              Other, 0x14f74b980 <AX element pid: 303, elementOrHash.elementID: 33807633920.9>
+          Other, 0x14f74bac0 <AX element pid: 174, elementOrHash.elementID: 13277597320353363328.9999>
+  Window, 0x14f74bc00 <AX element pid: 174, elementOrHash.elementID: 36022010880.16>
+    StatusBar, 0x14f74bd40 <AX element pid: 174, elementOrHash.elementID: 36017866624.26>
+      Other, 0x14f74be80 <AX element pid: 174, elementOrHash.elementID: 36021977088.41>
+        Other, 0x14f74c000 <AX element pid: 174, elementOrHash.elementID: 35889654720.2076>
+          Other, 0x14f74c140 <AX element pid: 174, elementOrHash.elementID: 36057350656.2088>
+          Other, 0x14f74c280 <AX element pid: 174, elementOrHash.elementID: 35889647552.2077>
+            StaticText, 0x14f74c3c0 <AX element pid: 174, elementOrHash.elementID: 35893191424.2079>
+            StaticText, 0x14f74c500 <AX element pid: 174, elementOrHash.elementID: 35893197696.2080>
+          Other, 0x14f74c640 <AX element pid: 174, elementOrHash.elementID: 36057351168.2089>
+          Other, 0x14f74c780 <AX element pid: 174, elementOrHash.elementID: 35907105920.2078>
+            Other, 0x14f74c8c0 <AX element pid: 174, elementOrHash.elementID: 36057354752.2081>
+            Image, 0x14f74ca00 <AX element pid: 174, elementOrHash.elementID: 35888208768.2082>
+            StaticText, 0x14f74cb40 <AX element pid: 174, elementOrHash.elementID: 35911293952.2083>
+            Other, 0x14f74cc80 <AX element pid: 174, elementOrHash.elementID: 35888203008.2084>
+          Other, 0x14f74cdc0 <AX element pid: 174, elementOrHash.elementID: 36057352704.2090>
+    Other, 0x14f74cf00 <AX element pid: 174, elementOrHash.elementID: 36017881984.27>
+  Window, 0x14f74d040 <AX element pid: 174, elementOrHash.elementID: 36052804608.2240>
+    Other, 0x14f74d180 <AX element pid: 174, elementOrHash.elementID: 35888121152.1814>
+      Other, 0x14f74d2c0 <AX element pid: 174, elementOrHash.elementID: 35888134144.1816>
+      Other, 0x14f74d400 <AX element pid: 174, elementOrHash.elementID: 35888122048.1817>
+        Other, 0x14f74d540 <AX element pid: 174, elementOrHash.elementID: 35888133248.1819>
+          Other, 0x14f74d680 <AX element pid: 174, elementOrHash.elementID: 35888122944.1820>
+            Other, 0x14f74d7c0 <AX element pid: 174, elementOrHash.elementID: 35907062848.1822>
+              Other, 0x14f74d900 <AX element pid: 174, elementOrHash.elementID: 35907065536.1823>
+              Other, 0x14f74da40 <AX element pid: 174, elementOrHash.elementID: 35903851136.1824>
+                Other, 0x14f74db80 <AX element pid: 174, elementOrHash.elementID: 36044862464.1825>
+      Other, 0x14f74dcc0 <AX element pid: 174, elementOrHash.elementID: 35888132800.1818>
+  Window, 0x14f74de00 <AX element pid: 174, elementOrHash.elementID: 36032072704.17>
+    Other, 0x14f74df40 <AX element pid: 174, elementOrHash.elementID: 35953535488.28>
+  Window, 0x14f74e080 <AX element pid: 174, elementOrHash.elementID: 36032076800.18>
+    Other, 0x14f74e1c0 <AX element pid: 174, elementOrHash.elementID: 35953537728.29>
+23:22:58.821 WebDriverAgentRunner-Runner[1370:142684] Found matches {(
+    StatusBar
+)} with root Application, pid: 174
+23:22:58.821 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda4af0> 2026-07-19 16:22:58 +0000: Find the StatusBar (Element at index 0) (0.125688s)
+23:22:58.822 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'checking for continuity enablement' with timeout 30.00
+23:22:58.822 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f56b0> entering wait loop for 30.00s with expectations: `checking for continuity enablement`
+    t =    15.63s     Find: Element at index 0
+23:22:58.823 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f56b0>
+23:22:58.823 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6c4c0> completed after 0.001s
+23:22:58.823 WebDriverAgentRunner-Runner[1370:142684] cleaning up checking for continuity enablement
+23:22:58.824 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeFrame', 'XC_kAXXCAttributeWindowDisplayId', 'XC_kAXXCAttributeWindowContextId' for AX element pid: 174, elementOrHash.elementID: 36017866624.26' with timeout 30.00
+23:22:58.824 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f66d0> entering wait loop for 30.00s with expectations: `fetching attributes 'XC_kAXXCAttributeFrame', 'XC_kAXXCAttributeWindowDisplayId', 'XC_kAXXCAttributeWindowContextId' for AX element pid: 174, elementOrHash.elementID: 36017866624.26`
+23:22:58.826 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f66d0>
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6c240> completed after 0.003s
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeFrame', 'XC_kAXXCAttributeWindowDisplayId', 'XC_kAXXCAttributeWindowContextId' for AX element pid: 174, elementOrHash.elementID: 36017866624.26
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] StatusBar (AX element pid: 174, elementOrHash.elementID: 36017866624.26) faulted in {
+    "XC_kAXXCAttributeFrame" =     {
+        Height = 1366;
+        Width = 32;
+        X = 0;
+        Y = 0;
+    };
+    "XC_kAXXCAttributeWindowContextId" = 2087488016;
+    "XC_kAXXCAttributeWindowDisplayId" = 1;
+}: (no error) for frame using XC_kAXXCAttributeFrame, XC_kAXXCAttributeWindowDisplayId, XC_kAXXCAttributeWindowContextId
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] getting parameterized attribute XC_kAXXCParameterizedAttributeConvertHostedViewFrame with parameter (
+        {
+        Height = 1366;
+        Width = 32;
+        X = 0;
+        Y = 0;
+    },
+    2087488016,
+    1
+)
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting parameterized attribute XC_kAXXCParameterizedAttributeConvertHostedViewFrame' with timeout 65.00
+23:22:58.827 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6070> entering wait loop for 65.00s with expectations: `getting parameterized attribute XC_kAXXCParameterizedAttributeConvertHostedViewFrame`
+23:22:58.831 WebDriverAgentRunner-Runner[1370:142704] Got parameterized attribute fetch for XC_kAXXCParameterizedAttributeConvertHostedViewFrame response with values {
+    Height = 1366;
+    Width = 32;
+    X = 0;
+    Y = 0;
+}, error: (null)
+23:22:58.831 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6070>
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6c680> completed after 0.004s
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting parameterized attribute XC_kAXXCParameterizedAttributeConvertHostedViewFrame
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] No change when transforming rect {{0, 0}, {32, 1366}}, either portrait orientation or non-standard app configuration such as springboard
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] Fetching application interface orientation
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting interface orientation' with timeout 65.00
+23:22:58.832 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f54d0> entering wait loop for 65.00s with expectations: `getting interface orientation`
+23:22:58.833 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f54d0>
+23:22:58.834 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6c800> completed after 0.001s
+23:22:58.834 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting interface orientation
+23:22:58.834 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen identifiers' with timeout 30.00
+23:22:58.834 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f5aa0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+23:22:58.834 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f5aa0>
+23:22:58.835 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6c940> completed after 0.000s
+23:22:58.835 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen identifiers
+23:22:58.835 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen bounds' with timeout 30.00
+23:22:58.835 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f5aa0> entering wait loop for 30.00s with expectations: `getting screen bounds`
+23:22:58.835 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f5aa0>
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6cac0> completed after 0.000s
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen bounds
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen scale' with timeout 30.00
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f63d0> entering wait loop for 30.00s with expectations: `getting screen scale`
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f63d0>
+23:22:58.836 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6cac0> completed after 0.000s
+23:22:58.837 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen scale
+23:22:58.837 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find the Application 'com.apple.springboard'
+    t =    15.65s Find the Application 'com.apple.springboard'
+23:22:58.837 WebDriverAgentRunner-Runner[1370:142684] Executing query:
+
+23:22:58.838 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'checking for continuity enablement' with timeout 30.00
+23:22:58.838 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6af0> entering wait loop for 30.00s with expectations: `checking for continuity enablement`
+23:22:58.839 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6af0>
+23:22:58.839 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6cd80> completed after 0.001s
+23:22:58.839 WebDriverAgentRunner-Runner[1370:142684] cleaning up checking for continuity enablement
+23:22:58.839 WebDriverAgentRunner-Runner[1370:142684] Should evaluate query remotely? XCTDisableRemoteQueryEvaluation(d-write): YES, hasAutomationSession: YES, supportsRemoteEvaluation: YES
+23:22:58.840 WebDriverAgentRunner-Runner[1370:142684] Getting matching snapshots for locally evaluated query
+23:22:58.840 WebDriverAgentRunner-Runner[1370:142684] Evaluating query:
+ 
+23:22:58.840 WebDriverAgentRunner-Runner[1370:142684] Getting root element snapshot
+23:22:58.840 WebDriverAgentRunner-Runner[1370:142684] Getting snapshot for App element pid: 174 for query 
+23:22:58.841 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> started activity <XCActivityRecord: 0x14eda4070> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174
+23:22:58.841 WebDriverAgentRunner-Runner[1370:142684] Query requires iOS snapshot attributes .
+23:22:58.841 WebDriverAgentRunner-Runner[1370:142684] XCUIElementQuery <XCTElementSnapshotProvider> getting snapshot
+    t =    15.65s     Requesting snapshot of accessibility hierarchy for app with pid 174
+23:22:58.841 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom attributes 
+23:22:58.842 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom parameters {
+    snapshotKeyHonorModalViews = 0;
+}
+23:22:58.842 WebDriverAgentRunner-Runner[1370:142684] Current snapshot generation is 10
+23:22:58.842 WebDriverAgentRunner-Runner[1370:142684] Capturing a new snapshot
+23:22:58.842 WebDriverAgentRunner-Runner[1370:142684] Fetching snapshot for App element pid: 174 from testmanagerd with attributes XC_kAXXCAttributeElementType, XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeTraits and parameters {
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 50;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}.
+23:22:58.843 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching snapshot from testmanagerd.' with timeout 65.00
+23:22:58.843 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f73c0> entering wait loop for 65.00s with expectations: `fetching snapshot from testmanagerd.`
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142704] Got snapshot response with runtime issue support from testmanagerd.
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f73c0>
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14ec6d1c0> completed after 0.123s
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching snapshot from testmanagerd.
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda4070> 2026-07-19 16:22:58 +0000: Requesting snapshot of accessibility hierarchy for app with pid 174 (0.125668s)
+23:22:58.966 WebDriverAgentRunner-Runner[1370:142684] Found matches {(
+    App element pid: 174
+)} with root App element pid: 174
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] <XCTContext: 0x14e1a8e60> finished activity <XCActivityRecord: 0x14eda40e0> 2026-07-19 16:22:58 +0000: Find the Application 'com.apple.springboard' (0.129724s)
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] XCUIElementQuery <XCTElementSnapshotProvider> getting snapshot
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Snapshot request has custom attributes XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeValue, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeTraits, XC_kAXXCAttributeVerticalSizeClass, XC_kAXXCAttributeFrame, XC_kAXXCAttributeWindowDisplayId, XC_kAXXCAttributeWindowContextId, XC_kAXXCAttributeLabel, XC_kAXXCAttributeHorizontalSizeClass, XC_kAXXCAttributeHasNativeFocus, XC_kAXXCAttributePlaceholderValue, XC_kAXXCAttributeElementType
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Current snapshot generation is 12
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Query rootElementSnapshot is non-null with generation count 12
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Capturing a new snapshot
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Fetching snapshot for App element pid: 174 from testmanagerd with attributes XC_kAXXCAttributeElementBaseType, XC_kAXXCAttributeParent, XC_kAXXCAttributeAutomationType, XC_kAXXCAttributeIdentifier, XC_kAXXCAttributeTraits, XC_kAXXCAttributeVerticalSizeClass, XC_kAXXCAttributeFrame, XC_kAXXCAttributeWindowDisplayId, XC_kAXXCAttributeWindowContextId, XC_kAXXCAttributeLabel, XC_kAXXCAttributeHorizontalSizeClass, XC_kAXXCAttributeHasNativeFocus, XC_kAXXCAttributePlaceholderValue, XC_kAXXCAttributeTruncatedValue, XC_kAXXCAttributeElementType and parameters {
+    maxArrayCount = 2147483647;
+    maxChildren = 2147483647;
+    maxDepth = 50;
+    snapshotKeyHonorModalViews = 0;
+    traverseFromParentsToChildren = 1;
+}.
+23:22:58.967 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching snapshot from testmanagerd.' with timeout 65.00
+23:22:58.968 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6610> entering wait loop for 65.00s with expectations: `fetching snapshot from testmanagerd.`
+23:22:59.169 WebDriverAgentRunner-Runner[1370:142704] Got snapshot response with runtime issue support from testmanagerd.
+23:22:59.169 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6610>
+23:22:59.169 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f764700> completed after 0.202s
+23:22:59.170 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching snapshot from testmanagerd.
+23:22:59.170 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting interface orientation' with timeout 65.00
+23:22:59.170 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6b20> entering wait loop for 65.00s with expectations: `getting interface orientation`
+23:22:59.171 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6b20>
+23:22:59.171 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77d300> completed after 0.001s
+23:22:59.171 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting interface orientation
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen identifiers' with timeout 30.00
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f6eb0> entering wait loop for 30.00s with expectations: `getting screen identifiers`
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f6eb0>
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77e2c0> completed after 0.000s
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen identifiers
+23:22:59.172 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting screen scale' with timeout 30.00
+23:22:59.173 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f70f0> entering wait loop for 30.00s with expectations: `getting screen scale`
+23:22:59.173 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f70f0>
+23:22:59.173 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77e280> completed after 0.000s
+23:22:59.173 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting screen scale
+23:22:59.692 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:22:59.693 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:22:59.694 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:22:59.695 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:22:59.701 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:22:59.702 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1313: active
+23:22:59.729 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:22:59.730 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:22:59.735 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:22:59.737 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:22:59.809 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:22:59.810 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1313: active
+23:23:00.174 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:00.174 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.177 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.179 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KeyboardViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.181 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.183 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.185 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.187 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVBackgroundViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.189 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.190 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = "_UIRemoteInputViewController";
+    event = ViewDidDisappear;
+}
+23:23:00.192 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.193 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UISystemInputAssistantViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.194 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.194 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UIPredictionViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.195 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.196 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.197 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.198 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.199 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.200 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = UIViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.200 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.201 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVKeyboardViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.201 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.201 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVEffectViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.765 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.765 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SBSpotlightTransientOverlayViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.766 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.767 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SBSpotlightTransientOverlaySpotlightViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.796 WebDriverAgentRunner-Runner[1370:142704] Handling kAXUserTestingNotification
+23:23:00.797 WebDriverAgentRunner-Runner[1370:142704] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SPUIRemoteSearchViewController;
+    event = ViewDidDisappear;
+}
+23:23:00.856 WebDriverAgentRunner-Runner[1370:142705] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running background
+23:23:00.856 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:00.857 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:00.858 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running background
+23:23:00.858 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:23:00.859 WebDriverAgentRunner-Runner[1370:142705] com.apple.Spotlight (pid:305) application state Running Foreground (4) -> Running Background (3)
+23:23:00.859 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Background (3)
+23:23:03.292 WebDriverAgentRunner-Runner[1370:142705] Handling kAXPidStatusChangedNotification
+23:23:03.293 WebDriverAgentRunner-Runner[1370:142705] Got kAXPidStatusChangedNotification for pid 1212: active
+23:23:03.346 WebDriverAgentRunner-Runner[1370:142704] Handling kAXPidStatusChangedNotification
+23:23:03.347 WebDriverAgentRunner-Runner[1370:142704] Got kAXPidStatusChangedNotification for pid 305: active
+23:23:03.366 WebDriverAgentRunner-Runner[1370:142706] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: background suspended
+23:23:03.367 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1212, caching
+23:23:03.368 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: background suspended
+23:23:03.368 WebDriverAgentRunner-Runner[1370:142705] com.apple.Spotlight (pid:305) accessibility active (loaded) NO -> YES
+23:23:03.369 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:23:03.369 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Background Suspended (2)
+23:23:03.369 WebDriverAgentRunner-Runner[1370:142705] com.apple.Spotlight (pid:305) application state Running Background (3) -> Running Background Suspended (2)
+23:23:04.247 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.248 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:23:04.253 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.254 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:23:04.255 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.255 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:23:04.262 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:23:04.263 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1212: active
+23:23:04.264 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:23:04.264 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 305: active
+23:23:04.278 WebDriverAgentRunner-Runner[1370:142706] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running background
+23:23:04.279 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1212, caching
+23:23:04.279 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.280 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running background
+23:23:04.280 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SBSpotlightTransientOverlayViewController;
+    event = ViewDidAppear;
+}
+23:23:04.281 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:23:04.282 WebDriverAgentRunner-Runner[1370:142705] com.apple.Spotlight (pid:305) application state Running Background Suspended (2) -> Running Background (3)
+23:23:04.282 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Background (3)
+23:23:04.283 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.284 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SBSpotlightTransientOverlaySpotlightViewController;
+    event = ViewDidAppear;
+}
+23:23:04.286 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.287 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = SPUIRemoteSearchViewController;
+    event = ViewDidAppear;
+}
+23:23:04.293 WebDriverAgentRunner-Runner[1370:142705] -[XCTRunnerDaemonSession(XCTMessagingRole_UIApplicationStateUpdating) _XCT_applicationDidUpdateState:] com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:23:04.294 WebDriverAgentRunner-Runner[1370:142684] [AM:0] Processing state snapshot com.apple.Spotlight@/Applications/Spotlight.app processName: Spotlight pid: 305 state: running foreground
+23:23:04.294 WebDriverAgentRunner-Runner[1370:142684] Done setting pid for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight> to 305
+23:23:04.295 WebDriverAgentRunner-Runner[1370:142705] com.apple.Spotlight (pid:305) application state Running Background (3) -> Running Foreground (4)
+23:23:04.295 WebDriverAgentRunner-Runner[1370:142684] App state updated for <XCUIApplicationImpl: 0x14e3feb80 com.apple.Spotlight>: Running Foreground (4)
+23:23:04.326 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:23:04.328 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1313: active
+23:23:04.334 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:23:04.335 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1313: active
+23:23:04.336 WebDriverAgentRunner-Runner[1370:142940] Handling kAXPidStatusChangedNotification
+23:23:04.337 WebDriverAgentRunner-Runner[1370:142940] Got kAXPidStatusChangedNotification for pid 1313: active
+23:23:04.341 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.342 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidAppear;
+}
+23:23:04.396 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.396 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidAppear;
+}
+23:23:04.399 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.400 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UISystemInputAssistantViewController;
+    event = ViewDidAppear;
+}
+23:23:04.406 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.408 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UIPredictionViewController;
+    event = ViewDidAppear;
+}
+23:23:04.411 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.413 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:04.414 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.415 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UISystemInputAssistantViewController;
+    event = ViewDidDisappear;
+}
+23:23:04.416 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.417 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UIPredictionViewController;
+    event = ViewDidDisappear;
+}
+23:23:04.419 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.420 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidAppear;
+}
+23:23:04.421 WebDriverAgentRunner-Runner[1370:142940] Handling kAXUserTestingNotification
+23:23:04.422 WebDriverAgentRunner-Runner[1370:142940] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidDisappear;
+}
+23:23:04.443 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.444 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UIInputWindowController;
+    event = ViewDidAppear;
+}
+23:23:04.447 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.448 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidAppear;
+}
+23:23:04.449 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.451 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UISystemInputAssistantViewController;
+    event = ViewDidAppear;
+}
+23:23:04.453 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.455 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UIPredictionViewController;
+    event = ViewDidAppear;
+}
+23:23:04.456 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.456 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = "_UIViewServiceViewControllerOperator";
+    event = ViewDidAppear;
+}
+23:23:04.495 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.496 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = UIViewController;
+    event = ViewDidAppear;
+}
+23:23:04.497 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.498 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVKeyboardViewController;
+    event = ViewDidAppear;
+}
+23:23:04.499 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.500 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVEffectViewController;
+    event = ViewDidAppear;
+}
+23:23:04.501 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.502 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = "_UIRemoteInputViewController";
+    event = ViewDidAppear;
+}
+23:23:04.531 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.532 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KeyboardViewController;
+    event = ViewDidAppear;
+}
+23:23:04.533 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.534 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVBackgroundViewController;
+    event = ViewDidAppear;
+}
+23:23:04.535 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.536 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = UIViewController;
+    event = ViewDidAppear;
+}
+23:23:04.537 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.537 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVKeyboardViewController;
+    event = ViewDidAppear;
+}
+23:23:04.538 WebDriverAgentRunner-Runner[1370:142706] Handling kAXUserTestingNotification
+23:23:04.539 WebDriverAgentRunner-Runner[1370:142706] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    controllerClass = KVEffectViewController;
+    event = ViewDidAppear;
+}
+23:23:04.824 WebDriverAgentRunner-Runner[1370:142941] Handling kAXUserTestingNotification
+23:23:04.825 WebDriverAgentRunner-Runner[1370:142941] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = UICompatibilityInputViewController;
+    event = ViewDidAppear;
+}
+23:23:10.547 WebDriverAgentRunner-Runner[1370:142711] Handling kAXPidStatusChangedNotification
+23:23:10.548 WebDriverAgentRunner-Runner[1370:142711] Got kAXPidStatusChangedNotification for pid 1313: active
+23:23:11.658 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element' with timeout 65.00
+23:23:11.659 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4420> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element`
+23:23:11.660 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:11.661 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:11.662 WebDriverAgentRunner-Runner[1370:142705] Got attribute fetch response with values {
+    "XC_kAXXCAttributeSystemAppApplication" = "AX element pid: 174, elementOrHash.elementID: 0.1";
+}, error: (null)
+23:23:11.662 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:11.663 WebDriverAgentRunner-Runner[1370:142684] No application process found matching pid 1313, caching
+23:23:11.663 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4420>
+23:23:11.665 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77c400> completed after 0.006s
+23:23:11.666 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeSystemAppApplication' for Device system-wide element
+23:23:11.666 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1' with timeout 65.00
+23:23:11.667 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f46c0> entering wait loop for 65.00s with expectations: `fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1`
+23:23:11.670 WebDriverAgentRunner-Runner[1370:142705] Got attribute fetch response with values {
+    "XC_kAXXCAttributeFocusedApplications" =     (
+        "AX element pid: 305, elementOrHash.elementID: 0.1"
+    );
+}, error: (null)
+23:23:11.671 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f46c0>
+23:23:11.672 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77d280> completed after 0.005s
+23:23:11.672 WebDriverAgentRunner-Runner[1370:142684] cleaning up fetching attributes 'XC_kAXXCAttributeFocusedApplications' for AX element pid: 174, elementOrHash.elementID: 0.1
+23:23:11.673 WebDriverAgentRunner-Runner[1370:142684] Active application elements: (
+    "AX element pid: 305, elementOrHash.elementID: 0.1"
+)
+23:23:11.673 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting interface orientation' with timeout 65.00
+23:23:11.674 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4e40> entering wait loop for 65.00s with expectations: `getting interface orientation`
+23:23:11.675 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4e40>
+23:23:11.676 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77d940> completed after 0.002s
+23:23:11.677 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting interface orientation
+23:23:11.678 WebDriverAgentRunner-Runner[1370:142684] Creating future for 'getting interface orientation' with timeout 65.00
+23:23:11.679 WebDriverAgentRunner-Runner[1370:142684] <XCTWaiter: 0x14f6f4b40> entering wait loop for 65.00s with expectations: `getting interface orientation`
+23:23:11.681 WebDriverAgentRunner-Runner[1370:142684] Returning result XCTWaiterResultCompleted for synchronous waiter <XCTWaiter: 0x14f6f4b40>
+23:23:11.681 WebDriverAgentRunner-Runner[1370:142684] Wait <XCTWaiterWait: 0x14f77d080> completed after 0.002s
+23:23:11.681 WebDriverAgentRunner-Runner[1370:142684] cleaning up getting interface orientation
+23:23:11.683 WebDriverAgentRunner-Runner[1370:142684] Requesting local synthesis of event: 
+<XCSynthesizedEventRecord 'Swipe Point Array display 0'>
+Path 1:
+	Touch down at 634.0, 720.0, offset=0.00s
+	Move to 615.0, 720.0, offset=0.04s
+	Move to 472.0, 704.0, offset=0.08s
+	Move to 156.0, 677.0, offset=0.12s
+	Move to -37.0, 668.0, offset=0.15s
+	Move to -112.0, 664.0, offset=0.19s
+	Move to -114.0, 664.0, offset=0.21s
+	Touch up at -114.0, 664.0, offset=0.22s
+23:23:11.968 WebDriverAgentRunner-Runner[1370:142941] Handling kAXUserTestingNotification
+23:23:11.969 WebDriverAgentRunner-Runner[1370:142941] Received kAXUserTestingNotification from AX element pid: 174, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:23:11.974 WebDriverAgentRunner-Runner[1370:142941] Handling kAXUserTestingNotification
+23:23:11.975 WebDriverAgentRunner-Runner[1370:142941] Received kAXUserTestingNotification from AX element pid: 1212, elementOrHash.elementID: 0.1: {
+    event = TouchEventsCompleted;
+}
+23:23:16.853 WebDriverAgentRunner-Runner[1370:142711] Handling kAXPidStatusChangedNotification
+23:23:16.854 WebDriverAgentRunner-Runner[1370:142711] Got kAXPidStatusChangedNotification for pid 879: active
+23:23:17.039 WebDriverAgentRunner-Runner[1370:142711] Handling kAXUserTestingNotification
+23:23:17.040 WebDriverAgentRunner-Runner[1370:142711] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = SPUIResultsViewController;
+    event = ViewDidAppear;
+}
+23:23:17.041 WebDriverAgentRunner-Runner[1370:142711] Handling kAXUserTestingNotification
+23:23:17.041 WebDriverAgentRunner-Runner[1370:142711] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = SearchUIResultsCollectionViewController;
+    event = ViewDidAppear;
+}
+23:23:17.042 WebDriverAgentRunner-Runner[1370:142711] Handling kAXUserTestingNotification
+23:23:17.043 WebDriverAgentRunner-Runner[1370:142711] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = SPUIProactiveResultsViewController;
+    event = ViewDidDisappear;
+}
+23:23:17.045 WebDriverAgentRunner-Runner[1370:142711] Handling kAXUserTestingNotification
+23:23:17.045 WebDriverAgentRunner-Runner[1370:142711] Received kAXUserTestingNotification from AX element pid: 305, elementOrHash.elementID: 0.1: {
+    controllerClass = SearchUIResultsCollectionViewController;
+    event = ViewDidDisappear;
+}
+{"time":"2026-07-19T23:25:02.247866+07:00","level":"ERROR","msg":"conn1 closed unexpectedly","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","error":"EOF"}
+{"time":"2026-07-19T23:25:02.248222+07:00","level":"INFO","msg":"Killing test runner","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","pid":1370}
+{"time":"2026-07-19T23:25:02.24831+07:00","level":"INFO","msg":"Killing test runner","module":"go-ios/testmanagerd","pid":1370}
+{"time":"2026-07-19T23:25:02.255529+07:00","level":"INFO","msg":"Nothing to kill, process is already dead","module":"go-ios/testmanagerd","udid":"00008027-000404D13439002E","pid":1370}
+{"time":"2026-07-19T23:25:02.256184+07:00","level":"ERROR","msg":"Failed running WDA","error":"lost connection to testmanagerd. the test-runner may have been killed"}

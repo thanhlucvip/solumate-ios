@@ -1,0 +1,76 @@
+#import <dispatch/dispatch.h>
+#import "XCPointerEventPath.h"
+#import "XCSynthesizedEventRecord.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "XCTRunnerDaemonSession.h"
+
+- (BOOL)fb_solumate_synthSwipePointArray:(NSArray<NSArray<NSNumber *> *> *)pointArray
+                            error:(NSError **)error
+{
+  if (pointArray.count < 2) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"com.solumate.wda"
+                                   code:400
+                               userInfo:@{NSLocalizedDescriptionKey: @"pointArray must contain at least 2 points"}];
+    }
+    return NO;
+  }
+
+  NSArray<NSNumber *> *first = pointArray.firstObject;
+  CGPoint start = CGPointMake(first[0].doubleValue, first[1].doubleValue);
+  XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:start offset:0];
+
+  NSTimeInterval lastOffset = 0;
+  for (NSUInteger i = 1; i < pointArray.count; i++) {
+    NSArray<NSNumber *> *item = pointArray[i];
+    CGPoint point = CGPointMake(item[0].doubleValue, item[1].doubleValue);
+    NSTimeInterval offset = item[2].doubleValue;
+    if (offset < lastOffset) {
+      if (error) {
+        *error = [NSError errorWithDomain:@"com.solumate.wda"
+                                     code:400
+                                 userInfo:@{NSLocalizedDescriptionKey: @"pointArray offsets must be monotonic"}];
+      }
+      return NO;
+    }
+    [pointerEventPath moveToPoint:point atOffset:offset];
+    lastOffset = offset;
+  }
+
+  [pointerEventPath liftUpAtOffset:lastOffset];
+
+  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"hc.pointArray" interfaceOrientation:0];
+  [eventRecord addPointerEventPath:pointerEventPath];
+
+  dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+  __block BOOL ok = YES;
+  __block NSError *invokeError = nil;
+
+  [[self eventSynthesizer] synthesizeEvent:eventRecord completion:(id)^(BOOL result, NSError *err) {
+    ok = result;
+    invokeError = err;
+    dispatch_semaphore_signal(sema);
+  }];
+
+  dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MAX(1.0, lastOffset + 2.0) * NSEC_PER_SEC));
+  long waitResult = dispatch_semaphore_wait(sema, timeout);
+  if (waitResult != 0) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"com.solumate.wda"
+                                   code:408
+                               userInfo:@{NSLocalizedDescriptionKey: @"Timed out waiting for synthesized pointArray swipe"}];
+    }
+    return NO;
+  }
+
+  if (!ok || nil != invokeError) {
+    if (error) {
+      *error = invokeError ?: [NSError errorWithDomain:@"com.solumate.wda"
+                                                  code:500
+                                              userInfo:@{NSLocalizedDescriptionKey: @"Failed to synthesize pointArray swipe"}];
+    }
+    return NO;
+  }
+
+  return YES;
+}

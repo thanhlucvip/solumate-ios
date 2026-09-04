@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>DDIFilename</key>
+	<string>ddi-17E5179g.zip</string>
+	<key>Platform</key>
+	<string>iOS</string>
+	<key>ProductBuildVersion</key>
+	<string>17E5179g</string>
+	<key>Source</key>
+	<string>github.com/doronz88/DeveloperDiskImage</string>
+</dict>
+</plist>

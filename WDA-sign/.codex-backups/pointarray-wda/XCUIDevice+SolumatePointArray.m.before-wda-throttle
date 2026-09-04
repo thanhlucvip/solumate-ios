@@ -1,0 +1,66 @@
+/**
+ * Rebuild overlay generated from IPA analysis.
+ * Add this file to the WebDriverAgentLib target.
+ */
+#import "XCUIDevice+SolumatePointArray.h"
+
+#import <UIKit/UIKit.h>
+
+#import "FBXCTestDaemonsProxy.h"
+#import "XCPointerEventPath.h"
+#import "XCSynthesizedEventRecord.h"
+
+static NSString *const SolumateWDAErrorDomain = @"com.solumate.wda";
+
+@implementation XCUIDevice (SolumatePointArray)
+
+- (BOOL)fb_solumate_synthSwipePointArray:(NSArray<NSArray<NSNumber *> *> *)pointArray
+                             error:(NSError **)error
+{
+  if (pointArray.count < 2) {
+    if (error) {
+      *error = [NSError errorWithDomain:SolumateWDAErrorDomain
+                                   code:400
+                               userInfo:@{NSLocalizedDescriptionKey: @"pointArray must contain at least 2 points"}];
+    }
+    return NO;
+  }
+
+  NSArray<NSNumber *> *first = pointArray.firstObject;
+  CGPoint start = CGPointMake(first[0].doubleValue, first[1].doubleValue);
+  XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:start offset:0];
+
+  NSTimeInterval lastOffset = 0;
+  for (NSUInteger i = 1; i < pointArray.count; i++) {
+    NSArray<NSNumber *> *item = pointArray[i];
+    if (item.count < 3) {
+      if (error) {
+        *error = [NSError errorWithDomain:SolumateWDAErrorDomain
+                                     code:400
+                                 userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"pointArray[%lu] must contain x, y, t", (unsigned long)i]}];
+      }
+      return NO;
+    }
+    CGPoint point = CGPointMake(item[0].doubleValue, item[1].doubleValue);
+    NSTimeInterval offset = item[2].doubleValue;
+    if (offset < lastOffset) {
+      if (error) {
+        *error = [NSError errorWithDomain:SolumateWDAErrorDomain
+                                     code:400
+                                 userInfo:@{NSLocalizedDescriptionKey: @"pointArray offsets must be monotonic"}];
+      }
+      return NO;
+    }
+    [pointerEventPath moveToPoint:point atOffset:offset];
+    lastOffset = offset;
+  }
+
+  [pointerEventPath liftUpAtOffset:lastOffset];
+
+  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"hc.pointArray" interfaceOrientation:0];
+  [eventRecord addPointerEventPath:pointerEventPath];
+
+  return [FBXCTestDaemonsProxy synthesizeEventWithRecord:eventRecord error:error];
+}
+
+@end
