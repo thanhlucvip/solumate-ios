@@ -1,1 +1,0 @@
-[[FBRoute POST:@"/wda/swipe/pointArray"] respondWithTarget:self action:@selector(handleDeviceSwipePointArray:)],

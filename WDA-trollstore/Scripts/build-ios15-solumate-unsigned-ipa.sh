@@ -5,11 +5,12 @@ set -euo pipefail
 # Legacy filename, current purpose: build a TrollStore-ready IPA with HID
 # entitlements for realtime touch injection.
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+WORKSPACE_DIR="$(cd "$ROOT_DIR/.." && pwd)"
 BUILD_DIR="$ROOT_DIR/build"
 DERIVED_DATA="$BUILD_DIR/DerivedData-ios15-solumate-trollstore"
 PACKAGE_DIR="$BUILD_DIR/ios15-solumate-trollstore-package"
 PAYLOAD_DIR="$PACKAGE_DIR/Payload"
-DEFAULT_ICON_DIR="$ROOT_DIR/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
+DEFAULT_ICON_DIR="$WORKSPACE_DIR/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
 BACKUP_ICON_DIR="/Users/apple/Desktop/code/docs/backup_ubuntu/products/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
 ICON_DIR="${ICON_DIR:-$DEFAULT_ICON_DIR}"
 

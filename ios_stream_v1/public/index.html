@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>iOS WDA Multi View Stream</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="toolbar">
+      <div class="title-block">
+        <h1>iOS WDA Multi View Stream</h1>
+        <p>Switch renderer live: MJPEG WDA, Broadway, h264-live-player, tinyh264, WebCodecs</p>
+      </div>
+      <div class="actions-row">
+        <a class="button-link" href="/setup">Setup</a>
+        <label class="inline-select">
+          View mode
+          <select id="viewModeSelect"></select>
+        </label>
+        <label class="inline-select">
+          Control mode
+          <select id="controlModeSelect"></select>
+        </label>
+        <button id="applyViewBtn">Apply view</button>
+        <button id="connectBtn">Connect WDA</button>
+        <button id="homeBtn">Home</button>
+        <button id="restartSessionBtn">Restart session</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="viewer-card">
+        <div class="viewer-header">
+          <div>
+            <strong>Live stream</strong>
+            <div class="hint">Tap to click, drag to swipe</div>
+          </div>
+        </div>
+
+        <div id="viewer" class="viewer">
+          <div id="streamHost" class="stream-host"></div>
+          <div id="gestureOverlay" class="gesture-overlay"></div>
+        </div>
+
+        <div class="notes">
+          <div>View mode: <code id="viewModeLabel">-</code></div>
+          <div>Control mode: <code id="controlModeLabel">-</code></div>
+          <div>Control link: <code id="controlStateLabel">-</code></div>
+          <div>WDA: <code id="wdaBaseLabel">-</code></div>
+          <div>Session: <code id="sessionIdLabel">-</code></div>
+          <div>Screen: <code id="screenInfoLabel">-</code></div>
+        </div>
+      </section>
+
+      <aside class="side-card">
+        <h2>MJPEG Settings</h2>
+        <label class="range-setting">
+          <span class="setting-label-row">
+            <span>FPS</span>
+            <output id="fpsValue" class="setting-value">30 fps</output>
+          </span>
+          <input id="fpsInput" type="range" min="1" max="60" value="30" step="1">
+        </label>
+        <label class="range-setting">
+          <span class="setting-label-row">
+            <span>JPEG quality</span>
+            <output id="qualityValue" class="setting-value">40%</output>
+          </span>
+          <input id="qualityInput" type="range" min="1" max="100" value="40" step="1">
+        </label>
+        <label class="range-setting">
+          <span class="setting-label-row">
+            <span>Scaling (%)</span>
+            <output id="scaleValue" class="setting-value">40%</output>
+          </span>
+          <input id="scaleInput" type="range" min="1" max="100" value="40" step="1">
+        </label>
+        <label class="checkbox-line">
+          <input id="fixOrientationInput" type="checkbox" checked>
+          Fix orientation
+        </label>
+        <button id="applySettingsBtn">Apply settings</button>
+
+        <h2>Trackpad</h2>
+        <label>
+          Sample interval (ms)
+          <input id="pointArraySampleMsInput" type="number" min="1" max="200" value="16">
+          </label>
+          <div class="hint trackpad-hint">
+          Used by realtime-socket(point array) mode.
+          </div>
+
+        <h2>Source Status</h2>
+        <div class="source-notes">
+          <div>H264 server: <code id="h264SourceLabel">-</code></div>
+          <div>Scrcpy decoder: <code id="scrcpySourceLabel">-</code></div>
+          <div>WebRTC WHEP: <code id="webrtcSourceLabel">-</code></div>
+        </div>
+
+        <h2>API Debug</h2>
+        <div class="actions-column">
+          <button id="statusBtn">/api/status</button>
+          <button id="screenBtn">/api/screen</button>
+        </div>
+
+        <h2>Log</h2>
+        <pre id="logBox" class="log-box"></pre>
+      </aside>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

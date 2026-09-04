@@ -229,8 +229,12 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   self.currentState = state;
   self.pendingResponse = nil;
 
-  NSError *executeError = nil;
-  BOOL ok = [self executePayload:payloadWithReceiveTs type:type error:&executeError];
+  __block NSError *executeError = nil;
+  __block BOOL ok = NO;
+  // Mirror the sign build: XCTest-backed gesture execution needs the main queue.
+  dispatch_sync(dispatch_get_main_queue(), ^{
+    ok = [self executePayload:payloadWithReceiveTs type:type error:&executeError];
+  });
   NSDictionary *customResponse = self.pendingResponse;
   self.pendingResponse = nil;
   self.currentClient = nil;

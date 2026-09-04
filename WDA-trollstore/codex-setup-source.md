@@ -71,9 +71,11 @@ npm install
 npm run build
 ```
 
-Neu chi can web UI trong `ios_stream_v1`, van nen cai dependency tai root truoc. Sau do co the chay server tu repo root bang:
+Neu chi can web UI trong `../ios_stream_v1`, cai dependency trong thu muc web UI chung. Sau do co the chay server bang:
 
 ```bash
+cd ../ios_stream_v1
+npm install
 npm start
 ```
 

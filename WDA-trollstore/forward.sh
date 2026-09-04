@@ -1,8 +1,13 @@
 #!/bin/bash
 
-UDID="ec12e067c6cc565d2c43e7bf2aefb95c0420a0e4"
+UDID="${GO_IOS_UDID:-${UDID:-ec12e067c6cc565d2c43e7bf2aefb95c0420a0e4}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-APP_DIR="$SCRIPT_DIR/ios_stream_v1"
+if [[ -d "$SCRIPT_DIR/ios_stream_v1" ]]; then
+    WORKSPACE_DIR="$SCRIPT_DIR"
+else
+    WORKSPACE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+APP_DIR="$WORKSPACE_DIR/ios_stream_v1"
 SERVER_PORT="${SERVER_PORT:-4200}"
 
 ports=(8000 8001 8003 8004 46968)
@@ -11,7 +16,7 @@ pids=()
 
 cleanup() {
     echo ""
-    echo "Đang dừng tất cả forward và server..."
+    echo "Đang dừng tất cả forward..."
 
     for pid in "${pids[@]}"; do
         kill "$pid" 2>/dev/null
@@ -37,7 +42,7 @@ load_server_port() {
 
 kill_existing_server() {
     echo ""
-    echo "Đang kill server cũ trên port $SERVER_PORT..."
+    echo "Đang kill server ios_stream_v1 cũ trên port $SERVER_PORT..."
 
     local existing_pids=()
     if command -v lsof >/dev/null 2>&1; then
@@ -57,23 +62,10 @@ kill_existing_server() {
     echo "Đã kill server cũ: ${existing_pids[*]}"
 }
 
-start_web_server() {
-    if [[ ! -d "$APP_DIR" ]]; then
-        echo "Không tìm thấy thư mục: $APP_DIR" >&2
-        cleanup
-    fi
-
-    load_server_port
-    cd "$APP_DIR" || cleanup
-    kill_existing_server
-
-    echo ""
-    echo "Starting ios_stream_v1 server on port $SERVER_PORT..."
-    node server.js &
-    pids+=($!)
-}
-
 trap cleanup SIGINT SIGTERM
+
+load_server_port
+kill_existing_server
 
 for port in "${ports[@]}"; do
     echo "Starting forward $port -> $port"
@@ -82,14 +74,12 @@ for port in "${ports[@]}"; do
     pids+=($!)
 done
 
-start_web_server
-
 echo ""
 echo "======================================"
 echo " iOS Port Forward đang chạy"
 echo " UDID: $UDID"
 echo " Ports: ${ports[*]}"
-echo " Web UI: http://127.0.0.1:$SERVER_PORT"
+echo " ios_stream_v1 server: đã kill port $SERVER_PORT, không tự khởi động"
 echo "======================================"
 echo "Nhấn Ctrl+C để dừng tất cả."
 echo ""
