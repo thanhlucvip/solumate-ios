@@ -14,40 +14,40 @@ const CONTROL_MODE_QUERY_KEY = 'controlMode';
 const AUTH_STORAGE_KEY = 'ios_wda_stream_auth_token';
 const CONTROL_MODE_STORAGE_KEY = 'ios_wda_control_mode';
 const REALTIME_PREFERRED_VIEW_MODES = ['mjpeg-canvas', 'mjpeg-binary', 'mjpeg-wda'];
-const CONTROL_MODE_TROLLSTORE_REALTIME = 'socket-realtime-trollstore';
-const CONTROL_MODE_SOCKET_POINT_ARRAY = 'realtime-socket-point-array';
+const CONTROL_MODE_SOCKET_REALTIME = 'realtime-socket';
 const CONTROL_MODE_SOCKET_SWIPE = 'realtime-socket-swipe';
 const CONTROL_MODE_ALIASES = {
-  'socket-realtime-trollstore': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'realtime-control': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'realtime-trollstore': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'trollstore-realtime': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'trollstore-socket': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'touch-realtime': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'realtime-touch': CONTROL_MODE_TROLLSTORE_REALTIME,
-  'realtime-socket-point-array': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-socket-pointarray': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-socket(point-array)': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-socket(pointarray)': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-socket(point array)': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-control-mesh': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  mesh: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'mesh-point-array': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'mesh-pointarray': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'socket-point-array': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'socket-pointarray': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'point-array-socket': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'pointarray-socket': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'realtime-socket': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  realtime: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  socket: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  auto: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  http: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'http-wda': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  pointarray: CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'point-array': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'http-pointarray': CONTROL_MODE_SOCKET_POINT_ARRAY,
-  'http-point-array': CONTROL_MODE_SOCKET_POINT_ARRAY,
+  'realtime-socket': CONTROL_MODE_SOCKET_REALTIME,
+  'socket-realtime': CONTROL_MODE_SOCKET_REALTIME,
+  'socket-realtime-trollstore': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-control': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-trollstore': CONTROL_MODE_SOCKET_REALTIME,
+  'trollstore-realtime': CONTROL_MODE_SOCKET_REALTIME,
+  'trollstore-socket': CONTROL_MODE_SOCKET_REALTIME,
+  'touch-realtime': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-touch': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-socket-point-array': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-socket-pointarray': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-socket(point-array)': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-socket(pointarray)': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-socket(point array)': CONTROL_MODE_SOCKET_REALTIME,
+  'realtime-control-mesh': CONTROL_MODE_SOCKET_REALTIME,
+  mesh: CONTROL_MODE_SOCKET_REALTIME,
+  'mesh-point-array': CONTROL_MODE_SOCKET_REALTIME,
+  'mesh-pointarray': CONTROL_MODE_SOCKET_REALTIME,
+  'socket-point-array': CONTROL_MODE_SOCKET_REALTIME,
+  'socket-pointarray': CONTROL_MODE_SOCKET_REALTIME,
+  'point-array-socket': CONTROL_MODE_SOCKET_REALTIME,
+  'pointarray-socket': CONTROL_MODE_SOCKET_REALTIME,
+  realtime: CONTROL_MODE_SOCKET_REALTIME,
+  socket: CONTROL_MODE_SOCKET_REALTIME,
+  auto: CONTROL_MODE_SOCKET_REALTIME,
+  http: CONTROL_MODE_SOCKET_REALTIME,
+  'http-wda': CONTROL_MODE_SOCKET_REALTIME,
+  pointarray: CONTROL_MODE_SOCKET_REALTIME,
+  'point-array': CONTROL_MODE_SOCKET_REALTIME,
+  'http-pointarray': CONTROL_MODE_SOCKET_REALTIME,
+  'http-point-array': CONTROL_MODE_SOCKET_REALTIME,
   'realtime-socket-swipe': CONTROL_MODE_SOCKET_SWIPE,
   'realtime-socket(swipe)': CONTROL_MODE_SOCKET_SWIPE,
   'mesh-swipe': CONTROL_MODE_SOCKET_SWIPE,
@@ -59,13 +59,11 @@ const CONTROL_MODE_ALIASES = {
   'http-swip': CONTROL_MODE_SOCKET_SWIPE,
 };
 const CONTROL_MODES_FALLBACK = [
-  {id: CONTROL_MODE_TROLLSTORE_REALTIME, label: 'socket-realtime-trollstore', enabled: true, reachable: true},
-  {id: CONTROL_MODE_SOCKET_POINT_ARRAY, label: 'realtime-socket(point array)', enabled: true, reachable: true},
+  {id: CONTROL_MODE_SOCKET_REALTIME, label: 'realtime-socket', enabled: true, reachable: true},
   {id: CONTROL_MODE_SOCKET_SWIPE, label: 'realtime-socket(swipe)', enabled: true, reachable: true},
 ];
 const CONTROL_SOCKET_MODES = new Set([
-  CONTROL_MODE_TROLLSTORE_REALTIME,
-  CONTROL_MODE_SOCKET_POINT_ARRAY,
+  CONTROL_MODE_SOCKET_REALTIME,
   CONTROL_MODE_SOCKET_SWIPE,
 ]);
 const INITIAL_VIEW_MODE = getRequestedViewMode();
@@ -196,7 +194,7 @@ function bindUi() {
     persistRequestedViewMode(mode);
   });
   el.controlModeSelect.addEventListener('change', () => {
-    const mode = normalizeControlModeId(el.controlModeSelect.value) || CONTROL_MODE_SOCKET_POINT_ARRAY;
+    const mode = normalizeControlModeId(el.controlModeSelect.value) || CONTROL_MODE_SOCKET_REALTIME;
     setControlModeLabel(mode);
     persistRequestedControlMode(mode);
     applySelectedControlMode(true).catch(showError);
@@ -520,10 +518,8 @@ async function loadControlModes() {
   setControlModeLabel(preferredMode);
   const upstream = state.controlStream?.upstream || {};
   const realtimeUrl = getControlModeUrl(preferredMode) || '-';
-  if (preferredMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
-    setControlState(isControlSocketReachable(preferredMode) ? 'trollstore socket available' : 'trollstore socket unavailable');
-  } else if (preferredMode === CONTROL_MODE_SOCKET_POINT_ARRAY) {
-    setControlState(isControlSocketReachable(preferredMode) ? 'mesh pointArray socket available' : 'mesh pointArray socket unavailable');
+  if (preferredMode === CONTROL_MODE_SOCKET_REALTIME) {
+    setControlState(isControlSocketReachable(preferredMode) ? 'realtime socket available' : 'realtime socket unavailable');
   } else if (preferredMode === CONTROL_MODE_SOCKET_SWIPE) {
     setControlState(isControlSocketReachable(preferredMode) ? 'mesh swipe socket available' : 'mesh swipe socket unavailable');
   } else {
@@ -602,7 +598,7 @@ function setControlModeLabel(mode) {
 function isControlSocketReachable(mode) {
   const upstream = state.controlStream?.upstream || {};
   const normalizedMode = normalizeControlModeId(mode);
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
     return upstream.realtimeReachable !== false;
   }
   return upstream.realtimeControlMeshReachable ?? upstream.realtimeReachable ?? true;
@@ -611,7 +607,7 @@ function isControlSocketReachable(mode) {
 function getControlModeUrl(mode) {
   const upstream = state.controlStream?.upstream || {};
   const normalizedMode = normalizeControlModeId(mode);
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
     return upstream.realtimeControlUrl || '';
   }
   return upstream.realtimeControlMeshUrl || upstream.realtimeControlUrl || '';
@@ -626,16 +622,16 @@ function choosePreferredControlMode(selectedMode, modes) {
     return selected.id;
   }
 
-  return modes.find((item) => item.id === CONTROL_MODE_SOCKET_POINT_ARRAY && item.enabled)?.id
+  return modes.find((item) => item.id === CONTROL_MODE_SOCKET_REALTIME && item.enabled)?.id
     || modes.find((item) => item.id === CONTROL_MODE_SOCKET_SWIPE && item.enabled)?.id
     || modes.find((item) =>
-      item.id === CONTROL_MODE_TROLLSTORE_REALTIME &&
+      item.id === CONTROL_MODE_SOCKET_REALTIME &&
       item.enabled &&
       item.reachable
     )?.id
     || modes.find((item) => item.enabled)?.id
     || modes[0]?.id
-    || CONTROL_MODE_SOCKET_POINT_ARRAY;
+    || CONTROL_MODE_SOCKET_REALTIME;
 }
 
 async function connect(forceRestart = false) {
@@ -1847,7 +1843,7 @@ function applyViewerAspect(width, height) {
 
 function isPointArraySwipeEnabled() {
   const mode = getSelectedControlMode();
-  return mode === CONTROL_MODE_SOCKET_POINT_ARRAY || mode === CONTROL_MODE_TROLLSTORE_REALTIME;
+  return mode === CONTROL_MODE_SOCKET_REALTIME;
 }
 
 function shouldBeginRealtimeEdgeTouch(point) {
@@ -1925,7 +1921,7 @@ function realtimeEdgeTouchEndPoint(start, end, distance) {
 
 async function applySelectedControlMode(force = false) {
   const mode = normalizeControlModeId(el.controlModeSelect.value || state.selectedControlMode)
-    || CONTROL_MODE_SOCKET_POINT_ARRAY;
+    || CONTROL_MODE_SOCKET_REALTIME;
   const modeInfo = state.controlModeMap.get(mode);
   if (modeInfo && !modeInfo.enabled) {
     throw new Error(`Control mode "${mode}" is disabled by server config`);
@@ -1954,11 +1950,12 @@ async function applySelectedControlMode(force = false) {
 
 function getSelectedControlMode() {
   return normalizeControlModeId(el.controlModeSelect?.value || state.selectedControlMode)
-    || CONTROL_MODE_SOCKET_POINT_ARRAY;
+    || CONTROL_MODE_SOCKET_REALTIME;
 }
 
 function shouldUseRealtimeTouchStream() {
-  return getSelectedControlMode() === CONTROL_MODE_TROLLSTORE_REALTIME;
+  return getSelectedControlMode() === CONTROL_MODE_SOCKET_REALTIME
+    && state.controlStream?.upstream?.is_trollstore === true;
 }
 
 async function sendHomeControl() {
@@ -2273,7 +2270,7 @@ async function sendControlCommand(command, httpFallback, options = {}) {
   const allowHttpFallback = options.allowHttpFallback !== false;
   if (!shouldSendCommandViaSocket(command, mode, pinnedTransport)) {
     if (!allowHttpFallback) {
-      const err = new Error('Realtime touch stream requires socket-realtime-trollstore mode');
+      const err = new Error('Realtime touch stream is not available on this build');
       err.sent = false;
       throw err;
     }
@@ -2351,13 +2348,19 @@ function shouldSendCommandViaSocket(command, mode, pinnedTransport = '') {
   if (!isSocketControlMode(normalizedMode)) {
     return false;
   }
-  if (isLiveTouchCommand(command)) {
-    return normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME || pinnedTransport === 'realtime';
+  if (normalizedMode === CONTROL_MODE_SOCKET_SWIPE) {
+    return isMeshGestureCommand(command);
   }
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
+  if (isLiveTouchCommand(command)) {
+    return shouldUseRealtimeTouchStream() || pinnedTransport === 'realtime';
+  }
+  if (getControlCommandType(command) === 'swipe') {
+    return false;
+  }
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
     return true;
   }
-  return isMeshGestureCommand(command);
+  return false;
 }
 
 function isSocketControlMode(mode) {
@@ -2366,24 +2369,24 @@ function isSocketControlMode(mode) {
 
 function controlModeSocketUnavailableState(mode) {
   const normalizedMode = normalizeControlModeId(mode);
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
-    return 'trollstore socket unavailable';
-  }
   if (normalizedMode === CONTROL_MODE_SOCKET_SWIPE) {
     return 'mesh swipe socket unavailable';
   }
-  return 'mesh pointArray socket unavailable';
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
+    return 'realtime socket unavailable';
+  }
+  return 'http fallback';
 }
 
 function controlModeSocketReadyState(mode) {
   const normalizedMode = normalizeControlModeId(mode);
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
-    return 'trollstore socket ready';
-  }
   if (normalizedMode === CONTROL_MODE_SOCKET_SWIPE) {
     return 'mesh swipe socket ready';
   }
-  return 'mesh pointArray socket ready';
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
+    return 'realtime socket ready';
+  }
+  return 'socket ready';
 }
 
 function controlModeHttpState(mode, fallback = false) {
@@ -2392,22 +2395,22 @@ function controlModeHttpState(mode, fallback = false) {
   if (normalizedMode === CONTROL_MODE_SOCKET_SWIPE) {
     return `http swipe${suffix}`;
   }
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
-    return `http pointArray${suffix}`;
-  }
-  return `http pointArray${suffix}`;
+  return `http realtime${suffix}`;
 }
 
 function controlModeTransport(mode) {
-  return normalizeControlModeId(mode) === CONTROL_MODE_TROLLSTORE_REALTIME ? 'realtime' : 'mesh';
+  return normalizeControlModeId(mode) === CONTROL_MODE_SOCKET_SWIPE ? 'mesh' : 'realtime';
 }
 
 function getControlWebSocketEndpoint(mode = getSelectedControlMode()) {
   const normalizedMode = normalizeControlModeId(mode);
-  if (normalizedMode === CONTROL_MODE_TROLLSTORE_REALTIME) {
+  if (normalizedMode === CONTROL_MODE_SOCKET_SWIPE) {
+    return getEndpoint('realtimeControlMeshWs', '/ws/realtime-control-mesh');
+  }
+  if (normalizedMode === CONTROL_MODE_SOCKET_REALTIME) {
     return getEndpoint('realtimeControlWs', '/ws/realtime-control');
   }
-  return getEndpoint('realtimeControlMeshWs', '/ws/realtime-control-mesh');
+  return getEndpoint('realtimeControlWs', '/ws/realtime-control');
 }
 
 function getRealtimeControlClient(mode = getSelectedControlMode()) {
@@ -2476,6 +2479,11 @@ function createRealtimeControlClient(endpoint) {
 
     if (payload.type === 'ready') {
       ready = true;
+      if (typeof payload.is_trollstore === 'boolean') {
+        const stream = state.controlStream || (state.controlStream = {});
+        const upstream = stream.upstream || (stream.upstream = {});
+        upstream.is_trollstore = payload.is_trollstore;
+      }
       setControlState('socket ready');
       return;
     }

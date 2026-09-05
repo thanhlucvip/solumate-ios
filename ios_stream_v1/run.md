@@ -204,8 +204,7 @@ Ky vong:
 
 - Trong panel ben phai co muc `Trackpad`:
   - `Sample interval (ms)`
-- `Control mode = socket-realtime-trollstore`: dung touch-stream realtime qua `/ws/realtime-control` cho ban WDA TrollStore.
-- `Control mode = realtime-socket(point array)`: thao tac keo se gui `pointArray` qua `/ws/realtime-control-mesh` -> WDA TCP mesh `8003`.
+- `Control mode = realtime-socket`: socket `/ws/realtime-control` se tra `is_trollstore`; `true` thi dung touch-stream realtime, `false` thi dung `pointArray`.
 - `Control mode = realtime-socket(swipe)`: thao tac keo se gui `swipe` qua `/ws/realtime-control-mesh` -> WDA TCP mesh `8003`.
 - Token `st` neu can se duoc server tu tao khi da cau hinh `SOLUMATE_WDA_SWIPE_SECRET`.
 - Neu realtime socket chua ket noi truoc khi lenh duoc gui, UI van fallback HTTP de giu dieu khien khong bi dut.

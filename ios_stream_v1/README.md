@@ -22,8 +22,8 @@ Dự án này chọn hướng **WebDriverAgent MJPEG** làm nguồn ảnh chính
   |- Node.js server (server.js)
        |- proxy /stream.mjpeg
        |- /ws/h264 server-side MJPEG -> H264 bridge
-       |- /ws/realtime-control -> TrollStore touch realtime
-       |- /ws/realtime-control-mesh -> pointArray/swipe
+       |- /ws/realtime-control -> realtime touch or pointArray (build-driven)
+       |- /ws/realtime-control-mesh -> swipe
        |- POST /api/tap
        |- POST /api/swipe
        |- POST /api/home

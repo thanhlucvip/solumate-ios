@@ -794,7 +794,7 @@ wsServer.on("connection", (clientSocket, req, reqUrl) => {
   }
   if (reqUrl.pathname === "/ws/realtime-control") {
     handleRealtimeControlWsClient(clientSocket, {
-      modeName: "realtime-control",
+      modeName: "realtime-socket",
       host: config.realtimeControlHost,
       port: config.realtimeControlPort,
       authToken: config.realtimeControlAuthToken,
@@ -804,7 +804,7 @@ wsServer.on("connection", (clientSocket, req, reqUrl) => {
   }
   if (reqUrl.pathname === "/ws/realtime-control-mesh") {
     handleRealtimeControlWsClient(clientSocket, {
-      modeName: "realtime-control-mesh",
+      modeName: "realtime-socket(swipe)",
       host: config.realtimeControlMeshHost,
       port: config.realtimeControlMeshPort,
       authToken: config.realtimeControlMeshAuthToken,
@@ -1310,6 +1310,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
   let upstreamSocket = null;
   let upstreamBuffer = "";
   let upstreamReady = false;
+  let upstreamIsTrollstore = false;
   let authPending = false;
   let startupProbePending = false;
   let closed = false;
@@ -1491,6 +1492,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
       mode: modeName,
       source,
       authenticated: Boolean(authToken),
+      is_trollstore: upstreamIsTrollstore,
     });
     flushPendingClientMessages();
   };
@@ -1526,6 +1528,9 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
         (payload.type === "pong" && payload.ok !== false) ||
         (payload.type === "auth" && payload.ok)
       ) {
+        if (typeof payload.is_trollstore === "boolean") {
+          upstreamIsTrollstore = payload.is_trollstore;
+        }
         markUpstreamReady();
         return;
       }
@@ -2647,6 +2652,8 @@ async function buildControlModes() {
   });
   const realtimeReachable = realtimeProbe.reachable;
   const meshReachable = meshProbe.reachable;
+  const upstreamIsTrollstore =
+    realtimeProbe.is_trollstore ?? meshProbe.is_trollstore ?? null;
   const realtimeWarning = realtimeReachable
     ? null
     : realtimeProbe.warning ||
@@ -2657,7 +2664,7 @@ async function buildControlModes() {
       `WDA realtime mesh socket ${meshUrl} is not reachable right now`;
   return {
     ok: true,
-    defaultMode: "realtime-socket-point-array",
+    defaultMode: "realtime-socket",
     endpoints: {
       realtimeControlWs: "/ws/realtime-control",
       realtimeControlMeshWs: "/ws/realtime-control-mesh",
@@ -2665,6 +2672,7 @@ async function buildControlModes() {
     upstream: {
       realtimeControlUrl: realtimeUrl,
       realtimeReachable,
+      is_trollstore: upstreamIsTrollstore,
       activeRealtimeClients: state.realtimeControlConnections,
       authTokenConfigured: Boolean(config.realtimeControlAuthToken),
       realtimeProbe,
@@ -2676,20 +2684,12 @@ async function buildControlModes() {
     },
     modes: [
       {
-        id: "socket-realtime-trollstore",
-        label: "socket-realtime-trollstore",
-        transport: "ws-tcp-ndjson-touch-stream",
+        id: "realtime-socket",
+        label: "realtime-socket",
+        transport: "ws-tcp-ndjson-touch-or-point-array",
         enabled: true,
         reachable: realtimeReachable,
         warningIfUnreachable: realtimeWarning,
-      },
-      {
-        id: "realtime-socket-point-array",
-        label: "realtime-socket(point array)",
-        transport: "ws-tcp-ndjson-point-array",
-        enabled: true,
-        reachable: meshReachable,
-        warningIfUnreachable: meshWarning,
       },
       {
         id: "realtime-socket-swipe",
@@ -2890,6 +2890,7 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
     let buffer = "";
     let authPending = false;
     let probePending = false;
+    let probeIsTrollstore = null;
     let socket = null;
 
     const finalize = (reachable, warning) => {
@@ -2904,6 +2905,7 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       resolve({
         reachable: Boolean(reachable),
         warning: warning || null,
+        is_trollstore: probeIsTrollstore,
       });
     };
 
@@ -2934,6 +2936,9 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       } catch (err) {
         finalize(false, `Invalid ${label} probe response: ${err.message}`);
         return;
+      }
+      if (typeof payload.is_trollstore === "boolean") {
+        probeIsTrollstore = payload.is_trollstore;
       }
 
       if (authPending) {

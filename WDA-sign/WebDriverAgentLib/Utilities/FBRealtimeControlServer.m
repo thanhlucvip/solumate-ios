@@ -134,7 +134,7 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
   }
 
   if ([type isEqualToString:@"ping"]) {
-    [self sendResponse:@{ @"type": @"pong", @"ok": @YES } toClient:client];
+    [self sendResponse:@{ @"type": @"pong", @"ok": @YES, @"is_trollstore": @NO } toClient:client];
     return;
   }
 

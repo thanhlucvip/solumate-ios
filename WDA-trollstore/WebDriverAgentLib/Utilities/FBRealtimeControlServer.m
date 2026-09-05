@@ -221,7 +221,7 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   }
 
   if ([type isEqualToString:@"ping"]) {
-    [self sendResponse:@{ @"type": @"pong", @"ok": @YES } toClient:client];
+    [self sendResponse:@{ @"type": @"pong", @"ok": @YES, @"is_trollstore": @YES } toClient:client];
     return;
   }
 
