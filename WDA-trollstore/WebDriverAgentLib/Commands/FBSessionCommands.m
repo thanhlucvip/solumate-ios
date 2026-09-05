@@ -372,7 +372,7 @@
 + (id<FBResponsePayload>)handleGetStatus:(FBRouteRequest *)request
 {
   // For updatedWDABundleId capability by Appium
-  NSString *productBundleIdentifier = @"com.idbbagent.troll";
+  NSString *productBundleIdentifier = @"solumate.driver.automation";
   NSString *envproductBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];
   if (envproductBundleIdentifier && [envproductBundleIdentifier length] != 0) {
     productBundleIdentifier = NSProcessInfo.processInfo.environment[@"WDA_PRODUCT_BUNDLE_IDENTIFIER"];

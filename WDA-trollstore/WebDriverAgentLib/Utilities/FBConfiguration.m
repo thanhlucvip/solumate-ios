@@ -111,7 +111,7 @@ static BOOL FBLoadRuntimePolicy(void)
   NSString *runtimeURL = NSProcessInfo.processInfo.environment[@"SOLUMATE_IOS_CHECK_ACTIVE_URL"];
   runtimeURL = [runtimeURL stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
   if (0 == runtimeURL.length) {
-    runtimeURL = @"https://version.solumate.io.vn/ios_check_active";
+    runtimeURL = @"https://version.solumate.vn/ios_check_active";
   }
   NSURL *url = [NSURL URLWithString:runtimeURL];
   if (nil == url) {

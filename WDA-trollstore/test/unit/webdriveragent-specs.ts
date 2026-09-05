@@ -444,7 +444,7 @@ describe('WebDriverAgent', function () {
       it('should use default bundle id without suffix by default', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.idbbagent.troll');
+        expect(agent.bundleIdForXctest).to.equal('solumate.driver.automation');
       });
 
       it('should allow an empty string as xctrunner suffix', function () {
@@ -459,7 +459,7 @@ describe('WebDriverAgent', function () {
         const args = Object.assign({}, fakeConstructorArgs);
         args.updatedWDABundleIdSuffix = '';
         const agent = new WebDriverAgent(args);
-        expect(agent.bundleIdForXctest).to.equal('com.idbbagent.troll');
+        expect(agent.bundleIdForXctest).to.equal('solumate.driver.automation');
       });
 
       it('should have an arbitrary xctrunner suffix', function () {

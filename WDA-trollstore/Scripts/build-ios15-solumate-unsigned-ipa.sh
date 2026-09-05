@@ -14,8 +14,8 @@ DEFAULT_ICON_DIR="$WORKSPACE_DIR/ios_stream_v1/SolumateIos_Build/AppIcon.appicon
 BACKUP_ICON_DIR="/Users/apple/Desktop/code/docs/backup_ubuntu/products/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
 ICON_DIR="${ICON_DIR:-$DEFAULT_ICON_DIR}"
 
-APP_NAME="${APP_NAME:-RT-MMO 3}"
-WDA_BUNDLE_ID="${WDA_BUNDLE_ID:-com.idbbagent.troll}"
+APP_NAME="${APP_NAME:-SolumateIos}"
+WDA_BUNDLE_ID="${WDA_BUNDLE_ID:-solumate.driver.automation}"
 APP_VERSION="${APP_VERSION:-11.4.1-universal-clean-external-sign}"
 CONFIGURATION="${CONFIGURATION:-Release}"
 IOS_DEPLOYMENT_TARGET="${IOS_DEPLOYMENT_TARGET:-13.0}"

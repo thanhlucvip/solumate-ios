@@ -1,7 +1,7 @@
 import path from 'node:path';
 
 export const DEFAULT_TEST_BUNDLE_SUFFIX = '';
-export const WDA_RUNNER_BUNDLE_ID = 'com.idbbagent.troll';
+export const WDA_RUNNER_BUNDLE_ID = 'solumate.driver.automation';
 export const WDA_RUNNER_BUNDLE_ID_FOR_XCTEST = `${WDA_RUNNER_BUNDLE_ID}${DEFAULT_TEST_BUNDLE_SUFFIX}`;
 export const WDA_RUNNER_APP = 'WebDriverAgentRunner-Runner.app';
 export const WDA_SCHEME = 'WebDriverAgentRunner';
