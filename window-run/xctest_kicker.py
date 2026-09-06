@@ -884,6 +884,18 @@ def merge_candidates(
     )
 
 
+def is_wda_candidate(candidate: BundleCandidate, explicit: list[str]) -> bool:
+    if candidate.bundle_id in explicit:
+        return True
+    bundle = candidate.bundle_id.lower()
+    metadata = candidate.metadata
+    app_text = " ".join(
+        str(metadata.get(key, ""))
+        for key in ("CFBundleDisplayName", "CFBundleName", "CFBundleExecutable")
+    ).lower()
+    return any(marker in bundle or marker in app_text for marker in ("solumate", "webdriveragent", "idbbagent"))
+
+
 def discover_device_candidates(pmd3: Pymobiledevice3, args: argparse.Namespace, udid: str) -> list[BundleCandidate]:
     ipa_candidates = local_ipa_candidates(args)
     preferred = preferred_bundle_order(args, ipa_candidates)
@@ -893,7 +905,11 @@ def discover_device_candidates(pmd3: Pymobiledevice3, args: argparse.Namespace, 
     candidates.extend(ipa_candidates)
 
     if args.no_discovery:
-        return merge_candidates(candidates, preferred, explicit)
+        return [
+            candidate
+            for candidate in merge_candidates(candidates, preferred, explicit)
+            if is_wda_candidate(candidate, explicit)
+        ]
 
     if pmd3.available():
         commands = [
@@ -931,7 +947,11 @@ def discover_device_candidates(pmd3: Pymobiledevice3, args: argparse.Namespace, 
 
     candidates.extend(discover_go_ios_app_candidates(args, udid))
 
-    ranked = merge_candidates(candidates, preferred, explicit)
+    ranked = [
+        candidate
+        for candidate in merge_candidates(candidates, preferred, explicit)
+        if is_wda_candidate(candidate, explicit)
+    ]
     if ranked:
         shown = ", ".join(f"{item.bundle_id}({item.source}, score={item.score})" for item in ranked[: args.max_candidates])
         log(f"Bundle candidates: {shown}")
@@ -1320,12 +1340,13 @@ def normalize_args(args: argparse.Namespace) -> argparse.Namespace:
     return args
 
 
-def main() -> int:
-    if len(sys.argv) >= 2 and sys.argv[1] == INTERNAL_PMD3_SENTINEL:
-        return run_internal_pmd3(sys.argv[2:])
+def main(argv: list[str] | None = None) -> int:
+    args_list = list(sys.argv[1:] if argv is None else argv)
+    if args_list and args_list[0] == INTERNAL_PMD3_SENTINEL:
+        return run_internal_pmd3(args_list[1:])
 
     parser = build_parser()
-    args = normalize_args(parser.parse_args())
+    args = normalize_args(parser.parse_args(args_list))
     return activate_xctest(args)
 
 
