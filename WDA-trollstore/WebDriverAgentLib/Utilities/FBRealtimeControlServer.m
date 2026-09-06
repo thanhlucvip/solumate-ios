@@ -8,6 +8,7 @@
 
 #import "FBRealtimeControlServer.h"
 
+#import <CoreFoundation/CoreFoundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonHMAC.h>
 #import <math.h>
@@ -16,7 +17,6 @@
 #import "FBLogger.h"
 #import "XCUIDevice+FBHelpers.h"
 
-static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
 static NSString * const FBRealtimeControlModeTrollStore = @"trollstore";
 static NSString * const FBRealtimeControlModePointArray = @"pointarray";
 static NSString * const FBRealtimeControlModeSwipe = @"swipe";
@@ -96,6 +96,317 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   return normalized;
 }
 
+static const uint8_t FBRealtimeBinaryMagic[4] = {'R', 'C', 'B', '1'};
+static const NSUInteger FBRealtimeBinaryHeaderLength = 10;
+static const NSUInteger FBRealtimeBinaryMaxBodyLength = 1024 * 1024;
+static NSString * const FBRealtimeBinaryErrorDomain = @"com.facebook.WebDriverAgent.RealtimeControlBinary";
+
+static NSError *FBRealtimeBinaryError(NSInteger code, NSString *message)
+{
+  return [NSError errorWithDomain:FBRealtimeBinaryErrorDomain
+                             code:code
+                         userInfo:@{ NSLocalizedDescriptionKey: message ?: @"Invalid realtime control binary payload" }];
+}
+
+static BOOL FBRealtimeBinaryNumberIsBoolean(NSNumber *number)
+{
+  return CFGetTypeID((__bridge CFTypeRef)number) == CFBooleanGetTypeID();
+}
+
+static void FBRealtimeBinaryAppendByte(NSMutableData *data, uint8_t value)
+{
+  [data appendBytes:&value length:1];
+}
+
+static void FBRealtimeBinaryAppendUInt32(NSMutableData *data, uint32_t value)
+{
+  uint32_t be = CFSwapInt32HostToBig(value);
+  [data appendBytes:&be length:sizeof(be)];
+}
+
+static void FBRealtimeBinaryAppendInt32(NSMutableData *data, int32_t value)
+{
+  uint32_t be = CFSwapInt32HostToBig((uint32_t)value);
+  [data appendBytes:&be length:sizeof(be)];
+}
+
+static void FBRealtimeBinaryAppendDouble(NSMutableData *data, double value)
+{
+  union {
+    double d;
+    uint64_t u;
+  } bits;
+  bits.d = value;
+  uint64_t be = CFSwapInt64HostToBig(bits.u);
+  [data appendBytes:&be length:sizeof(be)];
+}
+
+static BOOL FBRealtimeBinaryReadByte(NSData *data, NSUInteger *offset, uint8_t *value, NSError **error)
+{
+  if (*offset >= data.length) {
+    if (error) {
+      *error = FBRealtimeBinaryError(400, @"Realtime control binary payload is truncated");
+    }
+    return NO;
+  }
+  const uint8_t *bytes = data.bytes;
+  *value = bytes[*offset];
+  *offset += 1;
+  return YES;
+}
+
+static BOOL FBRealtimeBinaryReadUInt32(NSData *data, NSUInteger *offset, uint32_t *value, NSError **error)
+{
+  if (data.length < *offset + sizeof(uint32_t)) {
+    if (error) {
+      *error = FBRealtimeBinaryError(400, @"Realtime control binary payload is truncated");
+    }
+    return NO;
+  }
+  uint32_t be = 0;
+  memcpy(&be, ((const uint8_t *)data.bytes) + *offset, sizeof(be));
+  *value = CFSwapInt32BigToHost(be);
+  *offset += sizeof(be);
+  return YES;
+}
+
+static BOOL FBRealtimeBinaryReadInt32(NSData *data, NSUInteger *offset, int32_t *value, NSError **error)
+{
+  uint32_t raw = 0;
+  if (!FBRealtimeBinaryReadUInt32(data, offset, &raw, error)) {
+    return NO;
+  }
+  *value = (int32_t)raw;
+  return YES;
+}
+
+static BOOL FBRealtimeBinaryReadDouble(NSData *data, NSUInteger *offset, double *value, NSError **error)
+{
+  if (data.length < *offset + sizeof(uint64_t)) {
+    if (error) {
+      *error = FBRealtimeBinaryError(400, @"Realtime control binary payload is truncated");
+    }
+    return NO;
+  }
+  uint64_t be = 0;
+  memcpy(&be, ((const uint8_t *)data.bytes) + *offset, sizeof(be));
+  union {
+    double d;
+    uint64_t u;
+  } bits;
+  bits.u = CFSwapInt64BigToHost(be);
+  *value = bits.d;
+  *offset += sizeof(be);
+  return YES;
+}
+
+static BOOL FBRealtimeBinaryAvailable(NSData *data, NSUInteger offset, NSUInteger length, NSError **error)
+{
+  if (offset > data.length || length > data.length - offset) {
+    if (error) {
+      *error = FBRealtimeBinaryError(400, @"Realtime control binary payload is truncated");
+    }
+    return NO;
+  }
+  return YES;
+}
+
+static void FBRealtimeBinaryEncodeValue(id value, NSMutableData *data);
+static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError **error);
+
+static NSData *FBRealtimeBinaryEncodeFrame(id value, NSError **error)
+{
+  NSMutableData *body = [NSMutableData data];
+  FBRealtimeBinaryEncodeValue(value, body);
+  if (body.length > FBRealtimeBinaryMaxBodyLength) {
+    if (error) {
+      *error = FBRealtimeBinaryError(413, @"Realtime control payload is too large");
+    }
+    return nil;
+  }
+
+  NSMutableData *frame = [NSMutableData dataWithCapacity:FBRealtimeBinaryHeaderLength + body.length];
+  [frame appendBytes:FBRealtimeBinaryMagic length:sizeof(FBRealtimeBinaryMagic)];
+  uint8_t version = 1;
+  uint8_t flags = 0;
+  [frame appendBytes:&version length:1];
+  [frame appendBytes:&flags length:1];
+  FBRealtimeBinaryAppendUInt32(frame, (uint32_t)body.length);
+  [frame appendData:body];
+  return frame;
+}
+
+static void FBRealtimeBinaryEncodeValue(id value, NSMutableData *data)
+{
+  if (nil == value || value == NSNull.null) {
+    FBRealtimeBinaryAppendByte(data, 0x00);
+    return;
+  }
+  if ([value isKindOfClass:NSNumber.class]) {
+    NSNumber *number = (NSNumber *)value;
+    if (FBRealtimeBinaryNumberIsBoolean(number)) {
+      FBRealtimeBinaryAppendByte(data, number.boolValue ? 0x02 : 0x01);
+      return;
+    }
+    const char *type = number.objCType;
+    if (type[0] == 'f' || type[0] == 'd' || type[0] == 'F' || type[0] == 'D') {
+      FBRealtimeBinaryAppendByte(data, 0x04);
+      FBRealtimeBinaryAppendDouble(data, number.doubleValue);
+      return;
+    }
+    long long signedValue = number.longLongValue;
+    if (signedValue >= INT32_MIN && signedValue <= INT32_MAX) {
+      FBRealtimeBinaryAppendByte(data, 0x03);
+      FBRealtimeBinaryAppendInt32(data, (int32_t)signedValue);
+      return;
+    }
+    FBRealtimeBinaryAppendByte(data, 0x04);
+    FBRealtimeBinaryAppendDouble(data, number.doubleValue);
+    return;
+  }
+  if ([value isKindOfClass:NSString.class]) {
+    NSData *encoded = [(NSString *)value dataUsingEncoding:NSUTF8StringEncoding];
+    FBRealtimeBinaryAppendByte(data, 0x05);
+    FBRealtimeBinaryAppendUInt32(data, (uint32_t)encoded.length);
+    [data appendData:encoded];
+    return;
+  }
+  if ([value isKindOfClass:NSData.class]) {
+    NSData *bytes = (NSData *)value;
+    FBRealtimeBinaryAppendByte(data, 0x06);
+    FBRealtimeBinaryAppendUInt32(data, (uint32_t)bytes.length);
+    [data appendData:bytes];
+    return;
+  }
+  if ([value isKindOfClass:NSArray.class]) {
+    NSArray *array = (NSArray *)value;
+    FBRealtimeBinaryAppendByte(data, 0x07);
+    FBRealtimeBinaryAppendUInt32(data, (uint32_t)array.count);
+    for (id item in array) {
+      FBRealtimeBinaryEncodeValue(item, data);
+    }
+    return;
+  }
+  if ([value isKindOfClass:NSDictionary.class]) {
+    NSDictionary *dictionary = (NSDictionary *)value;
+    FBRealtimeBinaryAppendByte(data, 0x08);
+    FBRealtimeBinaryAppendUInt32(data, (uint32_t)dictionary.count);
+    for (id key in dictionary) {
+      FBRealtimeBinaryEncodeValue([key description], data);
+      FBRealtimeBinaryEncodeValue(dictionary[key], data);
+    }
+    return;
+  }
+  FBRealtimeBinaryEncodeValue([value description], data);
+}
+
+static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError **error)
+{
+  uint8_t type = 0;
+  if (!FBRealtimeBinaryReadByte(data, offset, &type, error)) {
+    return nil;
+  }
+
+  switch (type) {
+    case 0x00:
+      return NSNull.null;
+    case 0x01:
+      return @NO;
+    case 0x02:
+      return @YES;
+    case 0x03: {
+      int32_t value = 0;
+      if (!FBRealtimeBinaryReadInt32(data, offset, &value, error)) {
+        return nil;
+      }
+      return @(value);
+    }
+    case 0x04: {
+      double value = 0;
+      if (!FBRealtimeBinaryReadDouble(data, offset, &value, error)) {
+        return nil;
+      }
+      return @(value);
+    }
+    case 0x05: {
+      uint32_t length = 0;
+      if (!FBRealtimeBinaryReadUInt32(data, offset, &length, error)) {
+        return nil;
+      }
+      if (!FBRealtimeBinaryAvailable(data, *offset, length, error)) {
+        return nil;
+      }
+      NSData *slice = [data subdataWithRange:NSMakeRange(*offset, length)];
+      *offset += length;
+      NSString *string = [[NSString alloc] initWithData:slice encoding:NSUTF8StringEncoding];
+      if (nil == string) {
+        if (error) {
+          *error = FBRealtimeBinaryError(400, @"Realtime control binary string is not valid UTF-8");
+        }
+        return nil;
+      }
+      return string;
+    }
+    case 0x06: {
+      uint32_t length = 0;
+      if (!FBRealtimeBinaryReadUInt32(data, offset, &length, error)) {
+        return nil;
+      }
+      if (!FBRealtimeBinaryAvailable(data, *offset, length, error)) {
+        return nil;
+      }
+      NSData *slice = [data subdataWithRange:NSMakeRange(*offset, length)];
+      *offset += length;
+      return slice;
+    }
+    case 0x07: {
+      uint32_t count = 0;
+      if (!FBRealtimeBinaryReadUInt32(data, offset, &count, error)) {
+        return nil;
+      }
+      NSMutableArray *array = [NSMutableArray arrayWithCapacity:count];
+      for (uint32_t idx = 0; idx < count; idx++) {
+        id item = FBRealtimeBinaryDecodeValue(data, offset, error);
+        if (nil == item) {
+          return nil;
+        }
+        [array addObject:item];
+      }
+      return array;
+    }
+    case 0x08: {
+      uint32_t count = 0;
+      if (!FBRealtimeBinaryReadUInt32(data, offset, &count, error)) {
+        return nil;
+      }
+      NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithCapacity:count];
+      for (uint32_t idx = 0; idx < count; idx++) {
+        id key = FBRealtimeBinaryDecodeValue(data, offset, error);
+        if (nil == key) {
+          return nil;
+        }
+        if (![key isKindOfClass:NSString.class]) {
+          if (error) {
+            *error = FBRealtimeBinaryError(400, @"Realtime control object key must be a string");
+          }
+          return nil;
+        }
+        id item = FBRealtimeBinaryDecodeValue(data, offset, error);
+        if (nil == item) {
+          return nil;
+        }
+        dictionary[key] = item;
+      }
+      return dictionary;
+    }
+    default:
+      if (error) {
+        *error = FBRealtimeBinaryError(400, [NSString stringWithFormat:@"Unsupported realtime control binary type 0x%02x", type]);
+      }
+      return nil;
+  }
+}
+
 @interface FBRealtimeControlClientState : NSObject
 @property (nonatomic, assign) BOOL authenticated;
 @property (nonatomic, assign) BOOL ownsTouch;
@@ -105,6 +416,7 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
 @property (nonatomic, assign) double lastY;
 @property (nonatomic, assign) uint64_t lastSequence;
 @property (nonatomic, assign) double lastTimestamp;
+@property (nonatomic, assign) NSUInteger pendingBinaryBodyLength;
 @end
 
 @implementation FBRealtimeControlClientState
@@ -163,44 +475,115 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
 - (void)didClientConnect:(GCDAsyncSocket *)newClient
 {
   [FBLogger logFmt:@"Realtime control client connected at %@:%d", newClient.connectedHost, newClient.connectedPort];
-  [self stateForClient:newClient createIfNeeded:YES];
-  [newClient readDataToData:[GCDAsyncSocket LFData]
-                withTimeout:-1
-                   maxLength:FBRealtimeControlMaxLineLength
-                        tag:0];
+  FBRealtimeControlClientState *state = [self stateForClient:newClient createIfNeeded:YES];
+  state.pendingBinaryBodyLength = 0;
+  [newClient readDataToLength:FBRealtimeBinaryHeaderLength withTimeout:-1 tag:0];
 }
 
 - (void)didClient:(GCDAsyncSocket *)client didReadData:(NSData *)data
 {
   FBRealtimeControlClientState *state = [self stateForClient:client createIfNeeded:YES];
-  [client readDataToData:[GCDAsyncSocket LFData]
-            withTimeout:-1
-               maxLength:FBRealtimeControlMaxLineLength
-                    tag:0];
-
-  NSString *line = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-  if (line.length == 0) {
+  if (state.pendingBinaryBodyLength == 0) {
+    NSError *error = nil;
+    if (data.length != FBRealtimeBinaryHeaderLength) {
+      [self sendResponse:@{
+        @"type": @"error",
+        @"ok": @NO,
+        @"message": @"Invalid realtime control binary header",
+      } toClient:client];
+      [client disconnectAfterWriting];
+      return;
+    }
+    if (memcmp(data.bytes, FBRealtimeBinaryMagic, sizeof(FBRealtimeBinaryMagic)) != 0) {
+      [self sendResponse:@{
+        @"type": @"error",
+        @"ok": @NO,
+        @"message": @"Invalid realtime control binary magic",
+      } toClient:client];
+      [client disconnectAfterWriting];
+      return;
+    }
+    const uint8_t *bytes = data.bytes;
+    if (bytes[4] != 1) {
+      [self sendResponse:@{
+        @"type": @"error",
+        @"ok": @NO,
+        @"message": [NSString stringWithFormat:@"Unsupported realtime control binary version %u", bytes[4]],
+      } toClient:client];
+      [client disconnectAfterWriting];
+      return;
+    }
+    NSUInteger headerOffset = 6;
+    uint32_t bodyLength32 = 0;
+    if (!FBRealtimeBinaryReadUInt32(data, &headerOffset, &bodyLength32, &error)) {
+      [self sendResponse:@{
+        @"type": @"error",
+        @"ok": @NO,
+        @"message": error.localizedDescription ?: @"Invalid realtime control binary header",
+      } toClient:client];
+      [client disconnectAfterWriting];
+      return;
+    }
+    if (bodyLength32 == 0 || bodyLength32 > FBRealtimeBinaryMaxBodyLength) {
+      [self sendResponse:@{
+        @"type": @"error",
+        @"ok": @NO,
+        @"message": @"Invalid realtime control binary body length",
+      } toClient:client];
+      [client disconnectAfterWriting];
+      return;
+    }
+    state.pendingBinaryBodyLength = (NSUInteger)bodyLength32;
+    [client readDataToLength:state.pendingBinaryBodyLength withTimeout:-1 tag:0];
     return;
   }
-  line = [line stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
-  if (line.length == 0) {
+
+  NSUInteger bodyLength = state.pendingBinaryBodyLength;
+  state.pendingBinaryBodyLength = 0;
+  [client readDataToLength:FBRealtimeBinaryHeaderLength withTimeout:-1 tag:0];
+  if (data.length != bodyLength) {
+    [self sendResponse:@{
+      @"type": @"error",
+      @"ok": @NO,
+      @"message": @"Invalid realtime control binary body length",
+    } toClient:client];
+    [client disconnectAfterWriting];
     return;
   }
 
   NSError *error = nil;
-  NSDictionary *payload = [self decodeLine:line error:&error];
-  if (nil == payload) {
+  NSUInteger offset = 0;
+  id object = FBRealtimeBinaryDecodeValue(data, &offset, &error);
+  if (nil == object || offset != data.length) {
     [self sendResponse:@{
+      @"type": @"error",
       @"ok": @NO,
-      @"error": error.localizedDescription ?: @"Invalid control payload",
+      @"message": error.localizedDescription ?: @"Invalid realtime control payload",
     } toClient:client];
+    [client disconnectAfterWriting];
+    return;
+  }
+  NSDictionary *payload = nil;
+  if ([object isKindOfClass:NSDictionary.class]) {
+    payload = (NSDictionary *)object;
+  } else if ([object isKindOfClass:NSString.class]) {
+    payload = @{ @"type": @"auth", @"token": object };
+  } else if ([object isKindOfClass:NSArray.class]) {
+    payload = @{ @"type": @"pointArray", @"pointArray": object };
+  } else {
+    [self sendResponse:@{
+      @"type": @"error",
+      @"ok": @NO,
+      @"message": @"Unsupported realtime control payload",
+    } toClient:client];
+    [client disconnectAfterWriting];
     return;
   }
 
   double serverReceiveTimestamp = FBRealtimeControlWallClockMs();
   if (FBRealtimeControlDebugEnabled()) {
     NSString *typeForLog = [payload[@"type"] isKindOfClass:NSString.class] ? FBRealtimeControlNormalizeType(payload[@"type"]) : @"?";
-    [FBLogger logFmt:@"[RT INPUT] stage=ws-recv type=%@ seq=%@ pointerId=%@ x=%@ y=%@ clientTs=%@ nodeRecvTs=%@ nodeForwardTs=%@ wdaRecvTs=%.3f",
+    [FBLogger logFmt:@"[RT INPUT] stage=binary-recv type=%@ seq=%@ pointerId=%@ x=%@ y=%@ clientTs=%@ nodeRecvTs=%@ nodeForwardTs=%@ wdaRecvTs=%.3f",
       typeForLog ?: @"?",
       payload[@"sequence"] ?: payload[@"seq"] ?: @"-",
       payload[@"pointerId"] ?: payload[@"finger"] ?: payload[@"pointer"] ?: @"-",
@@ -226,7 +609,13 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
       return;
     }
     state.authenticated = YES;
-    [self sendResponse:@{ @"type": @"auth", @"ok": @YES } toClient:client];
+    [self sendResponse:@{
+      @"type": @"auth",
+      @"ok": @YES,
+      @"socket": @"socket-realtime-trollstore",
+      @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
+      @"is_trollstore": @YES,
+    } toClient:client];
     return;
   }
   state.authenticated = YES;
@@ -239,14 +628,23 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   }
 
   if ([type isEqualToString:@"auth"]) {
-    [self sendResponse:@{ @"type": @"auth", @"ok": @YES } toClient:client];
+    [self sendResponse:@{
+      @"type": @"auth",
+      @"ok": @YES,
+      @"socket": @"socket-realtime-trollstore",
+      @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
+      @"is_trollstore": @YES,
+    } toClient:client];
     return;
   }
 
   if ([type isEqualToString:@"ping"]) {
     [self sendResponse:@{
-      @"type": @"pong",
+      @"type": @"ready",
       @"ok": @YES,
+      @"socket": @"socket-realtime-trollstore",
+      @"source": @"tcp",
+      @"authenticated": @(state.authenticated),
       @"is_trollstore": @YES,
       @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
     } toClient:client];
@@ -301,6 +699,7 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
     [self sendResponse:@{
       @"ok": @YES,
       @"type": type,
+      @"socket": @"socket-realtime-trollstore",
       @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
       @"is_trollstore": @YES,
       @"id": payload[@"id"] ?: [NSNull null],
@@ -317,30 +716,6 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   }
   [self removeStateForClient:client];
   [FBLogger log:@"Disconnected a client from realtime control socket"];
-}
-
-- (nullable NSDictionary *)decodeLine:(NSString *)line error:(NSError **)error
-{
-  NSData *data = [line dataUsingEncoding:NSUTF8StringEncoding];
-  if (0 == data.length) {
-    return nil;
-  }
-  id object = [NSJSONSerialization JSONObjectWithData:data options:0 error:error];
-  if ([object isKindOfClass:NSDictionary.class]) {
-    return (NSDictionary *)object;
-  }
-  if ([object isKindOfClass:NSString.class]) {
-    return @{ @"type": @"auth", @"token": object };
-  }
-  if ([object isKindOfClass:NSArray.class]) {
-    return @{ @"type": @"pointArray", @"pointArray": object };
-  }
-  if (nil != error && nil == *error) {
-    *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
-                                 code:400
-                             userInfo:@{ NSLocalizedDescriptionKey: @"Unsupported control payload" }];
-  }
-  return nil;
 }
 
 - (void)handleModePayload:(NSDictionary *)payload toClient:(GCDAsyncSocket *)client
@@ -787,15 +1162,20 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
     [response removeObjectForKey:@"id"];
   }
   NSError *error = nil;
-  NSData *json = [NSJSONSerialization dataWithJSONObject:response options:0 error:&error];
-  if (nil == json) {
-    NSString *fallback = @"{\"ok\":false,\"error\":\"Cannot encode response\"}\n";
-    [client writeData:[fallback dataUsingEncoding:NSUTF8StringEncoding] withTimeout:-1 tag:0];
+  NSData *frame = FBRealtimeBinaryEncodeFrame(response, &error);
+  if (nil == frame) {
+    NSDictionary *fallback = @{
+      @"type": @"error",
+      @"ok": @NO,
+      @"message": error.localizedDescription ?: @"Cannot encode response",
+    };
+    NSData *fallbackFrame = FBRealtimeBinaryEncodeFrame(fallback, nil);
+    if (nil != fallbackFrame) {
+      [client writeData:fallbackFrame withTimeout:-1 tag:0];
+    }
     return;
   }
-  NSMutableData *data = [json mutableCopy];
-  [data appendData:[GCDAsyncSocket LFData]];
-  [client writeData:data withTimeout:-1 tag:0];
+  [client writeData:frame withTimeout:-1 tag:0];
 }
 
 @end

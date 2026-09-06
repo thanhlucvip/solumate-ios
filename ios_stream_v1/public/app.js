@@ -76,6 +76,12 @@ const SWIPE_MAX_DURATION_SECONDS = 5;
 const H264_KEYFRAME_REQUEST_MIN_INTERVAL_MS = 300;
 const CONTROL_COMMAND_TIMEOUT_MS = 3500;
 const CONTROL_SOCKET_RECONNECT_MS = 1200;
+const REALTIME_BINARY_MAGIC_BYTES = new Uint8Array([0x52, 0x43, 0x42, 0x31]);
+const REALTIME_BINARY_VERSION = 1;
+const REALTIME_BINARY_HEADER_LENGTH = 10;
+const REALTIME_BINARY_MAX_BODY_BYTES = 1024 * 1024;
+const REALTIME_BINARY_TEXT_ENCODER = new TextEncoder();
+const REALTIME_BINARY_TEXT_DECODER = new TextDecoder();
 const REALTIME_TOUCH_MOVE_INTERVAL_MS = 8;
 const REALTIME_TOUCH_HOLD_SAMPLE_INTERVAL_MS = 32;
 const REALTIME_TOUCH_HOLD_IDLE_MS = 64;
@@ -2507,12 +2513,330 @@ function closeRealtimeControlClient() {
   state.controlClientEndpoint = '';
 }
 
+function encodeRealtimeControlFrame(payload) {
+  const body = encodeRealtimeBinaryValue(payload);
+  if (body.byteLength > REALTIME_BINARY_MAX_BODY_BYTES) {
+    throw new Error('Realtime control payload is too large');
+  }
+  const frame = new Uint8Array(REALTIME_BINARY_HEADER_LENGTH + body.byteLength);
+  frame.set(REALTIME_BINARY_MAGIC_BYTES, 0);
+  frame[4] = REALTIME_BINARY_VERSION;
+  frame[5] = 0;
+  new DataView(frame.buffer).setUint32(6, body.byteLength, false);
+  frame.set(body, REALTIME_BINARY_HEADER_LENGTH);
+  return frame;
+}
+
+function decodeRealtimeControlMessage(data) {
+  if (typeof data === 'string') {
+    try {
+      return JSON.parse(data);
+    } catch (_) {
+      return null;
+    }
+  }
+  try {
+    return decodeRealtimeControlFrame(data);
+  } catch (_) {
+    return null;
+  }
+}
+
+function decodeRealtimeControlFrame(data) {
+  const bytes = toRealtimeBinaryBytes(data);
+  if (bytes.byteLength < REALTIME_BINARY_HEADER_LENGTH) {
+    throw new Error('Realtime control binary frame is too short');
+  }
+  for (let index = 0; index < REALTIME_BINARY_MAGIC_BYTES.length; index += 1) {
+    if (bytes[index] !== REALTIME_BINARY_MAGIC_BYTES[index]) {
+      throw new Error('Invalid realtime control binary magic');
+    }
+  }
+  if (bytes[4] !== REALTIME_BINARY_VERSION) {
+    throw new Error(`Unsupported realtime control binary version ${bytes[4]}`);
+  }
+  const bodyLength = new DataView(
+    bytes.buffer,
+    bytes.byteOffset,
+    bytes.byteLength,
+  ).getUint32(6, false);
+  if (bodyLength > REALTIME_BINARY_MAX_BODY_BYTES) {
+    throw new Error('Realtime control binary payload is too large');
+  }
+  if (bodyLength !== bytes.byteLength - REALTIME_BINARY_HEADER_LENGTH) {
+    throw new Error('Realtime control binary body length mismatch');
+  }
+  const body = bytes.subarray(REALTIME_BINARY_HEADER_LENGTH);
+  const decoded = decodeRealtimeBinaryValue(body, 0);
+  if (decoded.offset !== body.byteLength) {
+    throw new Error('Realtime control binary payload has trailing bytes');
+  }
+  return decoded.value;
+}
+
+function encodeRealtimeBinaryValue(value) {
+  const chunks = [];
+  writeRealtimeBinaryValue(value, chunks);
+  return concatRealtimeBinaryChunks(chunks);
+}
+
+function writeRealtimeBinaryValue(value, chunks) {
+  if (value == null || value === null) {
+    chunks.push(Uint8Array.of(0x00));
+    return;
+  }
+  if (value === false) {
+    chunks.push(Uint8Array.of(0x01));
+    return;
+  }
+  if (value === true) {
+    chunks.push(Uint8Array.of(0x02));
+    return;
+  }
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      throw new Error('Cannot encode non-finite number in realtime control frame');
+    }
+    if (Number.isInteger(value) && value >= -2147483648 && value <= 2147483647) {
+      const chunk = new Uint8Array(5);
+      chunk[0] = 0x03;
+      new DataView(chunk.buffer).setInt32(1, value, false);
+      chunks.push(chunk);
+      return;
+    }
+    const chunk = new Uint8Array(9);
+    chunk[0] = 0x04;
+    new DataView(chunk.buffer).setFloat64(1, value, false);
+    chunks.push(chunk);
+    return;
+  }
+  if (typeof value === 'string') {
+    const encoded = REALTIME_BINARY_TEXT_ENCODER.encode(value);
+    const header = new Uint8Array(5);
+    header[0] = 0x05;
+    new DataView(header.buffer).setUint32(1, encoded.byteLength, false);
+    chunks.push(header, encoded);
+    return;
+  }
+  if (value instanceof Uint8Array) {
+    const header = new Uint8Array(5);
+    header[0] = 0x06;
+    new DataView(header.buffer).setUint32(1, value.byteLength, false);
+    chunks.push(header, value.slice());
+    return;
+  }
+  if (value instanceof ArrayBuffer) {
+    writeRealtimeBinaryValue(new Uint8Array(value), chunks);
+    return;
+  }
+  if (ArrayBuffer.isView(value)) {
+    writeRealtimeBinaryValue(
+      new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
+      chunks,
+    );
+    return;
+  }
+  if (Array.isArray(value)) {
+    const header = new Uint8Array(5);
+    header[0] = 0x07;
+    new DataView(header.buffer).setUint32(1, value.length, false);
+    chunks.push(header);
+    for (const item of value) {
+      writeRealtimeBinaryValue(item, chunks);
+    }
+    return;
+  }
+  if (typeof value === 'object') {
+    const entries = Object.entries(value);
+    const header = new Uint8Array(5);
+    header[0] = 0x08;
+    new DataView(header.buffer).setUint32(1, entries.length, false);
+    chunks.push(header);
+    for (const [key, entryValue] of entries) {
+      writeRealtimeBinaryValue(String(key), chunks);
+      writeRealtimeBinaryValue(entryValue, chunks);
+    }
+    return;
+  }
+  throw new Error(`Cannot encode realtime control value of type ${typeof value}`);
+}
+
+function decodeRealtimeBinaryValue(bytes, offset = 0) {
+  if (!(bytes instanceof Uint8Array)) {
+    throw new Error('Realtime control binary payload must be a byte array');
+  }
+  if (offset >= bytes.byteLength) {
+    throw new Error('Unexpected end of realtime control binary payload');
+  }
+  const type = bytes[offset];
+  let cursor = offset + 1;
+  switch (type) {
+    case 0x00:
+      return {value: null, offset: cursor};
+    case 0x01:
+      return {value: false, offset: cursor};
+    case 0x02:
+      return {value: true, offset: cursor};
+    case 0x03: {
+      ensureRealtimeBinaryAvailable(bytes, cursor, 4);
+      const value = new DataView(
+        bytes.buffer,
+        bytes.byteOffset + cursor,
+        4,
+      ).getInt32(0, false);
+      return {value, offset: cursor + 4};
+    }
+    case 0x04: {
+      ensureRealtimeBinaryAvailable(bytes, cursor, 8);
+      const value = new DataView(
+        bytes.buffer,
+        bytes.byteOffset + cursor,
+        8,
+      ).getFloat64(0, false);
+      return {value, offset: cursor + 8};
+    }
+    case 0x05: {
+      const {value: length, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      ensureRealtimeBinaryAvailable(bytes, nextOffset, length);
+      const text = REALTIME_BINARY_TEXT_DECODER.decode(
+        bytes.subarray(nextOffset, nextOffset + length),
+      );
+      return {value: text, offset: nextOffset + length};
+    }
+    case 0x06: {
+      const {value: length, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      ensureRealtimeBinaryAvailable(bytes, nextOffset, length);
+      return {
+        value: bytes.slice(nextOffset, nextOffset + length),
+        offset: nextOffset + length,
+      };
+    }
+    case 0x07: {
+      const {value: count, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      const items = [];
+      let itemOffset = nextOffset;
+      for (let index = 0; index < count; index += 1) {
+        const decoded = decodeRealtimeBinaryValue(bytes, itemOffset);
+        items.push(decoded.value);
+        itemOffset = decoded.offset;
+      }
+      return {value: items, offset: itemOffset};
+    }
+    case 0x08: {
+      const {value: count, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      const object = {};
+      let itemOffset = nextOffset;
+      for (let index = 0; index < count; index += 1) {
+        const key = decodeRealtimeBinaryValue(bytes, itemOffset);
+        if (typeof key.value !== 'string') {
+          throw new Error('Realtime control object key must be a string');
+        }
+        const value = decodeRealtimeBinaryValue(bytes, key.offset);
+        object[key.value] = value.value;
+        itemOffset = value.offset;
+      }
+      return {value: object, offset: itemOffset};
+    }
+    default:
+      throw new Error(`Unsupported realtime control binary type 0x${type.toString(16)}`);
+  }
+}
+
+function readRealtimeBinaryLength(bytes, offset) {
+  ensureRealtimeBinaryAvailable(bytes, offset, 4);
+  const value = new DataView(
+    bytes.buffer,
+    bytes.byteOffset + offset,
+    4,
+  ).getUint32(0, false);
+  return {value, nextOffset: offset + 4};
+}
+
+function ensureRealtimeBinaryAvailable(bytes, offset, length) {
+  if (offset + length > bytes.byteLength) {
+    throw new Error('Realtime control binary payload is truncated');
+  }
+}
+
+function concatRealtimeBinaryChunks(chunks) {
+  if (!Array.isArray(chunks) || chunks.length === 0) {
+    return new Uint8Array(0);
+  }
+  let totalLength = 0;
+  for (const chunk of chunks) {
+    totalLength += chunk.byteLength;
+  }
+  const output = new Uint8Array(totalLength);
+  let cursor = 0;
+  for (const chunk of chunks) {
+    output.set(chunk, cursor);
+    cursor += chunk.byteLength;
+  }
+  return output;
+}
+
+function toRealtimeBinaryBytes(data) {
+  if (data instanceof Uint8Array) {
+    return data;
+  }
+  if (data instanceof ArrayBuffer) {
+    return new Uint8Array(data);
+  }
+  if (ArrayBuffer.isView(data)) {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
+  }
+  if (typeof data === 'string') {
+    return REALTIME_BINARY_TEXT_ENCODER.encode(data);
+  }
+  return new Uint8Array(0);
+}
+
+function parseRealtimeBinaryFrameStream(buffer) {
+  const bytes = toRealtimeBinaryBytes(buffer);
+  const frames = [];
+  let offset = 0;
+  while (bytes.byteLength - offset >= REALTIME_BINARY_HEADER_LENGTH) {
+    let magicOk = true;
+    for (let index = 0; index < REALTIME_BINARY_MAGIC_BYTES.length; index += 1) {
+      if (bytes[offset + index] !== REALTIME_BINARY_MAGIC_BYTES[index]) {
+        magicOk = false;
+        break;
+      }
+    }
+    if (!magicOk) {
+      throw new Error('Invalid realtime control binary magic');
+    }
+    if (bytes[offset + 4] !== REALTIME_BINARY_VERSION) {
+      throw new Error(`Unsupported realtime control binary version ${bytes[offset + 4]}`);
+    }
+    const bodyLength = new DataView(
+      bytes.buffer,
+      bytes.byteOffset + offset,
+      bytes.byteLength - offset,
+    ).getUint32(6, false);
+    if (bodyLength > REALTIME_BINARY_MAX_BODY_BYTES) {
+      throw new Error('Realtime control binary payload is too large');
+    }
+    const frameLength = REALTIME_BINARY_HEADER_LENGTH + bodyLength;
+    if (bytes.byteLength - offset < frameLength) {
+      break;
+    }
+    frames.push(bytes.slice(offset, offset + frameLength));
+    offset += frameLength;
+  }
+  return {frames, rest: bytes.slice(offset)};
+}
+
 function createRealtimeControlClient(endpoint) {
   let socket = null;
   let connectPromise = null;
+  let connectResolve = null;
+  let connectReject = null;
+  let connectTimeout = 0;
   let reconnectTimer = 0;
   let seq = 1;
   let ready = false;
+  let handshakeSent = false;
   let shouldReconnect = true;
   const pending = new Map();
 
@@ -2527,6 +2851,21 @@ function createRealtimeControlClient(endpoint) {
     pending.clear();
   };
 
+  const settleConnect = (resolver, rejecter, err = null) => {
+    window.clearTimeout(connectTimeout);
+    connectTimeout = 0;
+    const resolve = connectResolve;
+    const reject = connectReject;
+    connectResolve = null;
+    connectReject = null;
+    connectPromise = null;
+    if (err) {
+      reject?.(err);
+      return;
+    }
+    resolve?.();
+  };
+
   const scheduleReconnect = () => {
     if (!shouldReconnect || reconnectTimer || !isSocketControlMode(getSelectedControlMode())) {
       return;
@@ -2537,18 +2876,52 @@ function createRealtimeControlClient(endpoint) {
     }, CONTROL_SOCKET_RECONNECT_MS);
   };
 
+  const sendPayload = (payload) => {
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      const err = new Error('Realtime control socket is not ready');
+      err.transportUnavailable = true;
+      err.sent = false;
+      throw err;
+    }
+    socket.send(encodeRealtimeControlFrame(payload));
+    return true;
+  };
+
+  const sendHandshake = () => {
+    if (handshakeSent || !socket || socket.readyState !== WebSocket.OPEN) {
+      return;
+    }
+    handshakeSent = true;
+    if (APP_AUTH_TOKEN) {
+      sendPayload({type: 'auth', token: APP_AUTH_TOKEN});
+    }
+    sendPayload({type: 'ping'});
+  };
+
+  const finishConnect = () => {
+    if (connectResolve) {
+      settleConnect();
+    }
+  };
+
+  const failConnect = (message) => {
+    if (!connectReject) {
+      return;
+    }
+    const err = message instanceof Error ? message : new Error(String(message || 'Realtime control socket failed'));
+    err.transportUnavailable = true;
+    err.sent = false;
+    settleConnect(null, null, err);
+  };
+
   const onOpen = () => {
     setControlState('socket connecting');
+    sendHandshake();
   };
 
   const onMessage = (event) => {
-    if (typeof event.data !== 'string') {
-      return;
-    }
-    let payload;
-    try {
-      payload = JSON.parse(event.data);
-    } catch (_) {
+    const payload = decodeRealtimeControlMessage(event.data);
+    if (!payload || typeof payload !== 'object') {
       return;
     }
 
@@ -2557,19 +2930,29 @@ function createRealtimeControlClient(endpoint) {
       applyControlModeState(responseMode);
     }
 
-    if (payload.type === 'ready') {
+    if (payload.type === 'ready' || (payload.type === 'pong' && payload.ok !== false)) {
       ready = true;
       setControlState(controlModeSocketReadyState(getSelectedControlMode()));
+      finishConnect();
       return;
     }
     if (payload.type === 'connecting') {
       setControlState('socket connecting');
       return;
     }
+    if (payload.type === 'auth' && payload.ok === false) {
+      setControlState('socket error');
+      log(payload.error || 'Realtime control authentication failed', true);
+      failConnect(payload.error || 'Realtime control authentication failed');
+      return;
+    }
     if (payload.type === 'error') {
       const message = payload.message || payload.error || 'Realtime control error';
       setControlState('socket error');
       log(message, true);
+      if (!ready) {
+        failConnect(message);
+      }
       return;
     }
 
@@ -2591,9 +2974,12 @@ function createRealtimeControlClient(endpoint) {
 
   const onClose = () => {
     ready = false;
-    connectPromise = null;
+    handshakeSent = false;
     socket = null;
     cleanupPending(new Error('Realtime control socket closed'), true);
+    if (connectReject) {
+      failConnect(new Error('Realtime control socket closed'));
+    }
     setControlState('socket closed');
     scheduleReconnect();
   };
@@ -2603,113 +2989,48 @@ function createRealtimeControlClient(endpoint) {
   };
 
   const connect = () => {
-    if (socket && socket.readyState === WebSocket.OPEN && !ready) {
-      try {
-        socket.close();
-      } catch (_) {
-        // no-op
-      }
-      socket = null;
-    }
     if (ready && socket?.readyState === WebSocket.OPEN) {
       return Promise.resolve();
     }
     if (connectPromise) {
       return connectPromise;
     }
-    if (socket && socket.readyState === WebSocket.CONNECTING) {
-      connectPromise = new Promise((resolve, reject) => {
-        const cleanup = () => {
-          socket?.removeEventListener('message', onReady);
-          socket?.removeEventListener('close', onFail);
-          socket?.removeEventListener('error', onFail);
-          connectPromise = null;
-        };
-        const onReady = (event) => {
-          if (typeof event.data !== 'string') {
-            return;
-          }
-          try {
-            if (JSON.parse(event.data)?.type !== 'ready') {
-              return;
-            }
-          } catch (_) {
-            return;
-          }
-          cleanup();
-          resolve();
-        };
-        const onFail = () => {
-          cleanup();
-          const err = new Error('Realtime control socket is not ready');
-          err.transportUnavailable = true;
-          err.sent = false;
-          reject(err);
-        };
-        socket.addEventListener('message', onReady);
-        socket.addEventListener('close', onFail, {once: true});
-        socket.addEventListener('error', onFail, {once: true});
-      });
-      return connectPromise;
-    }
 
     clearTimeout(reconnectTimer);
     reconnectTimer = 0;
+    if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket.CLOSING) {
+      socket = openAppWebSocket(endpoint);
+      socket.binaryType = 'arraybuffer';
+      socket.addEventListener('open', onOpen);
+      socket.addEventListener('message', onMessage);
+      socket.addEventListener('close', onClose);
+      socket.addEventListener('error', onError);
+    }
+
     ready = false;
+    handshakeSent = false;
     setControlState('socket connecting');
-    socket = openAppWebSocket(endpoint);
-    socket.addEventListener('open', onOpen);
-    socket.addEventListener('message', onMessage);
-    socket.addEventListener('close', onClose);
-    socket.addEventListener('error', onError);
 
     connectPromise = new Promise((resolve, reject) => {
-      const timeout = window.setTimeout(() => {
-        cleanup();
+      connectResolve = resolve;
+      connectReject = reject;
+      connectTimeout = window.setTimeout(() => {
+        const err = new Error('Realtime control socket open timed out');
+        err.transportUnavailable = true;
+        err.sent = false;
+        settleConnect(null, null, err);
         try {
           socket?.close();
         } catch (_) {
           // no-op
         }
-        const err = new Error('Realtime control socket open timed out');
-        err.transportUnavailable = true;
-        err.sent = false;
-        reject(err);
       }, CONTROL_COMMAND_TIMEOUT_MS);
-      const cleanup = () => {
-        window.clearTimeout(timeout);
-        socket?.removeEventListener('message', onReady);
-        socket?.removeEventListener('close', onFail);
-        socket?.removeEventListener('error', onFail);
-        connectPromise = null;
-      };
-      const onReady = (event) => {
-        if (typeof event.data !== 'string') {
-          return;
-        }
-        let payload;
-        try {
-          payload = JSON.parse(event.data);
-        } catch (_) {
-          return;
-        }
-        if (payload.type !== 'ready') {
-          return;
-        }
-        cleanup();
-        resolve();
-      };
-      const onFail = () => {
-        cleanup();
-        const err = new Error('Realtime control socket is not ready');
-        err.transportUnavailable = true;
-        err.sent = false;
-        reject(err);
-      };
-      socket.addEventListener('message', onReady);
-      socket.addEventListener('close', onFail, {once: true});
-      socket.addEventListener('error', onFail, {once: true});
     });
+
+    if (socket.readyState === WebSocket.OPEN) {
+      sendHandshake();
+    }
+
     return connectPromise;
   };
 
@@ -2744,7 +3065,11 @@ function createRealtimeControlClient(endpoint) {
       clearTimeout(reconnectTimer);
       reconnectTimer = 0;
       ready = false;
+      handshakeSent = false;
       cleanupPending(new Error('Realtime control socket closed'));
+      if (connectReject) {
+        failConnect(new Error('Realtime control socket closed'));
+      }
       if (socket) {
         socket.close();
         socket = null;
@@ -2768,7 +3093,7 @@ function createRealtimeControlClient(endpoint) {
       const payload = expectResponse ? {...command, id} : {...command};
       if (!expectResponse) {
         try {
-          socket.send(JSON.stringify(payload));
+          sendPayload(payload);
           return {ok: true, sent: true};
         } catch (err) {
           err.sent = false;
@@ -2787,7 +3112,7 @@ function createRealtimeControlClient(endpoint) {
         }, timeoutMs);
         pending.set(requestId, {resolve, reject, timer});
         try {
-          socket.send(JSON.stringify(payload));
+          sendPayload(payload);
         } catch (err) {
           clearTimeout(timer);
           pending.delete(requestId);

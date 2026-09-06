@@ -35,6 +35,10 @@ const DEFAULT_POINT_ARRAY_SECRET = "SolumateSwipeLocal2026";
 const DEFAULT_MJPEG_WDA_SCALE_MAX = 70;
 const SETUP_COMMAND_TIMEOUT_MS = 180000;
 const SETUP_OUTPUT_LIMIT_BYTES = 4 * 1024 * 1024;
+const REALTIME_BINARY_MAGIC = Buffer.from("RCB1");
+const REALTIME_BINARY_VERSION = 1;
+const REALTIME_BINARY_HEADER_LENGTH = 10;
+const REALTIME_BINARY_MAX_BODY_BYTES = 1024 * 1024;
 
 const setupActions = new Map([
   [
@@ -1257,18 +1261,10 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     options.authToken !== undefined ? options.authToken : config.realtimeControlAuthToken;
   const connectionStateKey = options.connectionStateKey || "realtimeControlConnections";
   const source = `tcp://${host}:${port}`;
-  const pendingClientMessages = [];
-  const pendingModeRequests = new Map();
-  let pendingRealtimeMove = null;
-  let pendingRealtimeMoveFlushScheduled = false;
+  const pendingClientFrames = [];
   let upstreamWriteBackpressured = false;
   let upstreamSocket = null;
-  let upstreamBuffer = "";
-  let upstreamReady = false;
-  let upstreamIsTrollstore = false;
-  let upstreamControlMode = defaultRealtimeControlMode(upstreamIsTrollstore);
-  let authPending = false;
-  let startupProbePending = false;
+  let upstreamBuffer = Buffer.alloc(0);
   let closed = false;
   let counted = true;
   let timeoutTimer = null;
@@ -1302,316 +1298,89 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     }
     closed = true;
     cleanup();
-    closeWsWithError(clientSocket, code, message);
+    closeRealtimeControlWsWithError(clientSocket, code, message);
   };
 
-  const writeToUpstream = (payload) => {
-    if (!upstreamSocket || !upstreamSocket.writable) {
-      return false;
-    }
-    if (payload && typeof payload === "object" && payload.serverForwardTimestamp == null) {
-      payload.serverForwardTimestamp = Date.now();
-    }
-    const line = JSON.stringify(payload);
-    return upstreamSocket.write(`${line}\n`, noop);
-  };
-
-  const logRealtimeInput = (stage, payload, extra = {}) => {
-    if (!config.realtimeTouchDebugEnabled) {
-      return;
-    }
-    const normalizedType = normalizeRealtimeControlType(payload?.type || "");
-    const logTimestamp = Date.now();
-    console.log(
-      [
-        "[RT INPUT]",
-        `stage=${stage}`,
-        `type=${normalizedType || "?"}`,
-        `seq=${payload?.sequence ?? payload?.seq ?? "-"}`,
-        `pointerId=${payload?.pointerId ?? payload?.finger ?? payload?.pointer ?? "-"}`,
-        `x=${payload?.x ?? "-"}`,
-        `y=${payload?.y ?? "-"}`,
-        `clientTs=${payload?.timestamp ?? "-"}`,
-        `nodeRecvTs=${payload?.serverReceiveTimestamp ?? "-"}`,
-        `nodeForwardTs=${payload?.serverForwardTimestamp ?? "-"}`,
-        `nodeLogTs=${logTimestamp}`,
-        `wsQueueDepth=${pendingClientMessages.length}`,
-        `movePending=${pendingRealtimeMove ? 1 : 0}`,
-        `backpressured=${upstreamWriteBackpressured ? 1 : 0}`,
-        ...Object.entries(extra).map(([key, value]) => `${key}=${value}`),
-      ].join(" "),
-    );
-  };
-
-  const applyUpstreamMetadata = (payload) => {
-    if (!payload || typeof payload !== "object") {
-      return;
-    }
-    const hadBuildFlag = typeof payload.is_trollstore === "boolean";
-    if (hadBuildFlag) {
-      upstreamIsTrollstore = payload.is_trollstore;
-    }
-    const requestedMode = normalizeRealtimeControlMode(payload.mode);
-    if (requestedMode) {
-      upstreamControlMode = effectiveRealtimeControlMode(
-        requestedMode,
-        upstreamIsTrollstore,
-      );
-    } else if (hadBuildFlag) {
-      upstreamControlMode = effectiveRealtimeControlMode(
-        upstreamControlMode || defaultRealtimeControlMode(upstreamIsTrollstore),
-        upstreamIsTrollstore,
-      );
-    }
-  };
-
-  const flushPendingRealtimeMove = () => {
-    if (!upstreamReady || !upstreamSocket || !upstreamSocket.writable || pendingRealtimeMove == null) {
+  const writeAuthToUpstream = () => {
+    if (!authToken) {
       return true;
     }
-    const payload = pendingRealtimeMove;
-    pendingRealtimeMove = null;
-    const ok = writeToUpstream(payload);
-    upstreamWriteBackpressured = !ok;
-    if (config.realtimeTouchDebugEnabled) {
-      logRealtimeInput("flush-move", payload, {
-        upstreamOk: ok ? 1 : 0,
-      });
-    }
-    return ok;
-  };
-
-  const schedulePendingRealtimeMoveFlush = () => {
-    if (pendingRealtimeMoveFlushScheduled || !upstreamReady || upstreamWriteBackpressured) {
-      return;
-    }
-    if (!pendingRealtimeMove || !upstreamSocket || !upstreamSocket.writable) {
-      return;
-    }
-    pendingRealtimeMoveFlushScheduled = true;
-    setImmediate(() => {
-      pendingRealtimeMoveFlushScheduled = false;
-      if (closed || !upstreamReady || upstreamWriteBackpressured) {
-        return;
-      }
-      flushPendingRealtimeMove();
-    });
-  };
-
-  const startStartupProbe = () => {
-    if (closed || !upstreamSocket || !upstreamSocket.writable) {
+    try {
+      return queueFrameToUpstream(encodeRealtimeControlFrame({
+        type: "auth",
+        token: authToken,
+      }));
+    } catch (_) {
       return false;
     }
-    startupProbePending = true;
-    return writeToUpstream({
-      type: "ping",
-      id: "realtime-startup-probe",
-    });
   };
 
-  const flushPendingClientMessages = () => {
-    if (
-      !upstreamReady ||
-      !upstreamSocket ||
-      !upstreamSocket.writable ||
-      upstreamWriteBackpressured
-    ) {
+  const queueFrameToUpstream = (frame) => {
+    const buffer = toBuffer(frame);
+    if (!upstreamSocket || !upstreamSocket.writable) {
+      if (pendingClientFrames.length >= 256) {
+        return false;
+      }
+      pendingClientFrames.push(Buffer.from(buffer));
+      return true;
+    }
+    if (upstreamWriteBackpressured) {
+      if (pendingClientFrames.length >= 256) {
+        return false;
+      }
+      pendingClientFrames.push(Buffer.from(buffer));
+      return true;
+    }
+    const ok = upstreamSocket.write(buffer);
+    upstreamWriteBackpressured = !ok;
+    return true;
+  };
+
+  const flushPendingClientFrames = () => {
+    if (!upstreamSocket || !upstreamSocket.writable || upstreamWriteBackpressured) {
       return;
     }
-    while (pendingClientMessages.length > 0) {
-      const payload = pendingClientMessages.shift();
-      const ok = writeToUpstream(payload);
+    while (pendingClientFrames.length > 0) {
+      const frame = pendingClientFrames.shift();
+      const ok = upstreamSocket.write(frame);
       upstreamWriteBackpressured = !ok;
-      if (config.realtimeTouchDebugEnabled) {
-        logRealtimeInput("flush-command", payload, {
-          upstreamOk: ok ? 1 : 0,
-        });
-      }
       if (!ok) {
         return;
       }
     }
-    if (pendingRealtimeMove != null) {
-      flushPendingRealtimeMove();
-    }
   };
 
-  const enqueueClientMessage = (payload, normalizedType) => {
-    if (normalizedType === "move") {
-      pendingRealtimeMove = payload;
-      schedulePendingRealtimeMoveFlush();
-      return true;
-    }
-
-    if (pendingRealtimeMove != null) {
-      if (pendingClientMessages.length >= 256) {
-        return false;
-      }
-      pendingClientMessages.push(pendingRealtimeMove);
-      pendingRealtimeMove = null;
-    }
-    if (pendingClientMessages.length >= 256) {
-      return false;
-    }
-    pendingClientMessages.push(payload);
-    flushPendingClientMessages();
-    return true;
-  };
-
-  const markUpstreamReady = () => {
-    if (closed || upstreamReady) {
-      return;
-    }
-    clearTimeout(timeoutTimer);
-    timeoutTimer = null;
-    upstreamReady = true;
-    safeWsSendJson(clientSocket, {
-      type: "ready",
-      socket: modeName,
-      mode: upstreamControlMode,
-      source,
-      authenticated: Boolean(authToken),
-      is_trollstore: upstreamIsTrollstore,
-    });
-    flushPendingClientMessages();
-  };
-
-  const handleUpstreamLine = (line) => {
-    const trimmed = line.trim();
-    if (!trimmed) {
-      return;
-    }
-    let payload;
+  const handleUpstreamData = (chunk) => {
+    upstreamBuffer = Buffer.concat([upstreamBuffer, toBuffer(chunk)]);
+    let parsed;
     try {
-      payload = JSON.parse(trimmed);
+      parsed = parseRealtimeBinaryFrameStream(upstreamBuffer);
     } catch (err) {
       closeBoth(4503, `Invalid realtime control response: ${err.message}`);
       return;
     }
-    applyUpstreamMetadata(payload);
-
-    if (authPending) {
-      if (payload.type === "auth" && payload.ok) {
-        authPending = false;
-        if (!startStartupProbe()) {
-          closeBoth(4503, "Realtime control socket is not writable");
-        }
+    upstreamBuffer = parsed.rest;
+    for (const frame of parsed.frames) {
+      if (closed || clientSocket.readyState !== WebSocket.OPEN) {
         return;
       }
-      closeBoth(4401, payload.error || `${modeName} authentication failed`);
-      return;
-    }
-
-    if (startupProbePending) {
-      startupProbePending = false;
-      if (
-        (payload.type === "pong" && payload.ok !== false) ||
-        (payload.type === "auth" && payload.ok)
-      ) {
-        markUpstreamReady();
-        return;
-      }
-      closeBoth(
-        4503,
-        payload.error ||
-          payload.message ||
-          `Unexpected realtime control response: ${payload.type || "unknown"}`,
-      );
-      return;
-    }
-
-    const responseId = payload?.id == null ? "" : String(payload.id);
-    const pendingMode = responseId ? pendingModeRequests.get(responseId) : "";
-    if (pendingMode) {
-      pendingModeRequests.delete(responseId);
-    }
-    if (
-      pendingMode &&
-      payload?.ok === false &&
-      normalizeRealtimeControlType(payload.type) === "mode" &&
-      /unsupported control type:\s*mode/i.test(String(payload.error || payload.message || ""))
-    ) {
-      payload = {
-        ...payload,
-        ok: true,
-        mode: pendingMode,
-        is_trollstore: upstreamIsTrollstore,
-        error: undefined,
-        message: undefined,
-      };
-    }
-    safeWsSendJson(clientSocket, payload);
-  };
-
-  const handleUpstreamData = (chunk) => {
-    upstreamBuffer += toBuffer(chunk).toString("utf8");
-    let newlineIndex = upstreamBuffer.indexOf("\n");
-    while (newlineIndex >= 0) {
-      const line = upstreamBuffer.slice(0, newlineIndex);
-      upstreamBuffer = upstreamBuffer.slice(newlineIndex + 1);
-      handleUpstreamLine(line);
-      if (closed) {
-        return;
-      }
-      newlineIndex = upstreamBuffer.indexOf("\n");
-    }
-    if (upstreamBuffer.length > 1024 * 1024) {
-      closeBoth(4503, "Realtime control response is too large");
+      clientSocket.send(frame, {binary: true}, noop);
     }
   };
 
   clientSocket.on("message", (message, isBinary) => {
-    if (closed || isBinary) {
+    if (closed) {
       return;
     }
-    let payload;
-    try {
-      payload = JSON.parse(toBuffer(message).toString("utf8"));
-    } catch (err) {
-      safeWsSendJson(clientSocket, {
-        type: "error",
-        message: `Invalid realtime control JSON: ${err.message}`,
-      });
+    if (!isBinary) {
+      closeBoth(4503, "Realtime control payload must be binary");
       return;
     }
+    const frame = toBuffer(message);
 
-    try {
-      payload = prepareRealtimeControlPayload(payload, {
-        isTrollstore: upstreamIsTrollstore,
-      });
-    } catch (err) {
-      safeWsSendJson(clientSocket, {
-        id: payload?.id ?? null,
-        type: payload?.type || "error",
-        ok: false,
-        error: err.message || "Invalid realtime control payload",
-      });
-      return;
-    }
-
-    if (payload && typeof payload === "object" && payload.serverReceiveTimestamp == null) {
-      payload.serverReceiveTimestamp = Date.now();
-    }
-
-    const normalizedType = normalizeRealtimeControlType(payload?.type || "");
-    if (normalizedType === "mode") {
-      upstreamControlMode = effectiveRealtimeControlMode(
-        payload.mode,
-        upstreamIsTrollstore,
-      );
-      if (payload.id != null) {
-        pendingModeRequests.set(String(payload.id), upstreamControlMode);
-      }
-    }
-    if (config.realtimeTouchDebugEnabled) {
-      logRealtimeInput("ws-recv", payload, {
-        upstreamReady: upstreamReady ? 1 : 0,
-        normalizedType: normalizedType || "?",
-      });
-    }
-
-    if (!enqueueClientMessage(payload, normalizedType)) {
+    if (!queueFrameToUpstream(frame)) {
       closeBoth(4409, "Realtime control command queue is full");
+      return;
     }
   });
 
@@ -1625,12 +1394,6 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     cleanup();
   });
 
-  safeWsSendJson(clientSocket, {
-    type: "connecting",
-    socket: modeName,
-    source,
-  });
-
   upstreamSocket = net.createConnection({
     host,
     port,
@@ -1640,10 +1403,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
   upstreamSocket.setTimeout(config.realtimeControlConnectTimeoutMs);
 
   timeoutTimer = setTimeout(() => {
-    closeBoth(
-      4501,
-      `Realtime control connect timed out after ${config.realtimeControlConnectTimeoutMs}ms`,
-    );
+    closeBoth(4501, `Realtime control connect timed out after ${config.realtimeControlConnectTimeoutMs}ms`);
   }, config.realtimeControlConnectTimeoutMs + 100);
 
   upstreamSocket.on("connect", () => {
@@ -1651,43 +1411,28 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
       return;
     }
     upstreamSocket.setTimeout(0);
-    if (authToken) {
-      authPending = true;
-      writeToUpstream({
-        type: "auth",
-        token: authToken,
-      });
+    clearTimeout(timeoutTimer);
+    timeoutTimer = null;
+    if (!writeAuthToUpstream()) {
+      closeBoth(4503, "Realtime control auth could not be sent");
       return;
     }
-    if (!startStartupProbe()) {
-      closeBoth(4503, "Realtime control socket is not writable");
-    }
+    flushPendingClientFrames();
   });
 
   upstreamSocket.on("data", handleUpstreamData);
   upstreamSocket.on("drain", () => {
     upstreamWriteBackpressured = false;
-    flushPendingClientMessages();
+    flushPendingClientFrames();
   });
   upstreamSocket.on("timeout", () => {
-    closeBoth(
-      4501,
-      `Realtime control connect timed out after ${config.realtimeControlConnectTimeoutMs}ms`,
-    );
+    closeBoth(4501, `Realtime control connect timed out after ${config.realtimeControlConnectTimeoutMs}ms`);
   });
   upstreamSocket.on("error", (err) => {
     closeBoth(4501, `Cannot connect ${modeName} socket ${source}: ${err.message}`);
   });
   upstreamSocket.on("close", () => {
     if (!closed) {
-      if (authPending) {
-        closeBoth(4503, "Realtime control socket closed during authentication");
-        return;
-      }
-      if (startupProbePending) {
-        closeBoth(4503, "Realtime control socket closed before startup probe completed");
-        return;
-      }
       closeBoth(4503, "Realtime control socket closed");
     }
   });
@@ -1904,6 +1649,258 @@ function toBuffer(data) {
     return Buffer.from(data);
   }
   return Buffer.alloc(0);
+}
+
+function encodeRealtimeControlFrame(payload) {
+  const body = encodeRealtimeBinaryValue(payload);
+  if (body.length > REALTIME_BINARY_MAX_BODY_BYTES) {
+    throw new Error("Realtime control payload is too large");
+  }
+  const frame = Buffer.allocUnsafe(REALTIME_BINARY_HEADER_LENGTH + body.length);
+  REALTIME_BINARY_MAGIC.copy(frame, 0);
+  frame[4] = REALTIME_BINARY_VERSION;
+  frame[5] = 0;
+  frame.writeUInt32BE(body.length, 6);
+  body.copy(frame, REALTIME_BINARY_HEADER_LENGTH);
+  return frame;
+}
+
+function decodeRealtimeControlMessage(data) {
+  if (typeof data === "string") {
+    try {
+      return JSON.parse(data);
+    } catch (_) {
+      return null;
+    }
+  }
+  try {
+    return decodeRealtimeControlFrame(data);
+  } catch (_) {
+    return null;
+  }
+}
+
+function decodeRealtimeControlFrame(data) {
+  const bytes = toBuffer(data);
+  if (bytes.length < REALTIME_BINARY_HEADER_LENGTH) {
+    throw new Error("Realtime control binary frame is too short");
+  }
+  if (bytes.compare(REALTIME_BINARY_MAGIC, 0, 4, 0, 4) !== 0) {
+    throw new Error("Invalid realtime control binary magic");
+  }
+  if (bytes[4] !== REALTIME_BINARY_VERSION) {
+    throw new Error(`Unsupported realtime control binary version ${bytes[4]}`);
+  }
+  const bodyLength = bytes.readUInt32BE(6);
+  if (bodyLength > REALTIME_BINARY_MAX_BODY_BYTES) {
+    throw new Error("Realtime control binary payload is too large");
+  }
+  if (bodyLength !== bytes.length - REALTIME_BINARY_HEADER_LENGTH) {
+    throw new Error("Realtime control binary body length mismatch");
+  }
+  const body = bytes.subarray(REALTIME_BINARY_HEADER_LENGTH);
+  const decoded = decodeRealtimeBinaryValue(body, 0);
+  if (decoded.offset !== body.length) {
+    throw new Error("Realtime control binary payload has trailing bytes");
+  }
+  return decoded.value;
+}
+
+function encodeRealtimeBinaryValue(value) {
+  const chunks = [];
+  writeRealtimeBinaryValue(value, chunks);
+  return Buffer.concat(chunks);
+}
+
+function writeRealtimeBinaryValue(value, chunks) {
+  if (value == null || value === null) {
+    chunks.push(Buffer.from([0x00]));
+    return;
+  }
+  if (value === false) {
+    chunks.push(Buffer.from([0x01]));
+    return;
+  }
+  if (value === true) {
+    chunks.push(Buffer.from([0x02]));
+    return;
+  }
+  if (typeof value === "number") {
+    if (!Number.isFinite(value)) {
+      throw new Error("Cannot encode non-finite number in realtime control frame");
+    }
+    if (Number.isInteger(value) && value >= -2147483648 && value <= 2147483647) {
+      const chunk = Buffer.allocUnsafe(5);
+      chunk[0] = 0x03;
+      chunk.writeInt32BE(value, 1);
+      chunks.push(chunk);
+      return;
+    }
+    const chunk = Buffer.allocUnsafe(9);
+    chunk[0] = 0x04;
+    chunk.writeDoubleBE(value, 1);
+    chunks.push(chunk);
+    return;
+  }
+  if (typeof value === "string") {
+    const encoded = Buffer.from(value, "utf8");
+    const header = Buffer.allocUnsafe(5);
+    header[0] = 0x05;
+    header.writeUInt32BE(encoded.length, 1);
+    chunks.push(header, encoded);
+    return;
+  }
+  if (Buffer.isBuffer(value)) {
+    const header = Buffer.allocUnsafe(5);
+    header[0] = 0x06;
+    header.writeUInt32BE(value.length, 1);
+    chunks.push(header, value);
+    return;
+  }
+  if (value instanceof ArrayBuffer) {
+    writeRealtimeBinaryValue(Buffer.from(value), chunks);
+    return;
+  }
+  if (ArrayBuffer.isView(value)) {
+    writeRealtimeBinaryValue(
+      Buffer.from(value.buffer, value.byteOffset, value.byteLength),
+      chunks,
+    );
+    return;
+  }
+  if (Array.isArray(value)) {
+    const header = Buffer.allocUnsafe(5);
+    header[0] = 0x07;
+    header.writeUInt32BE(value.length, 1);
+    chunks.push(header);
+    for (const item of value) {
+      writeRealtimeBinaryValue(item, chunks);
+    }
+    return;
+  }
+  if (typeof value === "object") {
+    const entries = Object.entries(value);
+    const header = Buffer.allocUnsafe(5);
+    header[0] = 0x08;
+    header.writeUInt32BE(entries.length, 1);
+    chunks.push(header);
+    for (const [key, entryValue] of entries) {
+      writeRealtimeBinaryValue(String(key), chunks);
+      writeRealtimeBinaryValue(entryValue, chunks);
+    }
+    return;
+  }
+  throw new Error(`Cannot encode realtime control value of type ${typeof value}`);
+}
+
+function decodeRealtimeBinaryValue(bytes, offset = 0) {
+  if (!Buffer.isBuffer(bytes)) {
+    bytes = toBuffer(bytes);
+  }
+  if (offset >= bytes.length) {
+    throw new Error("Unexpected end of realtime control binary payload");
+  }
+  const type = bytes[offset];
+  let cursor = offset + 1;
+  switch (type) {
+    case 0x00:
+      return {value: null, offset: cursor};
+    case 0x01:
+      return {value: false, offset: cursor};
+    case 0x02:
+      return {value: true, offset: cursor};
+    case 0x03: {
+      ensureRealtimeBinaryAvailable(bytes, cursor, 4);
+      return {value: bytes.readInt32BE(cursor), offset: cursor + 4};
+    }
+    case 0x04: {
+      ensureRealtimeBinaryAvailable(bytes, cursor, 8);
+      return {value: bytes.readDoubleBE(cursor), offset: cursor + 8};
+    }
+    case 0x05: {
+      const {value: length, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      ensureRealtimeBinaryAvailable(bytes, nextOffset, length);
+      return {
+        value: bytes.toString("utf8", nextOffset, nextOffset + length),
+        offset: nextOffset + length,
+      };
+    }
+    case 0x06: {
+      const {value: length, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      ensureRealtimeBinaryAvailable(bytes, nextOffset, length);
+      return {
+        value: bytes.subarray(nextOffset, nextOffset + length),
+        offset: nextOffset + length,
+      };
+    }
+    case 0x07: {
+      const {value: count, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      const items = [];
+      let itemOffset = nextOffset;
+      for (let index = 0; index < count; index += 1) {
+        const decoded = decodeRealtimeBinaryValue(bytes, itemOffset);
+        items.push(decoded.value);
+        itemOffset = decoded.offset;
+      }
+      return {value: items, offset: itemOffset};
+    }
+    case 0x08: {
+      const {value: count, nextOffset} = readRealtimeBinaryLength(bytes, cursor);
+      const object = {};
+      let itemOffset = nextOffset;
+      for (let index = 0; index < count; index += 1) {
+        const key = decodeRealtimeBinaryValue(bytes, itemOffset);
+        if (typeof key.value !== "string") {
+          throw new Error("Realtime control object key must be a string");
+        }
+        const value = decodeRealtimeBinaryValue(bytes, key.offset);
+        object[key.value] = value.value;
+        itemOffset = value.offset;
+      }
+      return {value: object, offset: itemOffset};
+    }
+    default:
+      throw new Error(`Unsupported realtime control binary type 0x${type.toString(16)}`);
+  }
+}
+
+function readRealtimeBinaryLength(bytes, offset) {
+  ensureRealtimeBinaryAvailable(bytes, offset, 4);
+  return {
+    value: bytes.readUInt32BE(offset),
+    nextOffset: offset + 4,
+  };
+}
+
+function ensureRealtimeBinaryAvailable(bytes, offset, length) {
+  if (offset + length > bytes.length) {
+    throw new Error("Realtime control binary payload is truncated");
+  }
+}
+
+function parseRealtimeBinaryFrameStream(buffer) {
+  const bytes = toBuffer(buffer);
+  const frames = [];
+  let offset = 0;
+  while (bytes.length - offset >= REALTIME_BINARY_HEADER_LENGTH) {
+    if (bytes.compare(REALTIME_BINARY_MAGIC, 0, 4, offset, offset + 4) !== 0) {
+      throw new Error("Invalid realtime control binary magic");
+    }
+    if (bytes[offset + 4] !== REALTIME_BINARY_VERSION) {
+      throw new Error(`Unsupported realtime control binary version ${bytes[offset + 4]}`);
+    }
+    const bodyLength = bytes.readUInt32BE(offset + 6);
+    if (bodyLength > REALTIME_BINARY_MAX_BODY_BYTES) {
+      throw new Error("Realtime control binary payload is too large");
+    }
+    const frameLength = REALTIME_BINARY_HEADER_LENGTH + bodyLength;
+    if (bytes.length - offset < frameLength) {
+      break;
+    }
+    frames.push(bytes.subarray(offset, offset + frameLength));
+    offset += frameLength;
+  }
+  return {frames, rest: bytes.subarray(offset)};
 }
 
 async function getLocalH264BridgeStatus() {
@@ -2499,6 +2496,26 @@ function closeWsWithError(ws, code, message) {
   }
 }
 
+function closeRealtimeControlWsWithError(ws, code, message) {
+  if (ws.readyState === WebSocket.OPEN) {
+    try {
+      ws.send(
+        encodeRealtimeControlFrame({type: "error", ok: false, message}),
+        {binary: true},
+        noop,
+      );
+    } catch (_) {
+      // no-op
+    }
+  }
+  if (
+    ws.readyState === WebSocket.OPEN ||
+    ws.readyState === WebSocket.CONNECTING
+  ) {
+    ws.close(code, trimCloseReason("Realtime control error"));
+  }
+}
+
 function safeWsSendJson(ws, payload) {
   if (ws.readyState !== WebSocket.OPEN) {
     return;
@@ -2681,7 +2698,7 @@ async function buildControlModes() {
       {
         id: "trollstore",
         label: "trollstore",
-        transport: "ws-tcp-ndjson-touch-stream",
+        transport: "ws-binary-tcp-touch-stream",
         enabled: true,
         reachable: realtimeReachable,
         warningIfUnreachable: realtimeWarning,
@@ -2689,7 +2706,7 @@ async function buildControlModes() {
       {
         id: "pointarray",
         label: "pointArray",
-        transport: "ws-tcp-ndjson-point-array",
+        transport: "ws-binary-tcp-point-array",
         enabled: true,
         reachable: realtimeReachable,
         warningIfUnreachable: realtimeWarning,
@@ -2697,7 +2714,7 @@ async function buildControlModes() {
       {
         id: "swipe",
         label: "swipe",
-        transport: "ws-tcp-ndjson-swipe",
+        transport: "ws-binary-tcp-swipe",
         enabled: true,
         reachable: realtimeReachable,
         warningIfUnreachable: realtimeWarning,
@@ -2918,12 +2935,12 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
 
   return new Promise((resolve) => {
     let settled = false;
-    let buffer = "";
+    let buffer = Buffer.alloc(0);
     let authPending = false;
-    let probePending = false;
     let probeIsTrollstore = null;
     let probeMode = null;
     let socket = null;
+    let probePending = false;
 
     const finalize = (reachable, warning) => {
       if (settled) {
@@ -2949,28 +2966,20 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       if (!socket || !socket.writable) {
         return false;
       }
-      socket.write(`${JSON.stringify(payload)}\n`, noop);
+      socket.write(encodeRealtimeControlFrame(payload), noop);
       return true;
     };
 
     const sendProbe = () => {
       probePending = true;
-      if (!sendLine({type: "ping", id: "realtime-probe"})) {
+      if (!sendLine({type: "ping"})) {
         finalize(false, `${label} probe could not be sent`);
       }
     };
 
-    const handleLine = (line) => {
-      const trimmed = line.trim();
-      if (!trimmed) {
-        return;
-      }
-
-      let payload;
-      try {
-        payload = JSON.parse(trimmed);
-      } catch (err) {
-        finalize(false, `Invalid ${label} probe response: ${err.message}`);
+    const handlePayload = (payload) => {
+      if (!payload || typeof payload !== "object") {
+        finalize(false, `Unexpected ${label} probe response: ${String(payload).slice(0, 120)}`);
         return;
       }
       if (typeof payload.is_trollstore === "boolean") {
@@ -2992,7 +3001,10 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       }
 
       if (probePending) {
-        if ((payload.type === "pong" && payload.ok !== false) || payload.ok === true) {
+        if (
+          ((payload.type === "ready" || payload.type === "pong") && payload.ok !== false) ||
+          payload.ok === true
+        ) {
           finalize(true);
           return;
         }
@@ -3009,7 +3021,35 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
         return;
       }
 
-      finalize(false, `Unexpected ${label} probe response: ${trimmed.slice(0, 120)}`);
+      finalize(false, `Unexpected ${label} probe response: ${JSON.stringify(payload).slice(0, 120)}`);
+    };
+
+    const handleData = (chunk) => {
+      buffer = Buffer.concat([buffer, toBuffer(chunk)]);
+      let parsed;
+      try {
+        parsed = parseRealtimeBinaryFrameStream(buffer);
+      } catch (err) {
+        finalize(false, `Invalid ${label} probe response: ${err.message}`);
+        return;
+      }
+      buffer = parsed.rest;
+      for (const frame of parsed.frames) {
+        let payload;
+        try {
+          payload = decodeRealtimeControlFrame(frame);
+        } catch (err) {
+          finalize(false, `Invalid ${label} probe response: ${err.message}`);
+          return;
+        }
+        handlePayload(payload);
+        if (settled) {
+          return;
+        }
+      }
+      if (buffer.length > REALTIME_BINARY_MAX_BODY_BYTES + REALTIME_BINARY_HEADER_LENGTH) {
+        finalize(false, `${label} probe response is too large`);
+      }
     };
 
     const timer = setTimeout(() => {
@@ -3036,16 +3076,7 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       sendProbe();
     });
 
-    socket.on("data", (chunk) => {
-      buffer += toBuffer(chunk).toString("utf8");
-      let newlineIndex = buffer.indexOf("\n");
-      while (newlineIndex >= 0 && !settled) {
-        const line = buffer.slice(0, newlineIndex);
-        buffer = buffer.slice(newlineIndex + 1);
-        handleLine(line);
-        newlineIndex = buffer.indexOf("\n");
-      }
-    });
+    socket.on("data", handleData);
     socket.once("timeout", () => {
       finalize(false, `${label} probe timed out after ${timeoutMs}ms`);
     });
