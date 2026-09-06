@@ -18,10 +18,22 @@
           View mode
           <select id="viewModeSelect"></select>
         </label>
-        <label class="inline-select">
-          Control mode
-          <select id="controlModeSelect"></select>
-        </label>
+        <div class="control-mode-group" role="group" aria-label="Control mode">
+          <span class="control-mode-title">Control mode</span>
+          <label class="checkbox-line compact">
+            <input id="controlModeTrollstoreInput" type="checkbox" value="trollstore">
+            trollstore
+          </label>
+          <label class="checkbox-line compact">
+            <input id="controlModePointArrayInput" type="checkbox" value="pointarray">
+            pointArray
+          </label>
+          <label class="checkbox-line compact">
+            <input id="controlModeSwipeInput" type="checkbox" value="swipe">
+            swipe
+          </label>
+          <select id="controlModeSelect" hidden></select>
+        </div>
         <button id="applyViewBtn">Apply view</button>
         <button id="connectBtn">Connect WDA</button>
         <button id="homeBtn">Home</button>

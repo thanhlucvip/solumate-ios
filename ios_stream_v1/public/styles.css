@@ -68,6 +68,24 @@ button {
   min-width: 140px;
 }
 
+.control-mode-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.control-mode-title {
+  color: var(--muted);
+}
+
+.checkbox-line.compact {
+  gap: 6px;
+  color: var(--text);
+}
+
 button,
 a.button-link,
 select {

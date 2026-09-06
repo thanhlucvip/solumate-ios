@@ -13,7 +13,6 @@ Dự án này chọn hướng **WebDriverAgent MJPEG** làm nguồn ảnh chính
   |- WebDriverAgent HTTP     -> device port 8000
   |- WebDriverAgent MJPEG    -> device port 8001
   |- Realtime control        -> device port 8003
-  |- Realtime control mesh   -> device port 8003 (default)
         ^
         | USB / tunnel / forward
         v
@@ -22,8 +21,7 @@ Dự án này chọn hướng **WebDriverAgent MJPEG** làm nguồn ảnh chính
   |- Node.js server (server.js)
        |- proxy /stream.mjpeg
        |- /ws/h264 server-side MJPEG -> H264 bridge
-       |- /ws/realtime-control -> realtime touch or pointArray (build-driven)
-       |- /ws/realtime-control-mesh -> swipe
+       |- /ws/realtime-control -> trollstore / pointArray / swipe control modes
        |- POST /api/tap
        |- POST /api/swipe
        |- POST /api/home

@@ -17,6 +17,23 @@
 #import "XCUIDevice+FBHelpers.h"
 
 static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
+static NSString * const FBRealtimeControlModePointArray = @"pointarray";
+static NSString * const FBRealtimeControlModeSwipe = @"swipe";
+
+static NSString *FBRealtimeControlNormalizeMode(id rawMode)
+{
+  if (![rawMode isKindOfClass:NSString.class]) {
+    return FBRealtimeControlModePointArray;
+  }
+  NSString *normalized = [[(NSString *)rawMode lowercaseString] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+  NSString *compact = [[[normalized stringByReplacingOccurrencesOfString:@"-" withString:@""]
+                        stringByReplacingOccurrencesOfString:@"_" withString:@""]
+                        stringByReplacingOccurrencesOfString:@" " withString:@""];
+  if ([compact isEqualToString:@"swipe"] || [compact isEqualToString:@"swip"]) {
+    return FBRealtimeControlModeSwipe;
+  }
+  return FBRealtimeControlModePointArray;
+}
 
 @interface FBRealtimeControlClientState : NSObject
 @property (nonatomic, assign) BOOL authenticated;
@@ -27,6 +44,7 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
 
 @interface FBRealtimeControlServer ()
 @property (nonatomic, strong) NSMutableDictionary<NSValue *, FBRealtimeControlClientState *> *clientStates;
+@property (nonatomic, copy) NSString *controlMode;
 @end
 
 @implementation FBRealtimeControlServer
@@ -35,6 +53,7 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
 {
   if ((self = [super init])) {
     _clientStates = [NSMutableDictionary dictionary];
+    _controlMode = FBRealtimeControlModePointArray;
   }
   return self;
 }
@@ -134,7 +153,19 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
   }
 
   if ([type isEqualToString:@"ping"]) {
-    [self sendResponse:@{ @"type": @"pong", @"ok": @YES, @"is_trollstore": @NO } toClient:client];
+    [self sendResponse:@{
+      @"type": @"pong",
+      @"ok": @YES,
+      @"is_trollstore": @NO,
+      @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+    } toClient:client];
+    return;
+  }
+
+  if ([type isEqualToString:@"mode"] ||
+      [type isEqualToString:@"setmode"] ||
+      [type isEqualToString:@"controlmode"]) {
+    [self handleModePayload:payload toClient:client];
     return;
   }
 
@@ -161,6 +192,8 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
   [self sendResponse:@{
     @"ok": @YES,
     @"type": type,
+    @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+    @"is_trollstore": @NO,
     @"id": payload[@"id"] ?: [NSNull null],
   } toClient:client];
 }
@@ -193,6 +226,19 @@ static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
                              userInfo:@{ NSLocalizedDescriptionKey: @"Unsupported control payload" }];
   }
   return nil;
+}
+
+- (void)handleModePayload:(NSDictionary *)payload toClient:(GCDAsyncSocket *)client
+{
+  id rawMode = payload[@"mode"] ?: payload[@"controlMode"] ?: payload[@"value"];
+  self.controlMode = FBRealtimeControlNormalizeMode(rawMode);
+  [self sendResponse:@{
+    @"type": @"mode",
+    @"ok": @YES,
+    @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+    @"is_trollstore": @NO,
+    @"id": payload[@"id"] ?: [NSNull null],
+  } toClient:client];
 }
 
 - (BOOL)authorizePayload:(NSDictionary *)payload error:(NSError **)error

@@ -190,29 +190,8 @@ const config = {
     1,
     Math.min(65535, numberOr(process.env.WDA_REALTIME_CONTROL_PORT, 8003)),
   ),
-  realtimeControlMeshHost:
-    process.env.WDA_REALTIME_CONTROL_MESH_HOST ||
-    process.env.WDA_REALTIME_CONTROL_HOST ||
-    "127.0.0.1",
-  realtimeControlMeshPort: Math.max(
-    1,
-    Math.min(
-      65535,
-      numberOr(
-        process.env.WDA_REALTIME_CONTROL_MESH_PORT ||
-          process.env.WDA_REALTIME_CONTROL_PORT,
-        8003,
-      ),
-    ),
-  ),
   realtimeControlAuthToken: String(
     process.env.WDA_AUTH_TOKEN || process.env.WEBDRIVERAGENT_AUTH_TOKEN || "",
-  ),
-  realtimeControlMeshAuthToken: String(
-    process.env.WDA_REALTIME_CONTROL_MESH_AUTH_TOKEN ||
-      process.env.WDA_AUTH_TOKEN ||
-      process.env.WEBDRIVERAGENT_AUTH_TOKEN ||
-      "",
   ),
   realtimeControlConnectTimeoutMs: Math.max(
     250,
@@ -277,7 +256,6 @@ const state = {
   lastSessionPayload: null,
   createdAt: null,
   realtimeControlConnections: 0,
-  realtimeControlMeshConnections: 0,
 };
 
 const localH264Bridge = {
@@ -328,11 +306,6 @@ const server = http.createServer(async (req, res) => {
           realtimeControlPort: config.realtimeControlPort,
           realtimeControlAuthTokenConfigured: Boolean(
             config.realtimeControlAuthToken,
-          ),
-          realtimeControlMeshHost: config.realtimeControlMeshHost,
-          realtimeControlMeshPort: config.realtimeControlMeshPort,
-          realtimeControlMeshAuthTokenConfigured: Boolean(
-            config.realtimeControlMeshAuthToken,
           ),
           allowDynamicWsSource: config.allowDynamicWsSource,
           ffmpegPath: config.ffmpegPath,
@@ -754,8 +727,7 @@ server.on("upgrade", (req, socket, head) => {
     if (
       reqUrl.pathname !== "/ws/mjpeg" &&
       reqUrl.pathname !== "/ws/h264" &&
-      reqUrl.pathname !== "/ws/realtime-control" &&
-      reqUrl.pathname !== "/ws/realtime-control-mesh"
+      reqUrl.pathname !== "/ws/realtime-control"
     ) {
       socket.destroy();
       return;
@@ -794,22 +766,11 @@ wsServer.on("connection", (clientSocket, req, reqUrl) => {
   }
   if (reqUrl.pathname === "/ws/realtime-control") {
     handleRealtimeControlWsClient(clientSocket, {
-      modeName: "realtime-socket",
+      modeName: "realtime-control",
       host: config.realtimeControlHost,
       port: config.realtimeControlPort,
       authToken: config.realtimeControlAuthToken,
       connectionStateKey: "realtimeControlConnections",
-    });
-    return;
-  }
-  if (reqUrl.pathname === "/ws/realtime-control-mesh") {
-    handleRealtimeControlWsClient(clientSocket, {
-      modeName: "realtime-socket(swipe)",
-      host: config.realtimeControlMeshHost,
-      port: config.realtimeControlMeshPort,
-      authToken: config.realtimeControlMeshAuthToken,
-      connectionStateKey: "realtimeControlMeshConnections",
-      meshOnly: true,
     });
     return;
   }
@@ -832,13 +793,7 @@ server.listen(config.port, config.host, () => {
     `Realtime control: tcp://${config.realtimeControlHost}:${config.realtimeControlPort}`,
   );
   console.log(
-    `Realtime control mesh: tcp://${config.realtimeControlMeshHost}:${config.realtimeControlMeshPort}`,
-  );
-  console.log(
     `Realtime control auth token: ${config.realtimeControlAuthToken ? "configured" : "(not set)"}`,
-  );
-  console.log(
-    `Realtime control mesh auth token: ${config.realtimeControlMeshAuthToken ? "configured" : "(not set)"}`,
   );
   console.log(
     `Local H264 fallback: ${config.localH264FallbackEnabled ? "enabled" : "disabled"}`,
@@ -1301,9 +1256,9 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
   const authToken =
     options.authToken !== undefined ? options.authToken : config.realtimeControlAuthToken;
   const connectionStateKey = options.connectionStateKey || "realtimeControlConnections";
-  const meshOnly = Boolean(options.meshOnly);
   const source = `tcp://${host}:${port}`;
   const pendingClientMessages = [];
+  const pendingModeRequests = new Map();
   let pendingRealtimeMove = null;
   let pendingRealtimeMoveFlushScheduled = false;
   let upstreamWriteBackpressured = false;
@@ -1311,6 +1266,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
   let upstreamBuffer = "";
   let upstreamReady = false;
   let upstreamIsTrollstore = false;
+  let upstreamControlMode = defaultRealtimeControlMode(upstreamIsTrollstore);
   let authPending = false;
   let startupProbePending = false;
   let closed = false;
@@ -1385,6 +1341,28 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
         ...Object.entries(extra).map(([key, value]) => `${key}=${value}`),
       ].join(" "),
     );
+  };
+
+  const applyUpstreamMetadata = (payload) => {
+    if (!payload || typeof payload !== "object") {
+      return;
+    }
+    const hadBuildFlag = typeof payload.is_trollstore === "boolean";
+    if (hadBuildFlag) {
+      upstreamIsTrollstore = payload.is_trollstore;
+    }
+    const requestedMode = normalizeRealtimeControlMode(payload.mode);
+    if (requestedMode) {
+      upstreamControlMode = effectiveRealtimeControlMode(
+        requestedMode,
+        upstreamIsTrollstore,
+      );
+    } else if (hadBuildFlag) {
+      upstreamControlMode = effectiveRealtimeControlMode(
+        upstreamControlMode || defaultRealtimeControlMode(upstreamIsTrollstore),
+        upstreamIsTrollstore,
+      );
+    }
   };
 
   const flushPendingRealtimeMove = () => {
@@ -1489,7 +1467,8 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     upstreamReady = true;
     safeWsSendJson(clientSocket, {
       type: "ready",
-      mode: modeName,
+      socket: modeName,
+      mode: upstreamControlMode,
       source,
       authenticated: Boolean(authToken),
       is_trollstore: upstreamIsTrollstore,
@@ -1509,6 +1488,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
       closeBoth(4503, `Invalid realtime control response: ${err.message}`);
       return;
     }
+    applyUpstreamMetadata(payload);
 
     if (authPending) {
       if (payload.type === "auth" && payload.ok) {
@@ -1528,9 +1508,6 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
         (payload.type === "pong" && payload.ok !== false) ||
         (payload.type === "auth" && payload.ok)
       ) {
-        if (typeof payload.is_trollstore === "boolean") {
-          upstreamIsTrollstore = payload.is_trollstore;
-        }
         markUpstreamReady();
         return;
       }
@@ -1543,6 +1520,26 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
       return;
     }
 
+    const responseId = payload?.id == null ? "" : String(payload.id);
+    const pendingMode = responseId ? pendingModeRequests.get(responseId) : "";
+    if (pendingMode) {
+      pendingModeRequests.delete(responseId);
+    }
+    if (
+      pendingMode &&
+      payload?.ok === false &&
+      normalizeRealtimeControlType(payload.type) === "mode" &&
+      /unsupported control type:\s*mode/i.test(String(payload.error || payload.message || ""))
+    ) {
+      payload = {
+        ...payload,
+        ok: true,
+        mode: pendingMode,
+        is_trollstore: upstreamIsTrollstore,
+        error: undefined,
+        message: undefined,
+      };
+    }
     safeWsSendJson(clientSocket, payload);
   };
 
@@ -1579,7 +1576,9 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     }
 
     try {
-      payload = prepareRealtimeControlPayload(payload, { meshOnly });
+      payload = prepareRealtimeControlPayload(payload, {
+        isTrollstore: upstreamIsTrollstore,
+      });
     } catch (err) {
       safeWsSendJson(clientSocket, {
         id: payload?.id ?? null,
@@ -1595,6 +1594,15 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
     }
 
     const normalizedType = normalizeRealtimeControlType(payload?.type || "");
+    if (normalizedType === "mode") {
+      upstreamControlMode = effectiveRealtimeControlMode(
+        payload.mode,
+        upstreamIsTrollstore,
+      );
+      if (payload.id != null) {
+        pendingModeRequests.set(String(payload.id), upstreamControlMode);
+      }
+    }
     if (config.realtimeTouchDebugEnabled) {
       logRealtimeInput("ws-recv", payload, {
         upstreamReady: upstreamReady ? 1 : 0,
@@ -1619,7 +1627,7 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
 
   safeWsSendJson(clientSocket, {
     type: "connecting",
-    mode: modeName,
+    socket: modeName,
     source,
   });
 
@@ -2540,7 +2548,6 @@ async function buildViewModes() {
       mjpegWs: "/ws/mjpeg",
       h264Ws: "/ws/h264",
       realtimeControlWs: "/ws/realtime-control",
-      realtimeControlMeshWs: "/ws/realtime-control-mesh",
       webrtcOffer: "/api/webrtc-offer",
     },
     upstream: {
@@ -2637,67 +2644,63 @@ async function buildViewModes() {
 
 async function buildControlModes() {
   const realtimeUrl = `tcp://${config.realtimeControlHost}:${config.realtimeControlPort}`;
-  const meshUrl = `tcp://${config.realtimeControlMeshHost}:${config.realtimeControlMeshPort}`;
   const realtimeProbe = await probeRealtimeControl(700, {
     host: config.realtimeControlHost,
     port: config.realtimeControlPort,
     authToken: config.realtimeControlAuthToken,
     label: "realtime-control",
   });
-  const meshProbe = await probeRealtimeControl(700, {
-    host: config.realtimeControlMeshHost,
-    port: config.realtimeControlMeshPort,
-    authToken: config.realtimeControlMeshAuthToken,
-    label: "realtime-control-mesh",
-  });
   const realtimeReachable = realtimeProbe.reachable;
-  const meshReachable = meshProbe.reachable;
-  const upstreamIsTrollstore =
-    realtimeProbe.is_trollstore ?? meshProbe.is_trollstore ?? null;
+  const upstreamIsTrollstore = realtimeProbe.is_trollstore ?? null;
+  const currentMode = effectiveRealtimeControlMode(
+    realtimeProbe.mode || defaultRealtimeControlMode(upstreamIsTrollstore),
+    upstreamIsTrollstore,
+  );
   const realtimeWarning = realtimeReachable
     ? null
     : realtimeProbe.warning ||
       `WDA realtime socket ${realtimeUrl} is not reachable right now`;
-  const meshWarning = meshReachable
-    ? null
-    : meshProbe.warning ||
-      `WDA realtime mesh socket ${meshUrl} is not reachable right now`;
   return {
     ok: true,
-    defaultMode: "realtime-socket",
+    defaultMode: currentMode,
+    mode: currentMode,
+    is_trollstore: upstreamIsTrollstore,
     endpoints: {
       realtimeControlWs: "/ws/realtime-control",
-      realtimeControlMeshWs: "/ws/realtime-control-mesh",
     },
     upstream: {
       realtimeControlUrl: realtimeUrl,
       realtimeReachable,
       is_trollstore: upstreamIsTrollstore,
+      mode: currentMode,
       activeRealtimeClients: state.realtimeControlConnections,
       authTokenConfigured: Boolean(config.realtimeControlAuthToken),
       realtimeProbe,
-      realtimeControlMeshUrl: meshUrl,
-      realtimeControlMeshReachable: meshReachable,
-      activeRealtimeMeshClients: state.realtimeControlMeshConnections,
-      meshAuthTokenConfigured: Boolean(config.realtimeControlMeshAuthToken),
-      meshProbe,
     },
     modes: [
       {
-        id: "realtime-socket",
-        label: "realtime-socket",
-        transport: "ws-tcp-ndjson-touch-or-point-array",
+        id: "trollstore",
+        label: "trollstore",
+        transport: "ws-tcp-ndjson-touch-stream",
         enabled: true,
         reachable: realtimeReachable,
         warningIfUnreachable: realtimeWarning,
       },
       {
-        id: "realtime-socket-swipe",
-        label: "realtime-socket(swipe)",
+        id: "pointarray",
+        label: "pointArray",
+        transport: "ws-tcp-ndjson-point-array",
+        enabled: true,
+        reachable: realtimeReachable,
+        warningIfUnreachable: realtimeWarning,
+      },
+      {
+        id: "swipe",
+        label: "swipe",
         transport: "ws-tcp-ndjson-swipe",
         enabled: true,
-        reachable: meshReachable,
-        warningIfUnreachable: meshWarning,
+        reachable: realtimeReachable,
+        warningIfUnreachable: realtimeWarning,
       },
     ],
   };
@@ -2718,13 +2721,12 @@ function prepareRealtimeControlPayload(rawPayload, options = {}) {
   payload.type = normalizeRealtimeControlType(type);
 
   const normalizedType = payload.type.toLowerCase();
-  if (
-    options.meshOnly &&
-    !["pointarray", "gesture", "swipe"].includes(normalizedType)
-  ) {
-    const err = new Error("realtime-control-mesh only accepts pointArray and swipe commands");
-    err.status = 400;
-    throw err;
+  if (normalizedType === "mode") {
+    payload.mode = effectiveRealtimeControlMode(
+      payload.mode || payload.controlMode || payload.value,
+      options.isTrollstore,
+    );
+    return payload;
   }
 
   if (normalizedType === "down" || normalizedType === "move") {
@@ -2814,10 +2816,39 @@ function normalizeRealtimeControlType(type) {
   if (compact === "hidprobe" || compact === "hidstatus") {
     return "hidProbe";
   }
+  if (compact === "mode" || compact === "setmode" || compact === "controlmode") {
+    return "mode";
+  }
   if (compact === "pointarray") {
     return "pointArray";
   }
   return normalized;
+}
+
+function normalizeRealtimeControlMode(mode) {
+  const normalized = String(mode || "").trim().toLowerCase();
+  const compact = normalized.replace(/[-_\s]/g, "");
+  if (compact === "trollstore" || compact === "realtime") {
+    return "trollstore";
+  }
+  if (compact === "pointarray" || compact === "poinarray" || compact === "point") {
+    return "pointarray";
+  }
+  if (compact === "swipe" || compact === "swip") {
+    return "swipe";
+  }
+  return "";
+}
+
+function defaultRealtimeControlMode(isTrollstore) {
+  return isTrollstore === true ? "trollstore" : "pointarray";
+}
+function effectiveRealtimeControlMode(mode, isTrollstore) {
+  const normalized = normalizeRealtimeControlMode(mode);
+  if (normalized === "trollstore" && isTrollstore !== true) {
+    return "pointarray";
+  }
+  return normalized || defaultRealtimeControlMode(isTrollstore);
 }
 
 function signPointArrayPayloadIfNeeded(payload, pointArray) {
@@ -2891,6 +2922,7 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
     let authPending = false;
     let probePending = false;
     let probeIsTrollstore = null;
+    let probeMode = null;
     let socket = null;
 
     const finalize = (reachable, warning) => {
@@ -2906,6 +2938,10 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
         reachable: Boolean(reachable),
         warning: warning || null,
         is_trollstore: probeIsTrollstore,
+        mode: effectiveRealtimeControlMode(
+          probeMode || defaultRealtimeControlMode(probeIsTrollstore),
+          probeIsTrollstore,
+        ),
       });
     };
 
@@ -2939,6 +2975,10 @@ function probeRealtimeControl(timeoutMs = 900, endpoint = {}) {
       }
       if (typeof payload.is_trollstore === "boolean") {
         probeIsTrollstore = payload.is_trollstore;
+      }
+      const mode = normalizeRealtimeControlMode(payload.mode);
+      if (mode) {
+        probeMode = mode;
       }
 
       if (authPending) {

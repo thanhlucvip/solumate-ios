@@ -17,6 +17,27 @@
 #import "XCUIDevice+FBHelpers.h"
 
 static const NSUInteger FBRealtimeControlMaxLineLength = 1024 * 1024;
+static NSString * const FBRealtimeControlModeTrollStore = @"trollstore";
+static NSString * const FBRealtimeControlModePointArray = @"pointarray";
+static NSString * const FBRealtimeControlModeSwipe = @"swipe";
+
+static NSString *FBRealtimeControlNormalizeMode(id rawMode, BOOL isTrollStoreBuild)
+{
+  if (![rawMode isKindOfClass:NSString.class]) {
+    return isTrollStoreBuild ? FBRealtimeControlModeTrollStore : FBRealtimeControlModePointArray;
+  }
+  NSString *normalized = [[(NSString *)rawMode lowercaseString] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+  NSString *compact = [[[normalized stringByReplacingOccurrencesOfString:@"-" withString:@""]
+                        stringByReplacingOccurrencesOfString:@"_" withString:@""]
+                        stringByReplacingOccurrencesOfString:@" " withString:@""];
+  if ([compact isEqualToString:@"trollstore"] || [compact isEqualToString:@"realtime"]) {
+    return isTrollStoreBuild ? FBRealtimeControlModeTrollStore : FBRealtimeControlModePointArray;
+  }
+  if ([compact isEqualToString:@"swipe"] || [compact isEqualToString:@"swip"]) {
+    return FBRealtimeControlModeSwipe;
+  }
+  return FBRealtimeControlModePointArray;
+}
 
 static BOOL FBRealtimeControlDebugEnabled(void)
 {
@@ -95,6 +116,7 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
 @property (nonatomic, weak) GCDAsyncSocket *currentClient;
 @property (nonatomic, strong) FBRealtimeControlClientState *currentState;
 @property (nonatomic, strong) NSDictionary *pendingResponse;
+@property (nonatomic, copy) NSString *controlMode;
 @end
 
 @implementation FBRealtimeControlServer
@@ -103,6 +125,7 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
 {
   if ((self = [super init])) {
     _clientStates = [NSMutableDictionary dictionary];
+    _controlMode = FBRealtimeControlModeTrollStore;
   }
   return self;
 }
@@ -221,7 +244,19 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
   }
 
   if ([type isEqualToString:@"ping"]) {
-    [self sendResponse:@{ @"type": @"pong", @"ok": @YES, @"is_trollstore": @YES } toClient:client];
+    [self sendResponse:@{
+      @"type": @"pong",
+      @"ok": @YES,
+      @"is_trollstore": @YES,
+      @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
+    } toClient:client];
+    return;
+  }
+
+  if ([type isEqualToString:@"mode"] ||
+      [type isEqualToString:@"setmode"] ||
+      [type isEqualToString:@"controlmode"]) {
+    [self handleModePayload:payload toClient:client];
     return;
   }
 
@@ -266,6 +301,8 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
     [self sendResponse:@{
       @"ok": @YES,
       @"type": type,
+      @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
+      @"is_trollstore": @YES,
       @"id": payload[@"id"] ?: [NSNull null],
     } toClient:client];
   }
@@ -304,6 +341,31 @@ static NSString *FBRealtimeControlNormalizeType(NSString *type)
                              userInfo:@{ NSLocalizedDescriptionKey: @"Unsupported control payload" }];
   }
   return nil;
+}
+
+- (void)handleModePayload:(NSDictionary *)payload toClient:(GCDAsyncSocket *)client
+{
+  id rawMode = payload[@"mode"] ?: payload[@"controlMode"] ?: payload[@"value"];
+  NSString *mode = FBRealtimeControlNormalizeMode(rawMode, YES);
+  if (![mode isEqualToString:FBRealtimeControlModeTrollStore]) {
+    [[XCUIDevice sharedDevice] fb_realtimeTouchCancel];
+    self.touchOwner = nil;
+    @synchronized (self.clientStates) {
+      for (FBRealtimeControlClientState *state in self.clientStates.allValues) {
+        state.ownsTouch = NO;
+        state.hasLastPoint = NO;
+        state.pointerId = 0;
+      }
+    }
+  }
+  self.controlMode = mode;
+  [self sendResponse:@{
+    @"type": @"mode",
+    @"ok": @YES,
+    @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
+    @"is_trollstore": @YES,
+    @"id": payload[@"id"] ?: [NSNull null],
+  } toClient:client];
 }
 
 - (BOOL)authorizePayload:(NSDictionary *)payload error:(NSError **)error

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-UDID="${GO_IOS_UDID:-${UDID:-3b1eea0514dec1c5188f9cdcf53e784acacfc155}}"
+UDID="${GO_IOS_UDID:-${UDID:-00008120-001278CA3693C01E}}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 if [[ -d "$SCRIPT_DIR/ios_stream_v1" ]]; then
     WORKSPACE_DIR="$SCRIPT_DIR"
