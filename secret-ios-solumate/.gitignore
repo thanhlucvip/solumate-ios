@@ -1,0 +1,5 @@
+keys/
+.env
+.env.local
+*.pem
+*.key

@@ -57,7 +57,7 @@ static NSString *const SolumateWDAErrorDomain = @"com.solumate.wda";
 
   [pointerEventPath liftUpAtOffset:lastOffset];
 
-  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"hc.pointArray" interfaceOrientation:0];
+  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"solumate.pointArray" interfaceOrientation:0];
   [eventRecord addPointerEventPath:pointerEventPath];
 
   return [FBXCTestDaemonsProxy synthesizeEventWithRecord:eventRecord error:error];

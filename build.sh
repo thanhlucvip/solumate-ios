@@ -7,6 +7,7 @@ ROOT_DIR="$SCRIPT_DIR"
 
 TROLLSTORE_SCRIPT="$ROOT_DIR/WDA-trollstore/Scripts/build-ios15-solumate-unsigned-ipa.sh"
 SIGN_SCRIPT="$ROOT_DIR/WDA-sign/Scripts/build-ios15-solumate-unsigned-ipa.sh"
+FINGERPRINT_TXT_SCRIPT="$ROOT_DIR/get-fingerprints.sh"
 TROLLSTORE_IPA="${TROLLSTORE_IPA:-$ROOT_DIR/solumate-trollstore.ipa}"
 SIGN_IPA="${SIGN_IPA:-$ROOT_DIR/solumate.ipa}"
 
@@ -39,3 +40,9 @@ run_build "Building signed IPA" "$SIGN_SCRIPT" "$SIGN_IPA"
 printf '\nDone.\n'
 printf 'TrollStore IPA: %s\n' "$TROLLSTORE_IPA"
 printf 'Signed IPA: %s\n' "$SIGN_IPA"
+printf '\nFingerprint extraction is manual:\n'
+printf '  %s %s %s %s\n' \
+  "$FINGERPRINT_TXT_SCRIPT" \
+  "$ROOT_DIR/fingerprints.txt" \
+  "$SIGN_IPA" \
+  "$TROLLSTORE_IPA"

@@ -3,11 +3,11 @@ set -euo pipefail
 
 IPA_PATH="${1:-}"
 SKIP_INSTALL="${SKIP_INSTALL:-0}"
-WDA_USE_RUNWDA="${WDA_USE_RUNWDA:-0}"
+WDA_USE_RUNWDA="${WDA_USE_RUNWDA:-1}"
 DEFAULT_BUNDLE_ID="${DEFAULT_BUNDLE_ID:-solumate.driver.automation}"
 case "$SKIP_INSTALL" in
   1|true|TRUE|yes|YES|on|ON)
-    DEFAULT_BUNDLE_ID="${DEFAULT_TROLLSTORE_BUNDLE_ID:-com.idbbagent.troll}"
+    DEFAULT_BUNDLE_ID="${DEFAULT_TROLLSTORE_BUNDLE_ID:-solumate.driver.automation}"
     ;;
 esac
 BUNDLE_ID="${2:-${WDA_BUNDLE_ID:-${WDA_PRODUCT_BUNDLE_IDENTIFIER:-$DEFAULT_BUNDLE_ID}}}"
@@ -52,6 +52,7 @@ if [[ -z "$IPA_PATH" ]] && ! is_truthy "$SKIP_INSTALL"; then
   echo "Usage: $0 /path/to/WebDriverAgentRunner-Runner.ipa [bundle-id] [xctestconfig]" >&2
   echo "TrollStore/manual install mode: SKIP_INSTALL=1 $0 [optional-ipa-path] [bundle-id] [xctestconfig]" >&2
   echo "Optional env: GO_IOS_UDID, SKIP_INSTALL, WDA_USE_RUNWDA, WDA_PORT, MJPEG_PORT, H264_PORT, REALTIME_CONTROL_PORT, MJPEG_SCALING_FACTOR, MJPEG_SERVER_SCREENSHOT_QUALITY, MJPEG_SERVER_FRAMERATE, MJPEG_FIX_ORIENTATION, MJPEG_FRAME_TIMEOUT, WDA_STARTUP_PASSWORD, WDA_AUTH_TOKEN, SOLUMATE_WDA_ENABLE_POINT_ARRAY, SOLUMATE_WDA_SWIPE_SECRET, SOLUMATE_WDA_ALLOW_UNSIGNED_POINT_ARRAY" >&2
+  echo "For TrollStore-installed WDA, WDA_USE_RUNWDA defaults to 1. Set WDA_USE_RUNWDA=0 only when explicitly testing standalone icon launch." >&2
   exit 1
 fi
 

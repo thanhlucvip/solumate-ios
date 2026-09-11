@@ -1,4 +1,4 @@
-# Setup WDA/Solumate tren Mac moi
+# Setup WDA/SolumateIos tren Mac moi
 
 File nay la handoff cho Codex khi mang source sang mot may Mac khac. Muc tieu la build/cai/chay WDA voi bundle id co dinh `solumate.driver.automation`, sau do mo web stream/control UI.
 

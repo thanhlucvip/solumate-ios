@@ -802,6 +802,7 @@
 		EE8BA97A1DCCED9A00A9DEF8 /* FBNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8BA9791DCCED9A00A9DEF8 /* FBNavigationController.m */; };
 		EE8DDD7E20C5733C004D4925 /* XCUIElement+FBForceTouch.m in Sources */ = {isa = PBXBuildFile; fileRef = EE8DDD7C20C5733B004D4925 /* XCUIElement+FBForceTouch.m */; };
 		EE8DDD7F20C5733C004D4925 /* XCUIElement+FBForceTouch.h in Headers */ = {isa = PBXBuildFile; fileRef = EE8DDD7D20C5733C004D4925 /* XCUIElement+FBForceTouch.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A0C0B0012E78C00100000001 /* SolumateBootstrap.m in Sources */ = {isa = PBXBuildFile; fileRef = A0C0B0022E78C00100000001 /* SolumateBootstrap.m */; };
 		EE9AB8011CAEE048008C271F /* UITestingUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */; };
 		EE9B76591CF7987800275851 /* FBRouteTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9B76571CF7987300275851 /* FBRouteTests.m */; };
 		EE9B768E1CF7997600275851 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EE9B76831CF7997600275851 /* AppDelegate.m */; };
@@ -1378,6 +1379,7 @@
 		EE9AB7921CAEDF0C008C271F /* FBRuntimeUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FBRuntimeUtils.m; sourceTree = "<group>"; };
 		EE9AB7FC1CAEE048008C271F /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = WebDriverAgentRunner/Info.plist; sourceTree = SOURCE_ROOT; };
 		EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = UITestingUITests.m; path = WebDriverAgentRunner/UITestingUITests.m; sourceTree = SOURCE_ROOT; };
+		A0C0B0022E78C00100000001 /* SolumateBootstrap.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SolumateBootstrap.m; path = Bootstrap/SolumateBootstrap.m; sourceTree = SOURCE_ROOT; };
 		EE9AB8031CAEE182008C271F /* build.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = build.sh; sourceTree = "<group>"; };
 		EE9B75D41CF7956C00275851 /* IntegrationApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntegrationApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE9B75EC1CF7956C00275851 /* IntegrationTests_1.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IntegrationTests_1.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2308,6 +2310,7 @@
 			children = (
 				EE9AB7FC1CAEE048008C271F /* Info.plist */,
 				EE9AB7FD1CAEE048008C271F /* UITestingUITests.m */,
+				A0C0B0022E78C00100000001 /* SolumateBootstrap.m */,
 			);
 			name = WebDriverAgentRunner;
 			path = XCTUITestRunner;
@@ -3528,6 +3531,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EE9AB8011CAEE048008C271F /* UITestingUITests.m in Sources */,
+				A0C0B0012E78C00100000001 /* SolumateBootstrap.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

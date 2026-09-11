@@ -44,7 +44,6 @@ INTERNAL_PMD3_SENTINEL = "__pmd3__"
 
 DEFAULT_BUNDLE_IDS = (
     "solumate.driver.automation",
-    "com.idbbagent.troll",
 )
 CONFIGURED_BUNDLE_ENV_KEYS = (
     "WDA_BUNDLE_ID",
@@ -777,13 +776,13 @@ def configured_candidates(args: argparse.Namespace) -> list[BundleCandidate]:
     values.extend(DEFAULT_BUNDLE_IDS)
 
     for bundle_id in unique_preserve_order(values):
+        trollstore_bundle_id = os.environ.get("DEFAULT_TROLLSTORE_BUNDLE_ID")
         add_candidate(
             candidates,
             bundle_id,
             "configured",
             verified=False,
-            prefer_standalone=bundle_id == os.environ.get("DEFAULT_TROLLSTORE_BUNDLE_ID")
-            or bundle_id == "com.idbbagent.troll",
+            prefer_standalone=bool(trollstore_bundle_id) and bundle_id == trollstore_bundle_id,
         )
     return candidates
 
@@ -839,8 +838,6 @@ def score_candidate(candidate: BundleCandidate, preferred: list[str], explicit: 
         score += 700
     if "webdriveragentrunner-runner" in text:
         score += 500
-    if "idbbagent" in lower_bundle:
-        score += 450
     if lower_bundle.endswith(".xctrunner"):
         score += 150
     if lower_bundle.startswith("com.apple."):
@@ -893,7 +890,16 @@ def is_wda_candidate(candidate: BundleCandidate, explicit: list[str]) -> bool:
         str(metadata.get(key, ""))
         for key in ("CFBundleDisplayName", "CFBundleName", "CFBundleExecutable")
     ).lower()
-    return any(marker in bundle or marker in app_text for marker in ("solumate", "webdriveragent", "idbbagent"))
+    return any(marker in bundle or marker in app_text for marker in ("solumate", "webdriveragent"))
+
+def should_prefer_xctest(candidate: BundleCandidate) -> bool:
+    bundle = candidate.bundle_id.lower()
+    metadata = candidate.metadata
+    app_text = " ".join(
+        str(metadata.get(key, ""))
+        for key in ("CFBundleDisplayName", "CFBundleName", "CFBundleExecutable", "Path")
+    ).lower()
+    return any(marker in bundle or marker in app_text for marker in ("solumate", "webdriveragent"))
 
 
 def discover_device_candidates(pmd3: Pymobiledevice3, args: argparse.Namespace, udid: str) -> list[BundleCandidate]:
@@ -1168,6 +1174,8 @@ def method_order(args: argparse.Namespace, candidate: BundleCandidate) -> list[s
         return ["xctest"]
     if args.launch_mode == "standalone":
         return ["standalone"]
+    if should_prefer_xctest(candidate):
+        return ["xctest", "standalone"]
     if candidate.prefer_standalone or not candidate.verified:
         return ["standalone", "xctest"]
     return ["xctest", "standalone"]
@@ -1287,7 +1295,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--launch-mode",
         choices=("auto", "xctest", "standalone"),
         default="auto",
-        help="auto thu XCTest va standalone launch; standalone phu hop TrollStore/manual install.",
+        help="auto uu tien XCTest cho Solumate WDA; standalone chi nen dung khi test manual/icon launch.",
     )
     parser.add_argument("--all-devices", action="store_true", help="Chay tren tat ca device dang ket noi.")
     parser.add_argument("--port", type=int, default=DEFAULT_WDA_PORT, help="Port WDA tren device.")

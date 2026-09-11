@@ -21,7 +21,7 @@ $ErrorActionPreference = 'Stop'
 
 if ([string]::IsNullOrWhiteSpace($BundleId)) {
   if ($SkipInstall) {
-    $BundleId = if ([string]::IsNullOrWhiteSpace($env:DEFAULT_TROLLSTORE_BUNDLE_ID)) { 'com.idbbagent.troll' } else { $env:DEFAULT_TROLLSTORE_BUNDLE_ID }
+    $BundleId = if ([string]::IsNullOrWhiteSpace($env:DEFAULT_TROLLSTORE_BUNDLE_ID)) { 'solumate.driver.automation' } else { $env:DEFAULT_TROLLSTORE_BUNDLE_ID }
   } else {
     $BundleId = if ([string]::IsNullOrWhiteSpace($env:DEFAULT_BUNDLE_ID)) { 'solumate.driver.automation' } else { $env:DEFAULT_BUNDLE_ID }
   }

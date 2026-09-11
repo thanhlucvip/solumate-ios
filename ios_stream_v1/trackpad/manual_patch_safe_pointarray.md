@@ -73,7 +73,7 @@ Thêm declaration sau vào interface/category của `XCUIDevice (FBHelpers)`:
 
   [pointerEventPath liftUpAtOffset:lastOffset];
 
-  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"hc.pointArray" interfaceOrientation:0];
+  XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:@"solumate.pointArray" interfaceOrientation:0];
   [eventRecord addPointerEventPath:pointerEventPath];
 
   dispatch_semaphore_t sema = dispatch_semaphore_create(0);

@@ -6,15 +6,16 @@ set -euo pipefail
 # entitlements for realtime touch injection.
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 WORKSPACE_DIR="$(cd "$ROOT_DIR/.." && pwd)"
+FINGERPRINT_SCRIPT="$WORKSPACE_DIR/secret-ios-solumate/fingerprint-ipa.js"
 BUILD_DIR="$ROOT_DIR/build"
 DERIVED_DATA="$BUILD_DIR/DerivedData-ios15-solumate-trollstore"
 PACKAGE_DIR="$BUILD_DIR/ios15-solumate-trollstore-package"
 PAYLOAD_DIR="$PACKAGE_DIR/Payload"
-DEFAULT_ICON_DIR="$WORKSPACE_DIR/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
-BACKUP_ICON_DIR="/Users/apple/Desktop/code/docs/backup_ubuntu/products/ios_stream_v1/SolumateIos_Build/AppIcon.appiconset"
-ICON_DIR="${ICON_DIR:-$DEFAULT_ICON_DIR}"
-
 APP_NAME="${APP_NAME:-SolumateIos}"
+ICON_NAME="${APP_NAME// /}"
+DEFAULT_ICON_DIR="$WORKSPACE_DIR/ios_stream_v1/${ICON_NAME}_Build/AppIcon.appiconset"
+BACKUP_ICON_DIR="/Users/apple/Desktop/code/docs/backup_ubuntu/products/ios_stream_v1/${ICON_NAME}_Build/AppIcon.appiconset"
+ICON_DIR="${ICON_DIR:-$DEFAULT_ICON_DIR}"
 WDA_BUNDLE_ID="${WDA_BUNDLE_ID:-solumate.driver.automation}"
 APP_VERSION="${APP_VERSION:-11.4.1-universal-clean-external-sign}"
 CONFIGURATION="${CONFIGURATION:-Release}"
@@ -43,6 +44,37 @@ plist_set_string() {
   else
     /usr/libexec/PlistBuddy -c "Add :$key string $value" "$plist"
   fi
+}
+
+embed_build_fingerprint() {
+  local app_bundle="$1"
+  local app_info_plist="$2"
+  local fingerprint
+
+  if [[ ! -f "$FINGERPRINT_SCRIPT" ]]; then
+    printf 'Fingerprint script not found: %s\n' "$FINGERPRINT_SCRIPT" >&2
+    exit 1
+  fi
+
+  log "Embedding build fingerprint into bundle metadata"
+  node "$FINGERPRINT_SCRIPT" "$app_bundle" --write-plist "$app_info_plist"
+  fingerprint="$(plist_print "$app_info_plist" 'SOLUMATE_BUILD_FINGERPRINT')"
+  if [[ ! "$fingerprint" =~ ^v3:[0-9a-f]{64}$ ]]; then
+    printf 'Invalid embedded build fingerprint: %s\n' "$fingerprint" >&2
+    exit 1
+  fi
+
+  local nested_plist
+  for nested_plist in \
+    "$app_bundle/PlugIns/WebDriverAgentRunner.xctest/Info.plist" \
+    "$app_bundle/PlugIns/WebDriverAgentRunner.xctest/Frameworks/WebDriverAgentLib.framework/Info.plist"
+  do
+    if [[ -f "$nested_plist" ]]; then
+      plist_set_string "$nested_plist" "SOLUMATE_BUILD_FINGERPRINT" "$fingerprint"
+    fi
+  done
+
+  log "Embedded fingerprint: ${fingerprint:0:15}...${fingerprint: -8}"
 }
 
 remove_owned_path() {
@@ -262,7 +294,7 @@ fi
 log "Copying app into IPA payload"
 /usr/bin/ditto "$APP_SOURCE" "$APP_DEST"
 
-log "Applying Solumate app name and icons"
+log "Applying SolumateIos app name and icons"
 plist_set_string "$INFO_PLIST" "CFBundleIdentifier" "$WDA_BUNDLE_ID"
 plist_set_string "$INFO_PLIST" "CFBundleName" "$APP_NAME"
 plist_set_string "$INFO_PLIST" "CFBundleDisplayName" "$APP_NAME"
@@ -323,6 +355,8 @@ while IFS= read -r built_file; do
     codesign --remove-signature "$built_file" >/dev/null 2>&1 || true
   fi
 done < <(find "$APP_DEST" -type f)
+
+embed_build_fingerprint "$APP_DEST" "$INFO_PLIST"
 
 log "Signing app bundle for TrollStore HID realtime touch"
 sign_bundle_tree "$APP_DEST" "$SIGNING_ENTITLEMENTS" "$SIGNING_IDENTITY"

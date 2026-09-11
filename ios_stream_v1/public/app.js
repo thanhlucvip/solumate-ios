@@ -2181,7 +2181,7 @@ function realtimeTouchPayload(type, point, pointerId, options = {}) {
     ack: options.ack !== false,
   };
   if (REALTIME_TOUCH_DEBUG) {
-    console.log('[RT INPUT]', {
+    console.log('[Solumate INPUT]', {
       stage: 'client-build',
       type: payload.type,
       sequence: payload.sequence,
@@ -2289,7 +2289,7 @@ function queueRealtimeTouchMove(point, options = {}) {
   }
   state.liveTouchPendingMove = point;
   if (REALTIME_TOUCH_DEBUG) {
-    console.log('[RT INPUT]', {
+    console.log('[Solumate INPUT]', {
       stage: 'client-queue',
       type: 'move',
       x: point.x,
@@ -2330,7 +2330,7 @@ async function flushRealtimeTouchMove() {
   try {
     const result = await sendRealtimeTouchMove(point);
     if (REALTIME_TOUCH_DEBUG) {
-      console.log('[RT INPUT]', {
+      console.log('[Solumate INPUT]', {
         stage: 'client-send',
         type: 'move',
         x: point.x,

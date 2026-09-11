@@ -127,7 +127,7 @@ extern NSString *const FBSnapshotMaxDepthKey;
 
 /**
  The IP address that the HTTP Server should bind to on launch.
- Defaults to all interfaces for standalone Solumate builds. Set USE_IP to an
+ Defaults to all interfaces for standalone SolumateIos builds. Set USE_IP to an
  explicit address when a narrower bind is required.
  */
 + (NSString * _Nullable)bindingIPAddress;

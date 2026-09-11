@@ -1,0 +1,15 @@
+{
+  "name": "secret-ios-solumate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local Solumate activation server for WDA policy checks",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "keygen:gesture": "node generate-gesture-key.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

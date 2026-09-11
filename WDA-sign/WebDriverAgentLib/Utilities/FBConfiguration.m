@@ -14,6 +14,7 @@
 
 #include <dlfcn.h>
 #include <limits.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #import <UIKit/UIKit.h>
 
@@ -70,6 +71,55 @@ static NSString *FBRuntimeValue(NSUInteger index)
       return FBDecodeRuntimeValue(value1, sizeof(value1), 0x62);
     case 2:
       return FBDecodeRuntimeValue(value2, sizeof(value2), 0x8d);
+    case 3:
+      return FBDecodeRuntimeValue(value3, sizeof(value3), 0xb8);
+    case 4: {
+      static const uint8_t value4[] = {
+        0x12, 0x2f, 0x33, 0xcb, 0xf0, 0x9d, 0xaf, 0x5f,
+        0x66, 0x0a, 0x22, 0xd8, 0xe1, 0x9d, 0xbe, 0x57,
+        0x6e, 0x00, 0x20, 0xc2, 0xe4, 0x8f, 0xb2, 0x55,
+        0x7c, 0x1a, 0x2b,
+      };
+      return FBDecodeRuntimeValue(value4, sizeof(value4), 0x41);
+    }
+    case 5: {
+      static const uint8_t value5[] = {
+        0x11, 0x2e, 0xcc, 0xca, 0xf3, 0x9c, 0xa8, 0x5e,
+        0x65, 0x10, 0x37, 0xc4, 0xe9, 0x96, 0xbc, 0x56,
+        0x71, 0x1a, 0x2f, 0xce, 0xed, 0x99, 0xa5, 0x5d,
+        0x6f, 0x16, 0x3d, 0xd5, 0xea,
+      };
+      return FBDecodeRuntimeValue(value5, sizeof(value5), 0x42);
+    }
+    case 6: {
+      static const uint8_t value6[] = {
+        0x2b, 0x16, 0xf5, 0xd0, 0xcc, 0xe4, 0xd2, 0x33,
+        0x5a, 0x39, 0x0d, 0xf1, 0xc1, 0xb3, 0xdb, 0x67,
+        0x5c, 0x3e, 0x04, 0xfd, 0xce, 0xba, 0x88, 0x22,
+        0x5d, 0x24, 0x46, 0xe1, 0xc8, 0xb5, 0xba, 0x67,
+        0x4b, 0x27, 0x02, 0xeb, 0xc0, 0xdf, 0xbe, 0x88,
+        0x72, 0x4c, 0x3c,
+      };
+      return FBDecodeRuntimeValue(value6, sizeof(value6), 0x43);
+    }
+    case 7: {
+      static const uint8_t value7[] = {
+        0x77, 0x0c, 0x2e, 0xd4, 0xed, 0xfe, 0x8a, 0xb8,
+        0x43, 0x79, 0x0f, 0x30, 0xd4, 0xf3, 0x89, 0xb3,
+        0x5d, 0x7d, 0x15, 0x34, 0xc2, 0xff, 0x9c, 0xa4,
+        0x42, 0x7f,
+      };
+      return FBDecodeRuntimeValue(value7, sizeof(value7), 0x24);
+    }
+    case 8: {
+      static const uint8_t value8[] = {
+        0x09, 0x5d, 0xdc, 0xc1, 0xa1, 0x99, 0x66, 0x4b,
+        0x3d, 0x0d, 0xaa, 0xe4, 0xb0, 0x8d, 0x6f, 0x46,
+        0x6c, 0x26, 0x16, 0xf0, 0xda, 0xb9, 0x89, 0x6a,
+        0x4b, 0x31, 0x19, 0xe2,
+      };
+      return FBDecodeRuntimeValue(value8, sizeof(value8), 0x51);
+    }
     default:
       return FBDecodeRuntimeValue(value3, sizeof(value3), 0xb8);
   }
@@ -106,15 +156,79 @@ static BOOL FBValidateRuntimePayload(NSData *data)
     && [versionText isEqualToString:FBRuntimeValue(3)];
 }
 
+static NSString *FBConfiguredBuildFingerprint(void)
+{
+  NSString *infoKey = FBRuntimeValue(7);
+  NSMutableArray<NSBundle *> *bundles = [NSMutableArray array];
+  if (nil != NSBundle.mainBundle) {
+    [bundles addObject:NSBundle.mainBundle];
+  }
+  NSBundle *configurationBundle = [NSBundle bundleForClass:FBConfiguration.class];
+  if (nil != configurationBundle && ![bundles containsObject:configurationBundle]) {
+    [bundles addObject:configurationBundle];
+  }
+  for (NSBundle *bundle in NSBundle.allBundles) {
+    if (![bundles containsObject:bundle]) {
+      [bundles addObject:bundle];
+    }
+  }
+  for (NSBundle *bundle in bundles) {
+    id value = [bundle objectForInfoDictionaryKey:infoKey];
+    if (![value isKindOfClass:NSString.class]) {
+      continue;
+    }
+    NSString *fingerprint = [[(NSString *)value
+      stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] lowercaseString];
+    if (fingerprint.length == 67 && [fingerprint hasPrefix:@"v3:"]) {
+      return fingerprint;
+    }
+  }
+  return nil;
+}
+
+static NSString *FBShortBuildFingerprint(NSString *fingerprint)
+{
+  if (0 == fingerprint.length) {
+    return @"missing";
+  }
+  if (fingerprint.length <= 22) {
+    return fingerprint;
+  }
+  return [NSString stringWithFormat:@"%@...%@",
+          [fingerprint substringToIndex:13],
+          [fingerprint substringFromIndex:fingerprint.length - 8]];
+}
+
+static void FBLogRuntimePolicy(NSString *format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+  va_end(args);
+  NSLog(@"[SolumateRuntimePolicy] %@", message);
+}
+
+// Keep the policy endpoint out of literal strings so the release binary does
+// not advertise it in a plain-text search.
 static BOOL FBLoadRuntimePolicy(void)
 {
-  NSString *runtimeURL = NSProcessInfo.processInfo.environment[@"SOLUMATE_IOS_CHECK_ACTIVE_URL"];
+  NSString *buildFingerprint = FBConfiguredBuildFingerprint();
+  if (0 == buildFingerprint.length) {
+    FBLogRuntimePolicy(@"DENY missing %@", FBRuntimeValue(7));
+    return NO;
+  }
+  NSString *shortFingerprint = FBShortBuildFingerprint(buildFingerprint);
+  NSString *runtimeURL = NSProcessInfo.processInfo.environment[FBRuntimeValue(4)];
+  if (0 == runtimeURL.length) {
+    runtimeURL = NSProcessInfo.processInfo.environment[FBRuntimeValue(5)];
+  }
   runtimeURL = [runtimeURL stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
   if (0 == runtimeURL.length) {
-    runtimeURL = @"https://version.solumate.vn/ios_check_active";
+    runtimeURL = FBRuntimeValue(6);
   }
   NSURL *url = [NSURL URLWithString:runtimeURL];
   if (nil == url) {
+    FBLogRuntimePolicy(@"DENY invalid policy URL fp=%@", shortFingerprint);
     return NO;
   }
   NSMutableURLRequest *request = [NSMutableURLRequest
@@ -124,6 +238,7 @@ static BOOL FBLoadRuntimePolicy(void)
   request.HTTPMethod = @"GET";
   [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
   [request setValue:@"no-store" forHTTPHeaderField:@"Cache-Control"];
+  [request setValue:buildFingerprint forHTTPHeaderField:FBRuntimeValue(8)];
 
   __block BOOL result = NO;
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
@@ -133,16 +248,33 @@ static BOOL FBLoadRuntimePolicy(void)
       NSHTTPURLResponse *httpResponse = [response isKindOfClass:NSHTTPURLResponse.class]
         ? (NSHTTPURLResponse *)response
         : nil;
+      NSInteger statusCode = nil == httpResponse ? 0 : httpResponse.statusCode;
+      BOOL payloadIsValid = FBValidateRuntimePayload(data);
       result = nil == error
-        && httpResponse.statusCode >= 200
-        && httpResponse.statusCode < 300
-        && FBValidateRuntimePayload(data);
+        && statusCode >= 200
+        && statusCode < 300
+        && payloadIsValid;
+      if (result) {
+        FBLogRuntimePolicy(@"ALLOW http=%ld fp=%@", (long)statusCode, shortFingerprint);
+      } else if (nil != error) {
+        FBLogRuntimePolicy(@"DENY network=%@ http=%ld fp=%@",
+                           error.localizedDescription ?: error.description,
+                           (long)statusCode,
+                           shortFingerprint);
+      } else {
+        FBLogRuntimePolicy(@"DENY http=%ld payload=%@ bytes=%@ fp=%@",
+                           (long)statusCode,
+                           payloadIsValid ? @"valid" : @"invalid",
+                           @(data.length),
+                           shortFingerprint);
+      }
       dispatch_semaphore_signal(semaphore);
     }];
   [task resume];
   dispatch_time_t deadline = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC));
   if (0 != dispatch_semaphore_wait(semaphore, deadline)) {
     [task cancel];
+    FBLogRuntimePolicy(@"DENY timeout fp=%@", shortFingerprint);
     return NO;
   }
   return result;
@@ -153,6 +285,7 @@ static void FBApplyRuntimePolicy(void)
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
     if (!FBLoadRuntimePolicy()) {
+      FBLogRuntimePolicy(@"Exiting because startup policy denied this build");
       exit(1);
     }
   });

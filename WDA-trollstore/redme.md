@@ -1,12 +1,22 @@
-ios --udid=solumate.driver.automation.5X2PPUT9M4 runwda \
-  --bundleid=app.star6979.lettuce4401 \
-  --testrunnerbundleid=app.star6979.lettuce4401 \
-  --xctestconfig=WebDriverAgentRunner.xctest \
-  --env=USE_PORT=8000 \
-  --env=MJPEG_SERVER_PORT=8001 \
-  --env=H264_SERVER_PORT=-1 \
-  --env=WDA_REALTIME_CONTROL_ENABLED=1 \
-  --env=WDA_REALTIME_CONTROL_PORT=8003 \
-  --env=MJPEG_SCALING_FACTOR=45 \
-  --env=MJPEG_SERVER_SCREENSHOT_QUALITY=20 \
-  --log-output=-
+## Chay WDA ban TrollStore
+
+Bundle ID hien tai: `solumate.driver.automation`
+
+Neu IPA da duoc cai qua TrollStore, chay WDA qua XCTest/testmanager:
+
+```bash
+GO_IOS_UDID=<UDID> \
+SKIP_INSTALL=1 \
+WDA_BUNDLE_ID=solumate.driver.automation \
+WDA_USE_RUNWDA=1 \
+bash ../ios_stream_v1/scripts/run-wda-go-ios.sh
+```
+
+Khong dung bundle ID cu trong cac lenh `runwda`. `WDA_USE_RUNWDA=0` chi dung
+de test standalone/icon launch.
+
+Kiem tra WDA:
+
+```bash
+curl http://127.0.0.1:8000/status
+```

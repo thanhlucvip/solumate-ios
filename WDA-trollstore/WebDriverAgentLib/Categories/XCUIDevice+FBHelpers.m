@@ -333,7 +333,7 @@ static void FBRealtimeTouchLog(NSString *stage, NSString *phase, NSDictionary<NS
     return;
   }
   NSMutableArray<NSString *> *parts = [NSMutableArray arrayWithCapacity:8 + values.count];
-  [parts addObject:@"[RT INPUT]"];
+  [parts addObject:@"[Solumate INPUT]"];
   if (stage.length > 0) {
     [parts addObject:[NSString stringWithFormat:@"stage=%@", stage]];
   }

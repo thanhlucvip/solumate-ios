@@ -583,7 +583,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
   double serverReceiveTimestamp = FBRealtimeControlWallClockMs();
   if (FBRealtimeControlDebugEnabled()) {
     NSString *typeForLog = [payload[@"type"] isKindOfClass:NSString.class] ? FBRealtimeControlNormalizeType(payload[@"type"]) : @"?";
-    [FBLogger logFmt:@"[RT INPUT] stage=binary-recv type=%@ seq=%@ pointerId=%@ x=%@ y=%@ clientTs=%@ nodeRecvTs=%@ nodeForwardTs=%@ wdaRecvTs=%.3f",
+    [FBLogger logFmt:@"[Solumate INPUT] stage=binary-recv type=%@ seq=%@ pointerId=%@ x=%@ y=%@ clientTs=%@ nodeRecvTs=%@ nodeForwardTs=%@ wdaRecvTs=%.3f",
       typeForLog ?: @"?",
       payload[@"sequence"] ?: payload[@"seq"] ?: @"-",
       payload[@"pointerId"] ?: payload[@"finger"] ?: payload[@"pointer"] ?: @"-",
