@@ -17,22 +17,102 @@
 #import "FBLogger.h"
 #import "XCUIDevice+FBHelpers.h"
 
+static NSString * const FBRealtimeControlModeTrollStore = @"trollstore";
 static NSString * const FBRealtimeControlModePointArray = @"pointarray";
 static NSString * const FBRealtimeControlModeSwipe = @"swipe";
 
-static NSString *FBRealtimeControlNormalizeMode(id rawMode)
+static BOOL FBRealtimeControlIsTrollStoreBuild(void)
+{
+  return NO;
+}
+
+static double FBRealtimeControlTouchOffsetSeconds(NSNumber *timestamp,
+                                                  double startTimestamp,
+                                                  double fallback,
+                                                  double previousOffset)
+{
+  double minimum = MAX(fallback, previousOffset);
+  if (timestamp == nil || startTimestamp <= 0) {
+    return minimum;
+  }
+
+  double delta = timestamp.doubleValue - startTimestamp;
+  if (startTimestamp > 1000000000.0) {
+    // Browser timestamps use Date.now() milliseconds; pointArray uses seconds.
+    delta /= 1000.0;
+  }
+  return isfinite(delta) && delta >= 0 ? MAX(minimum, delta) : minimum;
+}
+
+static NSString *FBRealtimeControlNormalizeMode(id rawMode, BOOL isTrollStoreBuild)
 {
   if (![rawMode isKindOfClass:NSString.class]) {
-    return FBRealtimeControlModePointArray;
+    return isTrollStoreBuild ? FBRealtimeControlModeTrollStore : FBRealtimeControlModePointArray;
   }
   NSString *normalized = [[(NSString *)rawMode lowercaseString] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
   NSString *compact = [[[normalized stringByReplacingOccurrencesOfString:@"-" withString:@""]
                         stringByReplacingOccurrencesOfString:@"_" withString:@""]
                         stringByReplacingOccurrencesOfString:@" " withString:@""];
+  if ([compact isEqualToString:@"trollstore"] || [compact isEqualToString:@"realtime"]) {
+    return isTrollStoreBuild ? FBRealtimeControlModeTrollStore : FBRealtimeControlModePointArray;
+  }
   if ([compact isEqualToString:@"swipe"] || [compact isEqualToString:@"swip"]) {
     return FBRealtimeControlModeSwipe;
   }
   return FBRealtimeControlModePointArray;
+}
+
+static NSString *FBRealtimeControlNormalizeType(NSString *type)
+{
+  NSString *normalized = [type.lowercaseString stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+  NSString *compact = [[normalized stringByReplacingOccurrencesOfString:@"-" withString:@""]
+                       stringByReplacingOccurrencesOfString:@"_" withString:@""];
+  if ([compact isEqualToString:@"touchdown"] ||
+      [compact isEqualToString:@"pointerdown"] ||
+      [compact isEqualToString:@"touch1down"] ||
+      [compact isEqualToString:@"touchbegin"] ||
+      [compact isEqualToString:@"begin"] ||
+      [compact isEqualToString:@"down"]) {
+    return @"down";
+  }
+  if ([compact isEqualToString:@"touchmove"] ||
+      [compact isEqualToString:@"pointermove"] ||
+      [compact isEqualToString:@"touch1move"] ||
+      [compact isEqualToString:@"move"]) {
+    return @"move";
+  }
+  if ([compact isEqualToString:@"touchup"] ||
+      [compact isEqualToString:@"pointerup"] ||
+      [compact isEqualToString:@"touch1up"] ||
+      [compact isEqualToString:@"touchend"] ||
+      [compact isEqualToString:@"end"] ||
+      [compact isEqualToString:@"up"]) {
+    return @"up";
+  }
+  if ([compact isEqualToString:@"touchcancel"] ||
+      [compact isEqualToString:@"pointercancel"] ||
+      [compact isEqualToString:@"cancel"]) {
+    return @"cancel";
+  }
+  if ([compact isEqualToString:@"pointarray"]) {
+    return @"pointarray";
+  }
+  return normalized;
+}
+
+static BOOL FBRealtimeControlDebugEnabled(void)
+{
+  NSString *value = NSProcessInfo.processInfo.environment[@"WDA_REALTIME_TOUCH_DEBUG"];
+  NSString *normalized = value.lowercaseString;
+  return [normalized isEqualToString:@"1"] ||
+    [normalized isEqualToString:@"true"] ||
+    [normalized isEqualToString:@"yes"] ||
+    [normalized isEqualToString:@"on"];
+}
+
+static double FBRealtimeControlWallClockMs(void)
+{
+  return NSDate.date.timeIntervalSince1970 * 1000.0;
 }
 
 static const uint8_t FBRealtimeBinaryMagic[4] = {'R', 'C', 'B', '1'};
@@ -88,7 +168,7 @@ static BOOL FBRealtimeBinaryReadByte(NSData *data, NSUInteger *offset, uint8_t *
     }
     return NO;
   }
-  const uint8_t *bytes = data.bytes;
+  const uint8_t *bytes = (const uint8_t *)data.bytes;
   *value = bytes[*offset];
   *offset += 1;
   return YES;
@@ -348,6 +428,14 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 
 @interface FBRealtimeControlClientState : NSObject
 @property (nonatomic, assign) BOOL authenticated;
+@property (nonatomic, assign) BOOL ownsTouch;
+@property (nonatomic, assign) NSUInteger pointerId;
+@property (nonatomic, assign) double lastX;
+@property (nonatomic, assign) double lastY;
+@property (nonatomic, assign) uint64_t lastSequence;
+@property (nonatomic, assign) double touchStartTimestamp;
+@property (nonatomic, assign) double lastTouchOffset;
+@property (nonatomic, strong) NSMutableArray *touchPoints;
 @property (nonatomic, assign) NSUInteger pendingBinaryBodyLength;
 @end
 
@@ -356,6 +444,9 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 
 @interface FBRealtimeControlServer ()
 @property (nonatomic, strong) NSMutableDictionary<NSValue *, FBRealtimeControlClientState *> *clientStates;
+@property (nonatomic, weak) GCDAsyncSocket *currentClient;
+@property (nonatomic, strong) FBRealtimeControlClientState *currentState;
+@property (nonatomic, weak) GCDAsyncSocket *touchOwner;
 @property (nonatomic, copy) NSString *controlMode;
 @end
 
@@ -365,13 +456,16 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 {
   if ((self = [super init])) {
     _clientStates = [NSMutableDictionary dictionary];
-    _controlMode = FBRealtimeControlModePointArray;
+    _controlMode = FBRealtimeControlIsTrollStoreBuild()
+      ? FBRealtimeControlModeTrollStore
+      : FBRealtimeControlModePointArray;
   }
   return self;
 }
 
 - (void)stop
 {
+  self.touchOwner = nil;
   @synchronized (self.clientStates) {
     [self.clientStates removeAllObjects];
   }
@@ -429,7 +523,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
       [client disconnectAfterWriting];
       return;
     }
-    const uint8_t *bytes = data.bytes;
+    const uint8_t *bytes = (const uint8_t *)data.bytes;
     if (bytes[4] != 1) {
       [self sendResponse:@{
         @"type": @"error",
@@ -507,9 +601,26 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     return;
   }
 
+  double serverReceiveTimestamp = FBRealtimeControlWallClockMs();
+  if (FBRealtimeControlDebugEnabled()) {
+    NSString *typeForLog = [payload[@"type"] isKindOfClass:NSString.class]
+      ? FBRealtimeControlNormalizeType(payload[@"type"])
+      : @"?";
+    [FBLogger logFmt:@"[Solumate INPUT] stage=binary-recv type=%@ seq=%@ pointerId=%@ x=%@ y=%@ clientTs=%@ wdaRecvTs=%.3f",
+      typeForLog ?: @"?",
+      payload[@"sequence"] ?: payload[@"seq"] ?: @"-",
+      payload[@"pointerId"] ?: payload[@"finger"] ?: payload[@"pointer"] ?: @"-",
+      payload[@"x"] ?: @"-",
+      payload[@"y"] ?: @"-",
+      payload[@"timestamp"] ?: @"-",
+      serverReceiveTimestamp];
+  }
+  NSMutableDictionary *payloadWithReceiveTs = [payload mutableCopy];
+  payloadWithReceiveTs[@"wdaReceiveTimestamp"] = @(serverReceiveTimestamp);
+
   BOOL requiresAuth = FBConfiguration.requiresAuthentication;
   if (!state.authenticated && requiresAuth) {
-    if (![self authorizePayload:payload error:&error]) {
+    if (![self authorizePayload:payloadWithReceiveTs error:&error]) {
       [self sendResponse:@{
         @"type": @"auth",
         @"ok": @NO,
@@ -519,27 +630,42 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
       return;
     }
     state.authenticated = YES;
-    [self sendResponse:@{ @"type": @"auth", @"ok": @YES } toClient:client];
+    [self sendResponse:@{
+      @"type": @"auth",
+      @"ok": @YES,
+      @"socket": @"realtime-control-mesh",
+      @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+      @"is_trollstore": @NO,
+    } toClient:client];
     return;
   }
   state.authenticated = YES;
 
   NSString *type = [payload[@"type"] isKindOfClass:NSString.class]
-    ? [payload[@"type"] lowercaseString]
+    ? FBRealtimeControlNormalizeType(payload[@"type"])
     : nil;
   if (type.length == 0) {
     type = @"pointarray";
   }
 
   if ([type isEqualToString:@"auth"]) {
-    [self sendResponse:@{ @"type": @"auth", @"ok": @YES } toClient:client];
+    [self sendResponse:@{
+      @"type": @"auth",
+      @"ok": @YES,
+      @"socket": @"realtime-control-mesh",
+      @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+      @"is_trollstore": @NO,
+    } toClient:client];
     return;
   }
 
   if ([type isEqualToString:@"ping"]) {
     [self sendResponse:@{
-      @"type": @"pong",
+      @"type": @"ready",
       @"ok": @YES,
+      @"socket": @"realtime-control-mesh",
+      @"source": @"tcp",
+      @"authenticated": @(state.authenticated),
       @"is_trollstore": @NO,
       @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
     } toClient:client];
@@ -553,15 +679,20 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     return;
   }
 
+  self.currentClient = client;
+  self.currentState = state;
   __block BOOL ok = NO;
-  __block NSString *message = nil;
   __block NSError *executeError = nil;
   dispatch_sync(dispatch_get_main_queue(), ^{
-    ok = [self executePayload:payload type:type error:&executeError];
-    if (!ok && nil != executeError) {
-      message = executeError.localizedDescription;
-    }
+    ok = [self executePayload:payloadWithReceiveTs type:type error:&executeError];
   });
+  self.currentClient = nil;
+  self.currentState = nil;
+
+  NSString *message = (!ok && nil != executeError) ? executeError.localizedDescription : nil;
+  BOOL shouldAck = ![type isEqualToString:@"move"] ||
+    [payload[@"ack"] boolValue] ||
+    [NSProcessInfo.processInfo.environment[@"WDA_REALTIME_TOUCH_ACK_MOVES"] boolValue];
 
   if (!ok) {
     [self sendResponse:@{
@@ -573,17 +704,33 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     return;
   }
 
-  [self sendResponse:@{
-    @"ok": @YES,
-    @"type": type,
-    @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
-    @"is_trollstore": @NO,
-    @"id": payload[@"id"] ?: [NSNull null],
-  } toClient:client];
+  if (shouldAck) {
+    [self sendResponse:@{
+      @"ok": @YES,
+      @"type": type,
+      @"socket": @"realtime-control-mesh",
+      @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
+      @"is_trollstore": @NO,
+      @"id": payload[@"id"] ?: [NSNull null],
+    } toClient:client];
+  }
 }
 
 - (void)didClientDisconnect:(GCDAsyncSocket *)client
 {
+  FBRealtimeControlClientState *state = [self stateForClient:client createIfNeeded:NO];
+  GCDAsyncSocket *touchOwner = self.touchOwner;
+  if (state.ownsTouch || touchOwner == client) {
+    self.touchOwner = nil;
+  }
+  state.ownsTouch = NO;
+  state.pointerId = 0;
+  state.lastX = 0;
+  state.lastY = 0;
+  state.lastSequence = 0;
+  state.touchStartTimestamp = 0;
+  state.lastTouchOffset = 0;
+  state.touchPoints = nil;
   [self removeStateForClient:client];
   [FBLogger log:@"Disconnected a client from realtime control socket"];
 }
@@ -591,10 +738,26 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 - (void)handleModePayload:(NSDictionary *)payload toClient:(GCDAsyncSocket *)client
 {
   id rawMode = payload[@"mode"] ?: payload[@"controlMode"] ?: payload[@"value"];
-  self.controlMode = FBRealtimeControlNormalizeMode(rawMode);
+  self.controlMode = FBRealtimeControlNormalizeMode(rawMode, FBRealtimeControlIsTrollStoreBuild());
+  if (![self.controlMode isEqualToString:FBRealtimeControlModeTrollStore]) {
+    self.touchOwner = nil;
+    @synchronized (self.clientStates) {
+      for (FBRealtimeControlClientState *state in self.clientStates.allValues) {
+        state.ownsTouch = NO;
+        state.pointerId = 0;
+        state.lastX = 0;
+        state.lastY = 0;
+        state.lastSequence = 0;
+        state.touchStartTimestamp = 0;
+        state.lastTouchOffset = 0;
+        state.touchPoints = nil;
+      }
+    }
+  }
   [self sendResponse:@{
     @"type": @"mode",
     @"ok": @YES,
+    @"socket": @"realtime-control-mesh",
     @"mode": self.controlMode ?: FBRealtimeControlModePointArray,
     @"is_trollstore": @NO,
     @"id": payload[@"id"] ?: [NSNull null],
@@ -639,8 +802,8 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     }
     return NO;
   }
-  const uint8_t *leftBytes = left.bytes;
-  const uint8_t *rightBytes = right.bytes;
+  const uint8_t *leftBytes = (const uint8_t *)left.bytes;
+  const uint8_t *rightBytes = (const uint8_t *)right.bytes;
   uint8_t diff = 0;
   for (NSUInteger idx = 0; idx < left.length; idx++) {
     diff |= leftBytes[idx] ^ rightBytes[idx];
@@ -673,12 +836,168 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
   if ([type isEqualToString:@"pointarray"] || [type isEqualToString:@"gesture"]) {
     return [self handlePointArrayPayload:payload error:error];
   }
+  if ([type isEqualToString:@"down"]) {
+    return [self handleTouchDownPayload:payload error:error];
+  }
+  if ([type isEqualToString:@"move"]) {
+    return [self handleTouchMovePayload:payload error:error];
+  }
+  if ([type isEqualToString:@"up"]) {
+    return [self handleTouchUpPayload:payload error:error];
+  }
+  if ([type isEqualToString:@"cancel"]) {
+    return [self handleTouchCancelPayload:payload error:error];
+  }
   if (error) {
     *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
                                  code:400
                              userInfo:@{ NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Unsupported control type: %@", type] }];
   }
   return NO;
+}
+
+- (BOOL)handleTouchDownPayload:(NSDictionary *)payload error:(NSError **)error
+{
+  GCDAsyncSocket *currentClient = self.currentClient;
+  NSNumber *x = [payload[@"x"] isKindOfClass:NSNumber.class] ? payload[@"x"] : nil;
+  NSNumber *y = [payload[@"y"] isKindOfClass:NSNumber.class] ? payload[@"y"] : nil;
+  NSNumber *pointerId = [payload[@"pointerId"] isKindOfClass:NSNumber.class] ? payload[@"pointerId"] : nil;
+  NSNumber *sequence = [payload[@"sequence"] isKindOfClass:NSNumber.class] ? payload[@"sequence"] : nil;
+  NSNumber *timestamp = [payload[@"timestamp"] isKindOfClass:NSNumber.class] ? payload[@"timestamp"] : nil;
+  if (x == nil || y == nil) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
+                                   code:400
+                               userInfo:@{ NSLocalizedDescriptionKey: @"touchDown requires x and y" }];
+    }
+    return NO;
+  }
+  GCDAsyncSocket *touchOwner = self.touchOwner;
+  if (touchOwner != nil && touchOwner != currentClient) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
+                                   code:409
+                               userInfo:@{ NSLocalizedDescriptionKey: @"Another client currently owns the active touch" }];
+    }
+    return NO;
+  }
+
+  FBRealtimeControlClientState *state = self.currentState
+    ?: [self stateForClient:currentClient createIfNeeded:YES];
+  state.ownsTouch = YES;
+  state.pointerId = pointerId != nil ? pointerId.unsignedIntegerValue : 1;
+  state.lastX = x.doubleValue;
+  state.lastY = y.doubleValue;
+  state.lastSequence = sequence != nil ? sequence.unsignedLongLongValue : 0;
+  state.touchStartTimestamp = timestamp != nil ? timestamp.doubleValue : 0;
+  state.lastTouchOffset = 0;
+  state.touchPoints = [NSMutableArray arrayWithObject:@[x, y, @0]];
+  self.touchOwner = currentClient;
+  return YES;
+}
+
+- (BOOL)handleTouchMovePayload:(NSDictionary *)payload error:(NSError **)error
+{
+  GCDAsyncSocket *currentClient = self.currentClient;
+  FBRealtimeControlClientState *state = self.currentState
+    ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (state == nil || self.touchOwner != currentClient || !state.ownsTouch) {
+    return YES;
+  }
+
+  NSNumber *x = [payload[@"x"] isKindOfClass:NSNumber.class] ? payload[@"x"] : nil;
+  NSNumber *y = [payload[@"y"] isKindOfClass:NSNumber.class] ? payload[@"y"] : nil;
+  NSNumber *sequence = [payload[@"sequence"] isKindOfClass:NSNumber.class] ? payload[@"sequence"] : nil;
+  NSNumber *timestamp = [payload[@"timestamp"] isKindOfClass:NSNumber.class] ? payload[@"timestamp"] : nil;
+  if (x == nil || y == nil) {
+    if (error) {
+      *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
+                                   code:400
+                               userInfo:@{ NSLocalizedDescriptionKey: @"touchMove requires x and y" }];
+    }
+    return NO;
+  }
+  if (sequence != nil && sequence.unsignedLongLongValue < state.lastSequence) {
+    return YES;
+  }
+
+  double offset = 0.01;
+  offset = FBRealtimeControlTouchOffsetSeconds(
+    timestamp,
+    state.touchStartTimestamp,
+    offset,
+    state.lastTouchOffset
+  );
+  [state.touchPoints addObject:@[x, y, @(offset)]];
+  state.lastTouchOffset = offset;
+  state.lastX = x.doubleValue;
+  state.lastY = y.doubleValue;
+  state.lastSequence = sequence != nil ? sequence.unsignedLongLongValue : state.lastSequence + 1;
+  return YES;
+}
+
+- (BOOL)handleTouchUpPayload:(NSDictionary *)payload error:(NSError **)error
+{
+  GCDAsyncSocket *currentClient = self.currentClient;
+  FBRealtimeControlClientState *state = self.currentState
+    ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (state == nil || self.touchOwner != currentClient || !state.ownsTouch) {
+    return YES;
+  }
+
+  NSNumber *x = [payload[@"x"] isKindOfClass:NSNumber.class] ? payload[@"x"] : @(state.lastX);
+  NSNumber *y = [payload[@"y"] isKindOfClass:NSNumber.class] ? payload[@"y"] : @(state.lastY);
+  NSNumber *sequence = [payload[@"sequence"] isKindOfClass:NSNumber.class] ? payload[@"sequence"] : nil;
+  NSNumber *timestamp = [payload[@"timestamp"] isKindOfClass:NSNumber.class] ? payload[@"timestamp"] : nil;
+  if (x != nil && y != nil) {
+    double offset = 0.02;
+    offset = FBRealtimeControlTouchOffsetSeconds(
+      timestamp,
+      state.touchStartTimestamp,
+      offset,
+      state.lastTouchOffset
+    );
+    [state.touchPoints addObject:@[x, y, @(offset)]];
+    state.lastTouchOffset = offset;
+  }
+
+  BOOL ok = [[XCUIDevice sharedDevice] fb_qx9:state.touchPoints];
+  if (!ok && error != NULL) {
+    *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
+                                  code:500
+                              userInfo:@{ NSLocalizedDescriptionKey: @"Cannot replay sign-build realtime touch as pointArray" }];
+  }
+  state.ownsTouch = NO;
+  state.pointerId = 0;
+  state.lastX = 0;
+  state.lastY = 0;
+  state.touchStartTimestamp = 0;
+  state.lastTouchOffset = 0;
+  state.touchPoints = nil;
+  state.lastSequence = sequence != nil ? sequence.unsignedLongLongValue : state.lastSequence + 1;
+  self.touchOwner = nil;
+  return ok;
+}
+
+- (BOOL)handleTouchCancelPayload:(NSDictionary *)payload error:(NSError **)error
+{
+  (void)payload;
+  (void)error;
+  GCDAsyncSocket *currentClient = self.currentClient;
+  FBRealtimeControlClientState *state = self.currentState
+    ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (state != nil) {
+    state.ownsTouch = NO;
+    state.pointerId = 0;
+    state.lastX = 0;
+    state.lastY = 0;
+    state.lastSequence = 0;
+    state.touchStartTimestamp = 0;
+    state.lastTouchOffset = 0;
+    state.touchPoints = nil;
+  }
+  self.touchOwner = nil;
+  return YES;
 }
 
 - (BOOL)handleTapPayload:(NSDictionary *)payload error:(NSError **)error

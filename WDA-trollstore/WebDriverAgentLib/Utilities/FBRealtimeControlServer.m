@@ -21,6 +21,11 @@ static NSString * const FBRealtimeControlModeTrollStore = @"trollstore";
 static NSString * const FBRealtimeControlModePointArray = @"pointarray";
 static NSString * const FBRealtimeControlModeSwipe = @"swipe";
 
+static BOOL FBRealtimeControlIsTrollStoreBuild(void)
+{
+  return YES;
+}
+
 static NSString *FBRealtimeControlNormalizeMode(id rawMode, BOOL isTrollStoreBuild)
 {
   if (![rawMode isKindOfClass:NSString.class]) {
@@ -149,7 +154,7 @@ static BOOL FBRealtimeBinaryReadByte(NSData *data, NSUInteger *offset, uint8_t *
     }
     return NO;
   }
-  const uint8_t *bytes = data.bytes;
+  const uint8_t *bytes = (const uint8_t *)data.bytes;
   *value = bytes[*offset];
   *offset += 1;
   return YES;
@@ -437,7 +442,9 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 {
   if ((self = [super init])) {
     _clientStates = [NSMutableDictionary dictionary];
-    _controlMode = FBRealtimeControlModeTrollStore;
+    _controlMode = FBRealtimeControlIsTrollStoreBuild()
+      ? FBRealtimeControlModeTrollStore
+      : FBRealtimeControlModePointArray;
   }
   return self;
 }
@@ -503,7 +510,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
       [client disconnectAfterWriting];
       return;
     }
-    const uint8_t *bytes = data.bytes;
+    const uint8_t *bytes = (const uint8_t *)data.bytes;
     if (bytes[4] != 1) {
       [self sendResponse:@{
         @"type": @"error",
@@ -612,7 +619,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     [self sendResponse:@{
       @"type": @"auth",
       @"ok": @YES,
-      @"socket": @"socket-realtime-trollstore",
+      @"socket": @"realtime-control-mesh",
       @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
       @"is_trollstore": @YES,
     } toClient:client];
@@ -631,7 +638,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     [self sendResponse:@{
       @"type": @"auth",
       @"ok": @YES,
-      @"socket": @"socket-realtime-trollstore",
+      @"socket": @"realtime-control-mesh",
       @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
       @"is_trollstore": @YES,
     } toClient:client];
@@ -642,7 +649,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     [self sendResponse:@{
       @"type": @"ready",
       @"ok": @YES,
-      @"socket": @"socket-realtime-trollstore",
+      @"socket": @"realtime-control-mesh",
       @"source": @"tcp",
       @"authenticated": @(state.authenticated),
       @"is_trollstore": @YES,
@@ -699,7 +706,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     [self sendResponse:@{
       @"ok": @YES,
       @"type": type,
-      @"socket": @"socket-realtime-trollstore",
+      @"socket": @"realtime-control-mesh",
       @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
       @"is_trollstore": @YES,
       @"id": payload[@"id"] ?: [NSNull null],
@@ -710,10 +717,18 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 - (void)didClientDisconnect:(GCDAsyncSocket *)client
 {
   FBRealtimeControlClientState *state = [self stateForClient:client createIfNeeded:NO];
-  if (state.ownsTouch || self.touchOwner == client) {
+  GCDAsyncSocket *touchOwner = self.touchOwner;
+  if (state.ownsTouch || touchOwner == client) {
     [[XCUIDevice sharedDevice] fb_realtimeTouchCancel];
     self.touchOwner = nil;
   }
+  state.ownsTouch = NO;
+  state.hasLastPoint = NO;
+  state.pointerId = 0;
+  state.lastX = 0;
+  state.lastY = 0;
+  state.lastSequence = 0;
+  state.lastTimestamp = 0;
   [self removeStateForClient:client];
   [FBLogger log:@"Disconnected a client from realtime control socket"];
 }
@@ -721,7 +736,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 - (void)handleModePayload:(NSDictionary *)payload toClient:(GCDAsyncSocket *)client
 {
   id rawMode = payload[@"mode"] ?: payload[@"controlMode"] ?: payload[@"value"];
-  NSString *mode = FBRealtimeControlNormalizeMode(rawMode, YES);
+  NSString *mode = FBRealtimeControlNormalizeMode(rawMode, FBRealtimeControlIsTrollStoreBuild());
   if (![mode isEqualToString:FBRealtimeControlModeTrollStore]) {
     [[XCUIDevice sharedDevice] fb_realtimeTouchCancel];
     self.touchOwner = nil;
@@ -730,6 +745,10 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
         state.ownsTouch = NO;
         state.hasLastPoint = NO;
         state.pointerId = 0;
+        state.lastX = 0;
+        state.lastY = 0;
+        state.lastSequence = 0;
+        state.lastTimestamp = 0;
       }
     }
   }
@@ -737,6 +756,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
   [self sendResponse:@{
     @"type": @"mode",
     @"ok": @YES,
+    @"socket": @"realtime-control-mesh",
     @"mode": self.controlMode ?: FBRealtimeControlModeTrollStore,
     @"is_trollstore": @YES,
     @"id": payload[@"id"] ?: [NSNull null],
@@ -781,8 +801,8 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     }
     return NO;
   }
-  const uint8_t *leftBytes = left.bytes;
-  const uint8_t *rightBytes = right.bytes;
+  const uint8_t *leftBytes = (const uint8_t *)left.bytes;
+  const uint8_t *rightBytes = (const uint8_t *)right.bytes;
   uint8_t diff = 0;
   for (NSUInteger idx = 0; idx < left.length; idx++) {
     diff |= leftBytes[idx] ^ rightBytes[idx];
@@ -840,6 +860,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 
 - (BOOL)handleTouchDownPayload:(NSDictionary *)payload error:(NSError **)error
 {
+  GCDAsyncSocket *currentClient = self.currentClient;
   NSNumber *x = [payload[@"x"] isKindOfClass:NSNumber.class] ? payload[@"x"] : nil;
   NSNumber *y = [payload[@"y"] isKindOfClass:NSNumber.class] ? payload[@"y"] : nil;
   NSNumber *pointerId = [payload[@"pointerId"] isKindOfClass:NSNumber.class] ? payload[@"pointerId"] : nil;
@@ -853,7 +874,8 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     }
     return NO;
   }
-  if (self.touchOwner != nil && self.touchOwner != self.currentClient) {
+  GCDAsyncSocket *touchOwner = self.touchOwner;
+  if (touchOwner != nil && touchOwner != currentClient) {
     if (error) {
       *error = [NSError errorWithDomain:@"com.facebook.WebDriverAgent.RealtimeControl"
                                    code:409
@@ -868,7 +890,7 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
                                                 clientTimestamp:clientTimestamp
                                                           error:error];
   if (ok) {
-    FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:self.currentClient createIfNeeded:YES];
+    FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:currentClient createIfNeeded:YES];
     state.ownsTouch = YES;
     state.hasLastPoint = YES;
     state.pointerId = pointerId != nil ? pointerId.unsignedIntegerValue : 1;
@@ -876,15 +898,16 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     state.lastY = y.doubleValue;
     state.lastSequence = sequence != nil ? sequence.unsignedLongLongValue : 0;
     state.lastTimestamp = clientTimestamp != nil ? clientTimestamp.doubleValue : 0;
-    self.touchOwner = self.currentClient;
+    self.touchOwner = currentClient;
   }
   return ok;
 }
 
 - (BOOL)handleTouchMovePayload:(NSDictionary *)payload error:(NSError **)error
 {
-  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:self.currentClient createIfNeeded:NO];
-  if (self.touchOwner != self.currentClient || !state.ownsTouch) {
+  GCDAsyncSocket *currentClient = self.currentClient;
+  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (self.touchOwner != currentClient || !state.ownsTouch) {
     [FBLogger verboseLog:@"Ignoring realtime touch move without an active owner"];
     return YES;
   }
@@ -924,8 +947,9 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 
 - (BOOL)handleTouchUpPayload:(NSDictionary *)payload error:(NSError **)error
 {
-  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:self.currentClient createIfNeeded:NO];
-  if (self.touchOwner != self.currentClient || !state.ownsTouch) {
+  GCDAsyncSocket *currentClient = self.currentClient;
+  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (self.touchOwner != currentClient || !state.ownsTouch) {
     [FBLogger verboseLog:@"Ignoring realtime touch up without an active owner"];
     return YES;
   }
@@ -945,6 +969,8 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
     state.ownsTouch = NO;
     state.hasLastPoint = NO;
     state.pointerId = 0;
+    state.lastX = 0;
+    state.lastY = 0;
     state.lastSequence = sequence != nil ? sequence.unsignedLongLongValue : state.lastSequence + 1;
     state.lastTimestamp = clientTimestamp != nil ? clientTimestamp.doubleValue : state.lastTimestamp;
     self.touchOwner = nil;
@@ -955,16 +981,22 @@ static id FBRealtimeBinaryDecodeValue(NSData *data, NSUInteger *offset, NSError 
 - (BOOL)handleTouchCancelPayload:(NSDictionary *)payload error:(NSError **)error
 {
   (void)payload;
-  if (self.touchOwner == nil) {
+  GCDAsyncSocket *currentClient = self.currentClient;
+  GCDAsyncSocket *touchOwner = self.touchOwner;
+  if (touchOwner == nil) {
     [[XCUIDevice sharedDevice] fb_realtimeTouchCancel];
     return YES;
   }
-  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:self.currentClient createIfNeeded:NO];
-  if (state.ownsTouch || self.touchOwner == self.currentClient) {
+  FBRealtimeControlClientState *state = self.currentState ?: [self stateForClient:currentClient createIfNeeded:NO];
+  if (state.ownsTouch || touchOwner == currentClient) {
     [[XCUIDevice sharedDevice] fb_realtimeTouchCancel];
     state.ownsTouch = NO;
     state.hasLastPoint = NO;
     state.pointerId = 0;
+    state.lastX = 0;
+    state.lastY = 0;
+    state.lastSequence = 0;
+    state.lastTimestamp = 0;
     self.touchOwner = nil;
     return YES;
   }

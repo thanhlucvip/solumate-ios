@@ -126,6 +126,9 @@ const state = {
   viewerAspect: 0,
   streamConfig: null,
   controlStream: null,
+  recordings: [],
+  activeRecording: null,
+  recordingReplayRunning: false,
 };
 
 const el = {
@@ -163,6 +166,11 @@ const el = {
   h264SourceLabel: document.getElementById('h264SourceLabel'),
   scrcpySourceLabel: document.getElementById('scrcpySourceLabel'),
   webrtcSourceLabel: document.getElementById('webrtcSourceLabel'),
+  recordingNameInput: document.getElementById('recordingNameInput'),
+  startRecordingBtn: document.getElementById('startRecordingBtn'),
+  stopRecordingBtn: document.getElementById('stopRecordingBtn'),
+  recordingStatus: document.getElementById('recordingStatus'),
+  recordingsList: document.getElementById('recordingsList'),
 };
 
 init().catch((err) => log(err.message || String(err), true));
@@ -172,6 +180,7 @@ async function init() {
   await loadHealth();
   await loadViewModes();
   await loadControlModes();
+  await loadRecordings();
   try {
     await connect();
   } catch (err) {
@@ -206,6 +215,8 @@ function bindUi() {
   bindControlModeCheckbox(el.controlModeTrollstoreInput, CONTROL_MODE_TROLLSTORE);
   bindControlModeCheckbox(el.controlModePointArrayInput, CONTROL_MODE_POINT_ARRAY);
   bindControlModeCheckbox(el.controlModeSwipeInput, CONTROL_MODE_SWIPE);
+  el.startRecordingBtn?.addEventListener('click', () => startRecording().catch(showError));
+  el.stopRecordingBtn?.addEventListener('click', () => stopRecording().catch(showError));
   bindRangeSetting(el.fpsInput, el.fpsValue, ' fps');
   bindRangeSetting(el.qualityInput, el.qualityValue, '%');
   bindRangeSetting(el.scaleInput, el.scaleValue, '%');
@@ -555,6 +566,148 @@ async function loadControlModes() {
   if (el.controlStateLabel) {
     el.controlStateLabel.title = realtimeUrl;
   }
+}
+
+async function loadRecordings() {
+  try {
+    const data = await apiGet('/api/recordings');
+    state.recordings = Array.isArray(data?.recordings) ? data.recordings : [];
+    state.activeRecording = data?.active || null;
+    state.recordingReplayRunning = Boolean(data?.replaying);
+    renderRecordings();
+  } catch (err) {
+    log(`Cannot load recordings: ${err.message}`);
+  }
+}
+
+async function startRecording() {
+  if (state.activeRecording) {
+    return;
+  }
+  const name = String(el.recordingNameInput?.value || '').trim();
+  const data = await apiPost('/api/recordings/start', name ? {name} : {});
+  state.activeRecording = data.active || null;
+  renderRecordings();
+  logData('RECORDING_START', data);
+}
+
+async function stopRecording() {
+  if (!state.activeRecording) {
+    return;
+  }
+  const data = await apiPost('/api/recordings/stop');
+  state.activeRecording = null;
+  state.recordings = Array.isArray(data?.recordings) ? data.recordings : state.recordings;
+  renderRecordings();
+  logData('RECORDING_STOP', data);
+}
+
+async function runRecording(id, button) {
+  if (state.activeRecording || state.recordingReplayRunning) {
+    return;
+  }
+  state.recordingReplayRunning = true;
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Running...';
+  }
+  renderRecordings();
+  try {
+    const data = await apiPost(`/api/recordings/${encodeURIComponent(id)}/run`, {
+      mode: getSelectedControlMode(),
+    });
+    logData('RECORDING_RUN', data);
+  } finally {
+    state.recordingReplayRunning = false;
+    await loadRecordings();
+  }
+}
+
+async function deleteRecording(id) {
+  const recording = state.recordings.find((item) => item.id === id);
+  const name = recording?.name || 'this recording';
+  if (!window.confirm(`Delete "${name}"?`)) {
+    return;
+  }
+  const data = await apiDelete(`/api/recordings/${encodeURIComponent(id)}`);
+  state.recordings = Array.isArray(data?.recordings) ? data.recordings : state.recordings;
+  renderRecordings();
+  logData('RECORDING_DELETE', data);
+}
+
+function renderRecordings() {
+  const active = state.activeRecording;
+  if (el.recordingStatus) {
+    if (state.recordingReplayRunning) {
+      el.recordingStatus.textContent = 'Running recording...';
+      el.recordingStatus.classList.remove('active');
+    } else if (active) {
+      el.recordingStatus.textContent =
+        `Recording "${active.name}" - ${active.actionCount || 0} actions`;
+      el.recordingStatus.classList.add('active');
+    } else {
+      el.recordingStatus.textContent = 'No active recording';
+      el.recordingStatus.classList.remove('active');
+    }
+  }
+  if (el.startRecordingBtn) {
+    el.startRecordingBtn.disabled = Boolean(active) || state.recordingReplayRunning;
+  }
+  if (el.stopRecordingBtn) {
+    el.stopRecordingBtn.disabled = !active || state.recordingReplayRunning;
+  }
+  if (el.recordingNameInput) {
+    el.recordingNameInput.disabled = Boolean(active) || state.recordingReplayRunning;
+  }
+  if (!el.recordingsList) {
+    return;
+  }
+  el.recordingsList.replaceChildren();
+  if (!state.recordings.length) {
+    const empty = document.createElement('div');
+    empty.className = 'recordings-empty';
+    empty.textContent = 'No saved recordings';
+    el.recordingsList.appendChild(empty);
+    return;
+  }
+  for (const recording of state.recordings) {
+    const item = document.createElement('div');
+    item.className = 'recording-item';
+
+    const main = document.createElement('div');
+    main.className = 'recording-item-main';
+    const name = document.createElement('div');
+    name.className = 'recording-item-name';
+    name.textContent = recording.name || 'Recording';
+    const meta = document.createElement('div');
+    meta.className = 'recording-item-meta';
+    meta.textContent = `${recording.actionCount || 0} actions - ${formatRecordingDuration(recording.durationMs)}`;
+    main.append(name, meta);
+
+    const actions = document.createElement('div');
+    actions.className = 'recording-item-actions';
+    const runButton = document.createElement('button');
+    runButton.type = 'button';
+    runButton.textContent = 'Run';
+    runButton.disabled = Boolean(active) || state.recordingReplayRunning;
+    runButton.addEventListener('click', () => runRecording(recording.id, runButton).catch(showError));
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.textContent = 'Delete';
+    deleteButton.disabled = Boolean(active) || state.recordingReplayRunning;
+    deleteButton.addEventListener('click', () => deleteRecording(recording.id).catch(showError));
+    actions.append(runButton, deleteButton);
+
+    item.append(main, actions);
+    el.recordingsList.appendChild(item);
+  }
+}
+
+function formatRecordingDuration(durationMs) {
+  const seconds = Math.max(0, Number(durationMs) || 0) / 1000;
+  return seconds < 60
+    ? `${seconds.toFixed(1)}s`
+    : `${Math.floor(seconds / 60)}m ${(seconds % 60).toFixed(0)}s`;
 }
 
 function choosePreferredViewMode(selectedMode, modes) {
@@ -4018,6 +4171,14 @@ async function apiPost(url, body) {
     method: 'POST',
     headers: authHeaders({'content-type': 'application/json'}),
     body: JSON.stringify(body || {}),
+  });
+  return readApiResponse(response);
+}
+
+async function apiDelete(url) {
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: authHeaders(),
   });
   return readApiResponse(response);
 }

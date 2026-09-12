@@ -32,6 +32,12 @@ const LOCAL_H264_DECODE_ERROR_WINDOW_MS = 4000;
 const POINT_ARRAY_MAX_POINTS = 256;
 const POINT_ARRAY_MAX_DURATION_SECONDS = 30;
 const DEFAULT_POINT_ARRAY_SECRET = "SolumateSwipeLocal2026";
+const RECORDING_STORE_VERSION = 1;
+const RECORDING_MAX_ITEMS = 100;
+const RECORDING_MAX_ACTIONS = 2000;
+const RECORDING_MAX_CAPTURED_POINTS = 4096;
+const RECORDING_MAX_DELAY_MS = 60000;
+const RECORDING_MAX_NAME_LENGTH = 100;
 const DEFAULT_MJPEG_WDA_SCALE_MAX = 70;
 const SETUP_COMMAND_TIMEOUT_MS = 180000;
 const SETUP_OUTPUT_LIMIT_BYTES = 4 * 1024 * 1024;
@@ -223,6 +229,8 @@ const config = {
   ),
   localH264Encoder: process.env.LOCAL_H264_ENCODER || "libx264",
   pointArraySecret: String(process.env.SOLUMATE_WDA_SWIPE_SECRET || DEFAULT_POINT_ARRAY_SECRET),
+  recordingsFile:
+    process.env.RECORDINGS_FILE || path.join(__dirname, "data", "recordings.json"),
   goIosBin: process.env.GO_IOS_BIN || process.env.IOS_BIN || defaultGoIosBin(),
   mjpegWdaScaleMax: Math.max(
     1,
@@ -260,6 +268,12 @@ const state = {
   lastSessionPayload: null,
   createdAt: null,
   realtimeControlConnections: 0,
+  realtimeControlMode: "pointarray",
+  realtimeControlIsTrollstore: null,
+  recording: {
+    activeId: null,
+    replaying: false,
+  },
 };
 
 const localH264Bridge = {
@@ -282,6 +296,11 @@ const localH264Bridge = {
 };
 
 const publicDir = path.join(__dirname, "public");
+const recordingStore = loadRecordingStore();
+const recordingRuntime = {
+  active: null,
+  replayPromise: null,
+};
 
 const server = http.createServer(async (req, res) => {
   try {
@@ -385,6 +404,37 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === "GET" && reqUrl.pathname === "/api/control-modes") {
       return json(res, 200, await buildControlModes());
+    }
+
+    if (req.method === "GET" && reqUrl.pathname === "/api/recordings") {
+      return json(res, 200, buildRecordingsResponse());
+    }
+
+    if (req.method === "POST" && reqUrl.pathname === "/api/recordings/start") {
+      const body = await readJson(req);
+      return json(res, 200, startRecording(body));
+    }
+
+    if (req.method === "POST" && reqUrl.pathname === "/api/recordings/stop") {
+      return json(res, 200, stopRecording());
+    }
+
+    const recordingRunMatch = reqUrl.pathname.match(/^\/api\/recordings\/([^/]+)\/run$/);
+    if (req.method === "POST" && recordingRunMatch) {
+      const body = await readJson(req);
+      const id = decodeURIComponent(recordingRunMatch[1]);
+      return json(res, 200, await runRecordingById(id, body));
+    }
+
+    const recordingItemMatch = reqUrl.pathname.match(/^\/api\/recordings\/([^/]+)$/);
+    if (recordingItemMatch) {
+      const id = decodeURIComponent(recordingItemMatch[1]);
+      if (req.method === "GET") {
+        return json(res, 200, getRecordingResponse(id));
+      }
+      if (req.method === "DELETE") {
+        return json(res, 200, deleteRecording(id));
+      }
     }
 
     if (req.method === "POST" && reqUrl.pathname === "/api/webrtc-offer") {
@@ -493,6 +543,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${await ensureSession()}/wda/pressButton`,
         { name: "home" },
       );
+      recordControlPayload(
+        { type: "home" },
+        { source: "http", sourceKey: "http", mode: state.realtimeControlMode },
+      );
       return json(res, 200, { ok: true, result: unwrapValue(result) });
     }
 
@@ -510,6 +564,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${await ensureSession()}/wda/pressButton`,
         payload,
       );
+      recordControlPayload(
+        { type: "button", ...payload },
+        { source: "http", sourceKey: "http", mode: state.realtimeControlMode },
+      );
       return json(res, 200, { ok: true, result: unwrapValue(result) });
     }
 
@@ -522,6 +580,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${await ensureSession()}/wda/tap`,
         { x, y },
       );
+      recordControlPayload(
+        { type: "tap", x, y },
+        { source: "http", sourceKey: "http", mode: state.realtimeControlMode },
+      );
       return json(res, 200, { ok: true, result: unwrapValue(result) });
     }
 
@@ -532,6 +594,10 @@ const server = http.createServer(async (req, res) => {
         "POST",
         `/session/${await ensureSession()}/wda/touchDown`,
         payload,
+      );
+      recordControlPayload(
+        { type: "touchDown", ...payload },
+        { source: "http", sourceKey: "http", mode: "trollstore" },
       );
       return json(res, 200, {
         ok: true,
@@ -548,6 +614,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${await ensureSession()}/wda/touchMove`,
         payload,
       );
+      recordControlPayload(
+        { type: "touchMove", ...payload },
+        { source: "http", sourceKey: "http", mode: "trollstore" },
+      );
       return json(res, 200, {
         ok: true,
         command: "/wda/touchMove",
@@ -563,6 +633,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${await ensureSession()}/wda/touchUp`,
         payload,
       );
+      recordControlPayload(
+        { type: "touchUp", ...payload },
+        { source: "http", sourceKey: "http", mode: "trollstore" },
+      );
       return json(res, 200, {
         ok: true,
         command: "/wda/touchUp",
@@ -577,6 +651,10 @@ const server = http.createServer(async (req, res) => {
         "POST",
         `/session/${await ensureSession()}/wda/touchCancel`,
         payload,
+      );
+      recordControlPayload(
+        { type: "touchCancel", ...payload },
+        { source: "http", sourceKey: "http", mode: "trollstore" },
       );
       return json(res, 200, {
         ok: true,
@@ -633,6 +711,10 @@ const server = http.createServer(async (req, res) => {
         `/session/${sessionId}/wda/swipe/pointArray`,
         payload,
       );
+      recordControlPayload(
+        { type: "pointArray", pointArray },
+        { source: "http", sourceKey: "http", mode: "pointarray" },
+      );
       return json(res, 200, {
         ok: true,
         sessionId,
@@ -663,6 +745,10 @@ const server = http.createServer(async (req, res) => {
         "POST",
         `/session/${await ensureSession()}/wda/swipe/pointArray`,
         payload,
+      );
+      recordControlPayload(
+        { type: "swipe", pointArray, duration },
+        { source: "http", sourceKey: "http", mode: "swipe" },
       );
       return json(res, 200, {
         ok: true,
@@ -1268,6 +1354,8 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
   let closed = false;
   let counted = true;
   let timeoutTimer = null;
+  const recordingSourceKey = `ws:${crypto.randomUUID ? crypto.randomUUID() : Date.now()}`;
+  let controlMode = normalizeRealtimeControlMode(state.realtimeControlMode) || "pointarray";
 
   state[connectionStateKey] = Math.max(0, Number(state[connectionStateKey]) || 0) + 1;
 
@@ -1377,6 +1465,25 @@ function handleRealtimeControlWsClient(clientSocket, options = {}) {
       return;
     }
     const frame = toBuffer(message);
+    try {
+      const payload = decodeRealtimeControlFrame(frame);
+      const type = normalizeRealtimeControlType(payload?.type || "");
+      if (type === "mode") {
+        const requestedMode = normalizeRealtimeControlMode(
+          payload.mode || payload.controlMode || payload.value,
+        );
+        if (requestedMode) {
+          controlMode = requestedMode;
+        }
+      }
+      recordControlPayload(payload, {
+        source: "socket",
+        sourceKey: recordingSourceKey,
+        mode: controlMode,
+      });
+    } catch (_) {
+      // Let WDA own validation errors; recording must never block realtime control.
+    }
 
     if (!queueFrameToUpstream(frame)) {
       closeBoth(4409, "Realtime control command queue is full");
@@ -1901,6 +2008,763 @@ function parseRealtimeBinaryFrameStream(buffer) {
     offset += frameLength;
   }
   return {frames, rest: bytes.subarray(offset)};
+}
+
+function buildRecordingsResponse() {
+  return {
+    ok: true,
+    active: activeRecordingSummary(),
+    replaying: Boolean(recordingRuntime.replayPromise),
+    recordings: recordingStore.recordings.map(recordingSummary),
+  };
+}
+
+function startRecording(body = {}) {
+  if (recordingRuntime.replayPromise) {
+    const err = new Error("Cannot start recording while a replay is running");
+    err.status = 409;
+    throw err;
+  }
+  if (recordingRuntime.active) {
+    const err = new Error("A recording is already active");
+    err.status = 409;
+    throw err;
+  }
+  const now = Date.now();
+  const recording = {
+    id: createRecordingId(),
+    name: sanitizeRecordingName(body?.name, now),
+    createdAt: new Date(now).toISOString(),
+    updatedAt: new Date(now).toISOString(),
+    startedAtMs: now,
+    actions: [],
+    touches: new Map(),
+    sourceModes: new Map(),
+    lastActionEndAt: null,
+  };
+  recordingRuntime.active = recording;
+  updateRecordingRuntimeState();
+  return {
+    ok: true,
+    active: recordingSummary(recording),
+  };
+}
+
+function stopRecording() {
+  const active = recordingRuntime.active;
+  if (!active) {
+    updateRecordingRuntimeState();
+    return {
+      ok: true,
+      saved: false,
+      active: null,
+      recordings: recordingStore.recordings.map(recordingSummary),
+    };
+  }
+
+  const now = Date.now();
+  flushPendingRecordedTouches(active, now);
+  const recording = {
+    version: RECORDING_STORE_VERSION,
+    id: active.id,
+    name: active.name,
+    createdAt: active.createdAt,
+    updatedAt: new Date(now).toISOString(),
+    durationMs: Math.max(0, now - active.startedAtMs),
+    actions: active.actions.map(cloneRecordedAction),
+  };
+  recordingStore.recordings.unshift(recording);
+  if (recordingStore.recordings.length > RECORDING_MAX_ITEMS) {
+    recordingStore.recordings.length = RECORDING_MAX_ITEMS;
+  }
+  recordingRuntime.active = null;
+  updateRecordingRuntimeState();
+  persistRecordingStore();
+  return {
+    ok: true,
+    saved: true,
+    recording: recordingSummary(recording),
+    recordings: recordingStore.recordings.map(recordingSummary),
+  };
+}
+
+function getRecordingResponse(id) {
+  const recording = findRecordingById(id);
+  if (!recording) {
+    const err = new Error("Recording not found");
+    err.status = 404;
+    throw err;
+  }
+  return {
+    ok: true,
+    recording,
+  };
+}
+
+function deleteRecording(id) {
+  const index = recordingStore.recordings.findIndex((item) => item.id === id);
+  if (index < 0) {
+    const err = new Error("Recording not found");
+    err.status = 404;
+    throw err;
+  }
+  const [deleted] = recordingStore.recordings.splice(index, 1);
+  persistRecordingStore();
+  return {
+    ok: true,
+    deleted: recordingSummary(deleted),
+    recordings: recordingStore.recordings.map(recordingSummary),
+  };
+}
+
+async function runRecordingById(id, body = {}) {
+  if (recordingRuntime.active) {
+    const err = new Error("Stop the active recording before replaying a recording");
+    err.status = 409;
+    throw err;
+  }
+  if (recordingRuntime.replayPromise) {
+    const err = new Error("A recording replay is already running");
+    err.status = 409;
+    throw err;
+  }
+  const recording = findRecordingById(id);
+  if (!recording) {
+    const err = new Error("Recording not found");
+    err.status = 404;
+    throw err;
+  }
+  const mode = normalizeRealtimeControlMode(body?.mode) || state.realtimeControlMode || "pointarray";
+  state.recording.replaying = true;
+  const replayPromise = replayRecording(recording, mode);
+  recordingRuntime.replayPromise = replayPromise;
+  try {
+    return await replayPromise;
+  } finally {
+    recordingRuntime.replayPromise = null;
+    state.recording.replaying = false;
+  }
+}
+
+async function replayRecording(recording, mode) {
+  const startedAt = Date.now();
+  let actionsRun = 0;
+  for (const action of recording.actions || []) {
+    const waitMs = clampFiniteNumber(action.delayMs, 0, RECORDING_MAX_DELAY_MS, 0);
+    if (waitMs > 0) {
+      await delay(waitMs);
+    }
+    await executeRecordedAction(action, mode);
+    actionsRun += 1;
+  }
+  return {
+    ok: true,
+    mode,
+    recording: recordingSummary(recording),
+    actionsRun,
+    elapsedMs: Date.now() - startedAt,
+  };
+}
+
+async function executeRecordedAction(action, mode) {
+  const normalizedType = String(action?.type || "").toLowerCase();
+  if (normalizedType === "gesture" || normalizedType === "pointarray") {
+    const pointArray = normalizePointArray(action.pointArray || action.points);
+    const payload = { pointArray };
+    if (config.pointArraySecret) {
+      payload.st = buildPointArraySt(pointArray, config.pointArraySecret);
+    }
+    const result = await wdaFetch(
+      "POST",
+      `/session/${await ensureSession()}/wda/swipe/pointArray`,
+      payload,
+    );
+    return { ok: true, mode, command: "/wda/swipe/pointArray", result: unwrapValue(result) };
+  }
+  if (normalizedType === "tap") {
+    const x = requireNumber(action.x, "x");
+    const y = requireNumber(action.y, "y");
+    const result = await wdaFetch(
+      "POST",
+      `/session/${await ensureSession()}/wda/tap`,
+      { x, y },
+    );
+    return { ok: true, mode, command: "/wda/tap", result: unwrapValue(result) };
+  }
+  if (normalizedType === "home") {
+    const result = await wdaFetch(
+      "POST",
+      `/session/${await ensureSession()}/wda/pressButton`,
+      { name: "home" },
+    );
+    return { ok: true, mode, command: "/wda/pressButton", result: unwrapValue(result) };
+  }
+  if (normalizedType === "button") {
+    const name = typeof action.name === "string" && action.name.trim()
+      ? action.name.trim()
+      : "home";
+    const duration = Number.isFinite(Number(action.duration))
+      ? Number(action.duration)
+      : undefined;
+    const payload = duration == null ? { name } : { name, duration };
+    const result = await wdaFetch(
+      "POST",
+      `/session/${await ensureSession()}/wda/pressButton`,
+      payload,
+    );
+    return { ok: true, mode, command: "/wda/pressButton", result: unwrapValue(result) };
+  }
+  const err = new Error(`Unsupported recorded action type: ${normalizedType || "(empty)"}`);
+  err.status = 400;
+  throw err;
+}
+
+function recordControlPayload(payload, options = {}) {
+  const active = recordingRuntime.active;
+  if (
+    !active ||
+    recordingRuntime.replayPromise ||
+    !payload ||
+    typeof payload !== "object" ||
+    Array.isArray(payload)
+  ) {
+    return;
+  }
+  const receivedAt = Number.isFinite(Number(options.receivedAt))
+    ? Number(options.receivedAt)
+    : Date.now();
+  const sourceKey = String(options.sourceKey || options.source || "default");
+  const type = String(normalizeRealtimeControlType(payload.type || "")).toLowerCase();
+  if (!type || type === "auth" || type === "ping" || type === "hidprobe") {
+    return;
+  }
+  if (type === "mode") {
+    const requestedMode = normalizeRealtimeControlMode(
+      payload.mode || payload.controlMode || payload.value,
+    );
+    if (requestedMode) {
+      active.sourceModes.set(sourceKey, requestedMode);
+    }
+    return;
+  }
+
+  const sourceMode =
+    normalizeRealtimeControlMode(options.mode) ||
+    active.sourceModes.get(sourceKey) ||
+    state.realtimeControlMode ||
+    "pointarray";
+
+  if (type === "down" || type === "move" || type === "up" || type === "cancel") {
+    recordTouchStreamPayload(active, payload, type, {
+      receivedAt,
+      sourceKey,
+      sourceMode,
+      source: options.source || "socket",
+    });
+    return;
+  }
+  if (type === "pointarray" || type === "gesture") {
+    recordPointArrayCommand(active, payload, {
+      receivedAt,
+      sourceMode,
+      source: options.source || "socket",
+    });
+    return;
+  }
+  if (type === "swipe") {
+    recordSwipeCommand(active, payload, {
+      receivedAt,
+      sourceMode,
+      source: options.source || "socket",
+    });
+    return;
+  }
+  if (type === "tap") {
+    recordTapCommand(active, payload, {
+      receivedAt,
+      sourceMode,
+      source: options.source || "socket",
+    });
+    return;
+  }
+  if (type === "home" || type === "button") {
+    recordButtonCommand(active, payload, type, {
+      receivedAt,
+      sourceMode,
+      source: options.source || "socket",
+    });
+  }
+}
+
+function recordPointArrayCommand(active, payload, options) {
+  const rawPoints = payload.pointArray || payload.points || payload.path || payload.data;
+  const pointArray = normalizeRecordedPointArray(rawPoints);
+  if (!pointArray) {
+    return;
+  }
+  const durationMs = recordedPointArrayDurationMs(pointArray);
+  appendRecordedAction(
+    active,
+    {
+      type: "gesture",
+      pointArray,
+      source: options.source,
+      sourceMode: options.sourceMode,
+    },
+    options.receivedAt,
+    options.receivedAt + durationMs,
+  );
+}
+
+function recordSwipeCommand(active, payload, options) {
+  const rawPoints = payload.pointArray || payload.points;
+  if (Array.isArray(rawPoints)) {
+    recordPointArrayCommand(active, payload, options);
+    return;
+  }
+  const fromX = finiteNumber(payload.fromX);
+  const fromY = finiteNumber(payload.fromY);
+  const toX = finiteNumber(payload.toX);
+  const toY = finiteNumber(payload.toY);
+  if ([fromX, fromY, toX, toY].some((value) => value == null)) {
+    return;
+  }
+  const duration = clampFiniteNumber(payload.duration, 0.01, POINT_ARRAY_MAX_DURATION_SECONDS, 0.03);
+  const pointArray = normalizeRecordedPointArray([
+    [fromX, fromY, 0],
+    [toX, toY, duration],
+  ]);
+  if (!pointArray) {
+    return;
+  }
+  appendRecordedAction(
+    active,
+    {
+      type: "gesture",
+      pointArray,
+      source: options.source,
+      sourceMode: options.sourceMode,
+    },
+    options.receivedAt,
+    options.receivedAt + Math.round(duration * 1000),
+  );
+}
+
+function recordTapCommand(active, payload, options) {
+  const x = finiteNumber(payload.x);
+  const y = finiteNumber(payload.y);
+  if (x == null || y == null) {
+    return;
+  }
+  const action = {
+    type: "tap",
+    x: Math.round(x),
+    y: Math.round(y),
+    source: options.source,
+    sourceMode: options.sourceMode,
+  };
+  const duration = finiteNumber(payload.duration);
+  if (duration != null && duration > 0) {
+    action.duration = Math.min(POINT_ARRAY_MAX_DURATION_SECONDS, duration);
+  }
+  appendRecordedAction(active, action, options.receivedAt, options.receivedAt);
+}
+
+function recordButtonCommand(active, payload, type, options) {
+  const name = type === "home"
+    ? "home"
+    : typeof payload.name === "string" && payload.name.trim()
+      ? payload.name.trim()
+      : "";
+  if (!name) {
+    return;
+  }
+  const action = {
+    type: name === "home" ? "home" : "button",
+    name,
+    source: options.source,
+    sourceMode: options.sourceMode,
+  };
+  const duration = finiteNumber(payload.duration);
+  if (duration != null && duration > 0) {
+    action.duration = Math.min(POINT_ARRAY_MAX_DURATION_SECONDS, duration);
+  }
+  appendRecordedAction(active, action, options.receivedAt, options.receivedAt);
+}
+
+function recordTouchStreamPayload(active, payload, type, options) {
+  const pointerId = Math.max(
+    1,
+    Math.round(finiteNumber(payload.pointerId ?? payload.finger ?? payload.pointer) || 1),
+  );
+  const touchKey = `${options.sourceKey}:${pointerId}`;
+  if (type === "cancel") {
+    active.touches.delete(touchKey);
+    return;
+  }
+  const x = finiteNumber(payload.x);
+  const y = finiteNumber(payload.y);
+  if ((type === "down" || type === "move") && (x == null || y == null)) {
+    return;
+  }
+
+  if (type === "down") {
+    const touch = {
+      pointerId,
+      source: options.source,
+      sourceMode: options.sourceMode,
+      startedAt: options.receivedAt,
+      lastAt: options.receivedAt,
+      startClientTimestamp: finiteNumber(payload.timestamp),
+      lastSequence: finiteNumber(payload.sequence ?? payload.seq) || 0,
+      lastOffset: 0,
+      lastX: x,
+      lastY: y,
+      points: [[x, y]],
+    };
+    active.touches.set(touchKey, touch);
+    return;
+  }
+
+  const touch = active.touches.get(touchKey);
+  if (!touch) {
+    return;
+  }
+  const sequence = finiteNumber(payload.sequence ?? payload.seq);
+  if (sequence != null && touch.lastSequence && sequence < touch.lastSequence) {
+    return;
+  }
+  if (sequence != null) {
+    touch.lastSequence = sequence;
+  }
+
+  const px = x == null ? touch.lastX : x;
+  const py = y == null ? touch.lastY : y;
+  if (px != null && py != null) {
+    appendRecordedTouchPoint(touch, payload, px, py, options.receivedAt);
+  }
+  touch.lastAt = options.receivedAt;
+
+  if (type === "up") {
+    active.touches.delete(touchKey);
+    finalizeRecordedTouch(active, touch, options.receivedAt);
+  }
+}
+
+function appendRecordedTouchPoint(touch, payload, x, y, receivedAt) {
+  const offset = touchOffsetSeconds(touch, payload, receivedAt);
+  touch.lastX = x;
+  touch.lastY = y;
+  const point = [x, y, offset];
+  if (touch.points.length >= RECORDING_MAX_CAPTURED_POINTS) {
+    touch.points[touch.points.length - 1] = point;
+    return;
+  }
+  touch.points.push(point);
+}
+
+function touchOffsetSeconds(touch, payload, receivedAt) {
+  const timestamp = finiteNumber(payload.timestamp);
+  let offset = null;
+  if (timestamp != null && touch.startClientTimestamp != null) {
+    const delta = timestamp - touch.startClientTimestamp;
+    if (Number.isFinite(delta) && delta >= 0) {
+      const divisor = Math.abs(touch.startClientTimestamp) > 1000000000 ? 1000 : 1;
+      offset = clampFiniteNumber(
+        delta / divisor,
+        0,
+        POINT_ARRAY_MAX_DURATION_SECONDS,
+        0,
+      );
+    }
+  }
+  if (offset == null) {
+    offset = clampFiniteNumber(
+      (receivedAt - touch.startedAt) / 1000,
+      0,
+      POINT_ARRAY_MAX_DURATION_SECONDS,
+      0,
+    );
+  }
+  touch.lastOffset = Math.max(touch.lastOffset || 0, offset);
+  return touch.lastOffset;
+}
+
+function finalizeRecordedTouch(active, touch, endAt) {
+  if (!touch || !Array.isArray(touch.points) || touch.points.length === 0) {
+    return false;
+  }
+  const points = touch.points.length >= 2
+    ? touch.points
+    : [...touch.points, [touch.lastX, touch.lastY, Math.max(0.01, touch.lastOffset || 0.01)]];
+  const pointArray = normalizeRecordedPointArray(points);
+  if (!pointArray) {
+    return false;
+  }
+  appendRecordedAction(
+    active,
+    {
+      type: "gesture",
+      pointArray,
+      source: touch.source,
+      sourceMode: touch.sourceMode,
+    },
+    touch.startedAt,
+    endAt,
+  );
+  return true;
+}
+
+function flushPendingRecordedTouches(active, receivedAt) {
+  if (!active?.touches || active.touches.size === 0) {
+    return;
+  }
+  for (const [touchKey, touch] of active.touches.entries()) {
+    finalizeRecordedTouch(active, touch, receivedAt);
+    active.touches.delete(touchKey);
+  }
+}
+
+function appendRecordedAction(active, action, startAt, endAt) {
+  if (active.actions.length >= RECORDING_MAX_ACTIONS) {
+    return;
+  }
+  const actionStart = Number.isFinite(Number(startAt)) ? Number(startAt) : Date.now();
+  const actionEnd = Number.isFinite(Number(endAt))
+    ? Math.max(actionStart, Number(endAt))
+    : actionStart;
+  const delayMs = active.lastActionEndAt == null
+    ? 0
+    : clampFiniteNumber(actionStart - active.lastActionEndAt, 0, RECORDING_MAX_DELAY_MS, 0);
+  active.lastActionEndAt = actionEnd;
+  active.updatedAt = new Date(actionEnd).toISOString();
+  active.actions.push({
+    ...cloneRecordedAction(action),
+    delayMs: Math.round(delayMs),
+    recordedAt: new Date(actionStart).toISOString(),
+  });
+}
+
+function normalizeRecordedPointArray(rawPoints) {
+  if (!Array.isArray(rawPoints) || rawPoints.length < 2) {
+    return null;
+  }
+  const points = [];
+  for (const rawPoint of rawPoints) {
+    const point = recordedPointFromRaw(rawPoint);
+    if (!point) {
+      return null;
+    }
+    points.push(point);
+  }
+  try {
+    return normalizePointArray(compactRecordedPoints(points, POINT_ARRAY_MAX_POINTS));
+  } catch (_) {
+    return null;
+  }
+}
+
+function recordedPointFromRaw(rawPoint) {
+  let x;
+  let y;
+  let offset;
+  if (Array.isArray(rawPoint)) {
+    if (rawPoint.length < 2) {
+      return null;
+    }
+    x = finiteNumber(rawPoint[0]);
+    y = finiteNumber(rawPoint[1]);
+    offset = rawPoint.length > 2 ? finiteNumber(rawPoint[2]) : null;
+  } else if (rawPoint && typeof rawPoint === "object") {
+    x = finiteNumber(rawPoint.x ?? rawPoint.X);
+    y = finiteNumber(rawPoint.y ?? rawPoint.Y);
+    offset = finiteNumber(
+      rawPoint.t ?? rawPoint.time ?? rawPoint.timestamp ?? rawPoint.delay ?? rawPoint.duration,
+    );
+  } else {
+    return null;
+  }
+  if (x == null || y == null) {
+    return null;
+  }
+  return offset == null ? [x, y] : [x, y, offset];
+}
+
+function compactRecordedPoints(points, maxPoints) {
+  if (points.length <= maxPoints) {
+    return points;
+  }
+  const compacted = [points[0]];
+  let lastIndex = 0;
+  for (let i = 1; i < maxPoints - 1; i += 1) {
+    const index = Math.round((i * (points.length - 1)) / (maxPoints - 1));
+    if (index > lastIndex && index < points.length - 1) {
+      compacted.push(points[index]);
+      lastIndex = index;
+    }
+  }
+  compacted.push(points[points.length - 1]);
+  return compacted;
+}
+
+function recordedPointArrayDurationMs(pointArray) {
+  if (!Array.isArray(pointArray) || pointArray.length === 0) {
+    return 0;
+  }
+  const last = pointArray[pointArray.length - 1];
+  return Math.round(clampFiniteNumber(last?.[2], 0, POINT_ARRAY_MAX_DURATION_SECONDS, 0) * 1000);
+}
+
+function activeRecordingSummary() {
+  return recordingRuntime.active ? recordingSummary(recordingRuntime.active) : null;
+}
+
+function recordingSummary(recording) {
+  const actions = Array.isArray(recording?.actions) ? recording.actions : [];
+  const durationMs = Number.isFinite(recording?.durationMs)
+    ? recording.durationMs
+    : recording?.startedAtMs
+      ? Math.max(0, Date.now() - recording.startedAtMs)
+      : 0;
+  return {
+    id: recording?.id || "",
+    name: recording?.name || "Recording",
+    createdAt: recording?.createdAt || null,
+    updatedAt: recording?.updatedAt || null,
+    durationMs: Math.round(durationMs),
+    actionCount: actions.length,
+  };
+}
+
+function findRecordingById(id) {
+  return recordingStore.recordings.find((item) => item.id === id) || null;
+}
+
+function cloneRecordedAction(action) {
+  return JSON.parse(JSON.stringify(action || {}));
+}
+
+function loadRecordingStore() {
+  try {
+    if (!fs.existsSync(config.recordingsFile)) {
+      return { version: RECORDING_STORE_VERSION, recordings: [] };
+    }
+    const parsed = JSON.parse(fs.readFileSync(config.recordingsFile, "utf8"));
+    const rawRecordings = Array.isArray(parsed?.recordings) ? parsed.recordings : [];
+    return {
+      version: RECORDING_STORE_VERSION,
+      recordings: rawRecordings
+        .map(normalizePersistedRecording)
+        .filter(Boolean)
+        .slice(0, RECORDING_MAX_ITEMS),
+    };
+  } catch (err) {
+    console.warn(`Warning: cannot load recordings store: ${err.message}`);
+    return { version: RECORDING_STORE_VERSION, recordings: [] };
+  }
+}
+
+function normalizePersistedRecording(recording) {
+  if (!recording || typeof recording !== "object") {
+    return null;
+  }
+  const id = typeof recording.id === "string" && recording.id.trim()
+    ? recording.id.trim()
+    : createRecordingId();
+  const actions = Array.isArray(recording.actions)
+    ? recording.actions
+      .slice(0, RECORDING_MAX_ACTIONS)
+      .map(normalizePersistedAction)
+      .filter(Boolean)
+    : [];
+  return {
+    version: RECORDING_STORE_VERSION,
+    id,
+    name: sanitizeRecordingName(recording.name, Date.now()),
+    createdAt: typeof recording.createdAt === "string" ? recording.createdAt : new Date().toISOString(),
+    updatedAt: typeof recording.updatedAt === "string" ? recording.updatedAt : new Date().toISOString(),
+    durationMs: Math.max(0, Math.round(Number(recording.durationMs) || 0)),
+    actions,
+  };
+}
+
+function normalizePersistedAction(action) {
+  if (!action || typeof action !== "object") {
+    return null;
+  }
+  const type = String(action.type || "").toLowerCase();
+  const delayMs = clampFiniteNumber(action.delayMs, 0, RECORDING_MAX_DELAY_MS, 0);
+  const sourceMode = normalizeRealtimeControlMode(action.sourceMode) || "";
+  if (type === "gesture" || type === "pointarray") {
+    const pointArray = normalizeRecordedPointArray(action.pointArray || action.points);
+    return pointArray
+      ? { type: "gesture", pointArray, delayMs, sourceMode, recordedAt: action.recordedAt || null }
+      : null;
+  }
+  if (type === "tap") {
+    const x = finiteNumber(action.x);
+    const y = finiteNumber(action.y);
+    if (x == null || y == null) {
+      return null;
+    }
+    return { type: "tap", x: Math.round(x), y: Math.round(y), delayMs, sourceMode, recordedAt: action.recordedAt || null };
+  }
+  if (type === "home") {
+    return { type: "home", name: "home", delayMs, sourceMode, recordedAt: action.recordedAt || null };
+  }
+  if (type === "button") {
+    const name = typeof action.name === "string" && action.name.trim() ? action.name.trim() : "";
+    return name ? { type: "button", name, delayMs, sourceMode, recordedAt: action.recordedAt || null } : null;
+  }
+  return null;
+}
+
+function persistRecordingStore() {
+  fs.mkdirSync(path.dirname(config.recordingsFile), { recursive: true });
+  const payload = {
+    version: RECORDING_STORE_VERSION,
+    recordings: recordingStore.recordings,
+  };
+  const tmpPath = `${config.recordingsFile}.tmp`;
+  fs.writeFileSync(tmpPath, `${JSON.stringify(payload, null, 2)}\n`);
+  fs.renameSync(tmpPath, config.recordingsFile);
+}
+
+function updateRecordingRuntimeState() {
+  state.recording.activeId = recordingRuntime.active?.id || null;
+  state.recording.replaying = Boolean(recordingRuntime.replayPromise);
+}
+
+function createRecordingId() {
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : crypto.randomBytes(16).toString("hex");
+}
+
+function sanitizeRecordingName(value, timestamp = Date.now()) {
+  const raw = typeof value === "string" ? value.trim() : "";
+  const fallback = `Recording ${new Date(timestamp).toISOString().replace(/\.\d{3}Z$/, "Z")}`;
+  const name = raw || fallback;
+  return name.length > RECORDING_MAX_NAME_LENGTH
+    ? name.slice(0, RECORDING_MAX_NAME_LENGTH)
+    : name;
+}
+
+function finiteNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function clampFiniteNumber(value, min, max, fallback) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) {
+    return fallback;
+  }
+  return Math.min(max, Math.max(min, n));
+}
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
 }
 
 async function getLocalH264BridgeStatus() {
@@ -2473,6 +3337,17 @@ function probeFfmpegAvailable() {
 
 function handleShutdownSignal(signal) {
   localH264Bridge.shuttingDown = true;
+  if (
+    recordingRuntime.active &&
+    (recordingRuntime.active.actions.length > 0 ||
+      recordingRuntime.active.touches.size > 0)
+  ) {
+    try {
+      stopRecording();
+    } catch (err) {
+      console.warn(`Warning: cannot save active recording on shutdown: ${err.message}`);
+    }
+  }
   clearLocalH264IdleStopTimer();
   for (const client of localH264Bridge.clients) {
     try {
@@ -2673,6 +3548,8 @@ async function buildControlModes() {
     realtimeProbe.mode || defaultRealtimeControlMode(upstreamIsTrollstore),
     upstreamIsTrollstore,
   );
+  state.realtimeControlMode = currentMode;
+  state.realtimeControlIsTrollstore = upstreamIsTrollstore;
   const realtimeWarning = realtimeReachable
     ? null
     : realtimeProbe.warning ||

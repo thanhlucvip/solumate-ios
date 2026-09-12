@@ -512,6 +512,84 @@ canvas.stream-media {
   font-size: 12px;
 }
 
+.recording-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 8px 0 10px;
+}
+
+.recording-actions button:first-child {
+  border-color: rgba(21, 183, 108, 0.45);
+}
+
+.recording-actions button:last-child {
+  border-color: rgba(239, 93, 93, 0.45);
+}
+
+.recording-status {
+  min-height: 20px;
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.recording-status.active {
+  color: #9ef0c8;
+}
+
+.recordings-list {
+  display: grid;
+  gap: 8px;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.recording-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--border);
+  background: #0f1627;
+  padding: 9px 10px;
+  border-radius: 8px;
+}
+
+.recording-item-main {
+  min-width: 0;
+}
+
+.recording-item-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.recording-item-meta {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.recording-item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.recording-item-actions button {
+  padding: 7px 9px;
+  font-size: 12px;
+}
+
+.recordings-empty {
+  color: var(--muted);
+  font-size: 13px;
+  padding: 4px 0;
+}
+
 .checkbox-line {
   display: flex !important;
   align-items: center;

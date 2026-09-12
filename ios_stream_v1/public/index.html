@@ -98,10 +98,22 @@
         <label>
           Sample interval (ms)
           <input id="pointArraySampleMsInput" type="number" min="1" max="200" value="16">
-          </label>
-          <div class="hint trackpad-hint">
+        </label>
+        <div class="hint trackpad-hint">
           Used for drag sampling.
-          </div>
+        </div>
+
+        <h2>Recordings</h2>
+        <label>
+          Name
+          <input id="recordingNameInput" type="text" maxlength="100" placeholder="Recording name">
+        </label>
+        <div class="recording-actions">
+          <button id="startRecordingBtn" type="button">Start recording</button>
+          <button id="stopRecordingBtn" type="button" disabled>Stop and save</button>
+        </div>
+        <div id="recordingStatus" class="recording-status">No active recording</div>
+        <div id="recordingsList" class="recordings-list"></div>
 
         <h2>Source Status</h2>
         <div class="source-notes">
